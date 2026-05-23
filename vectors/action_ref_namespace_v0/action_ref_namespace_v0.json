@@ -1,0 +1,201 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "action-ref-namespace-conformance-v0",
+  "published_at": "2026-05-23T20:30:00Z",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust)",
+  "hash": "SHA-256, lowercase hex",
+  "anchored_to": {
+    "primitive": "action_ref = SHA-256(JCS({agent_id, action_type, scope, timestamp_ms}))",
+    "scope_field_type": "non-empty string at the canonicalisation layer; no closed enum",
+    "convention": "<emitter>:<scope> namespace-prefixing for portable cross-emitter use",
+    "spec_authorship": "AlgoVoi-authored; first published in response to AURA's scope-enum question on x402#2332 comment 4526409528"
+  },
+  "derivation": "Each vector takes a fixed preimage {agent_id: 'agent_alpha', action_type: 'screen', timestamp_ms: 1716494400000} and varies only the scope field. The action_ref hash is SHA-256 of the RFC 8785 canonical bytes of that preimage. Vectors are split into two parallel groups: namespace-prefixed (the recommended portable form) and unprefixed (the collision-risk form). The pair invariants require each prefixed vector to produce a byte-distinct digest from its unprefixed equivalent, proving the namespace prefix is byte-load-bearing in the canonicalisation.",
+  "context": {
+    "thread": "https://github.com/x402-foundation/x402/issues/2332#issuecomment-4526409528",
+    "spec_pr": "https://github.com/x402-foundation/x402/pull/2436",
+    "substrate_docs": "https://docs.algovoi.co.uk/canonicalisation-substrate",
+    "substrate_packages": {
+      "python": "pypi.org/project/algovoi-substrate (>=0.2.1)",
+      "typescript": "npmjs.com/package/@algovoi/substrate (>=0.2.1)"
+    },
+    "purpose": "Pin the four production-anchor digests cited in the AlgoVoi scope-conventions documentation so downstream emitter and verifier implementations have a byte-level reference to validate against. Any implementation claiming to interoperate with the AlgoVoi substrate at the action_ref layer MUST reproduce these digests verbatim for the given preimages.",
+    "verification_recipe": [
+      "1. For each vector, take preimage verbatim (the four fields in the order they appear in the vector).",
+      "2. Canonicalise with RFC 8785 (any of the five reference impls listed in canonicalizer above).",
+      "3. base64-encode the JCS bytes; it MUST equal expected_jcs_bytes_b64.",
+      "4. SHA-256 the JCS bytes, lowercase hex; MUST equal expected_action_ref.",
+      "5. Honour the pair invariants below: namespace-prefixed and unprefixed scopes with otherwise identical preimages MUST produce different digests."
+    ],
+    "pair_semantics": {
+      "namespace_prefix_byte_load_bearing": "MUST differ (algovoi:compliance_screen != compliance_screen)",
+      "cross_namespace_distinctness": "MUST differ (algovoi:compliance_screen != vauban:stark_settlement, etc.)",
+      "field_order_invariance": "MUST be hash-identical under any field-order permutation of the preimage (JCS sorts object keys)"
+    }
+  },
+  "fixed_preimage_fields": {
+    "agent_id": "agent_alpha",
+    "action_type": "screen",
+    "timestamp_ms": 1716494400000
+  },
+  "vectors": [
+    {
+      "vector_id": "action-ref-ns-v0-001",
+      "description": "Namespace-prefixed scope for AlgoVoi compliance screening receipts.",
+      "pair_group": "prefixed",
+      "expectation": "reference",
+      "scope": "algovoi:compliance_screen",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "screen",
+        "scope": "algovoi:compliance_screen",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InNjcmVlbiIsImFnZW50X2lkIjoiYWdlbnRfYWxwaGEiLCJzY29wZSI6ImFsZ292b2k6Y29tcGxpYW5jZV9zY3JlZW4iLCJ0aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_action_ref": "c7ab8acba5c14f792b4b17b1475b51626488d31fcf449a15675894a9469cdbfb",
+      "different_hash_from": ["action-ref-ns-v0-005"]
+    },
+    {
+      "vector_id": "action-ref-ns-v0-002",
+      "description": "Namespace-prefixed scope for Vauban Pay STARK settlement receipts.",
+      "pair_group": "prefixed",
+      "expectation": "reference",
+      "scope": "vauban:stark_settlement",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "screen",
+        "scope": "vauban:stark_settlement",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InNjcmVlbiIsImFnZW50X2lkIjoiYWdlbnRfYWxwaGEiLCJzY29wZSI6InZhdWJhbjpzdGFya19zZXR0bGVtZW50IiwidGltZXN0YW1wX21zIjoxNzE2NDk0NDAwMDAwfQ==",
+      "expected_action_ref": "749abf7610205f3b430748b811060653c102bcef2cfcc375c26a6d9fb2ac49d6",
+      "different_hash_from": ["action-ref-ns-v0-006"]
+    },
+    {
+      "vector_id": "action-ref-ns-v0-003",
+      "description": "Namespace-prefixed scope for Agent OS COMMITTED Claim Engine (8715).",
+      "pair_group": "prefixed",
+      "expectation": "reference",
+      "scope": "agent_os:committed_claim",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "screen",
+        "scope": "agent_os:committed_claim",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InNjcmVlbiIsImFnZW50X2lkIjoiYWdlbnRfYWxwaGEiLCJzY29wZSI6ImFnZW50X29zOmNvbW1pdHRlZF9jbGFpbSIsInRpbWVzdGFtcF9tcyI6MTcxNjQ5NDQwMDAwMH0=",
+      "expected_action_ref": "f80c62e25e6f4f2480c3d9d9bc141e2a3c063f2c523382778d528bee426f9e48",
+      "different_hash_from": ["action-ref-ns-v0-007"]
+    },
+    {
+      "vector_id": "action-ref-ns-v0-004",
+      "description": "Namespace-prefixed scope for AURA reputation observe path.",
+      "pair_group": "prefixed",
+      "expectation": "reference",
+      "scope": "aura:reputation_observe",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "screen",
+        "scope": "aura:reputation_observe",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InNjcmVlbiIsImFnZW50X2lkIjoiYWdlbnRfYWxwaGEiLCJzY29wZSI6ImF1cmE6cmVwdXRhdGlvbl9vYnNlcnZlIiwidGltZXN0YW1wX21zIjoxNzE2NDk0NDAwMDAwfQ==",
+      "expected_action_ref": "7bf8afdc27dce3b9e9684b35de23977a348658052180f600f140db067208c3bb",
+      "different_hash_from": ["action-ref-ns-v0-008"]
+    },
+    {
+      "vector_id": "action-ref-ns-v0-005",
+      "description": "Unprefixed compliance_screen (collision-risk form, demonstrates namespace prefix is byte-load-bearing).",
+      "pair_group": "unprefixed",
+      "expectation": "reference",
+      "scope": "compliance_screen",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "screen",
+        "scope": "compliance_screen",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InNjcmVlbiIsImFnZW50X2lkIjoiYWdlbnRfYWxwaGEiLCJzY29wZSI6ImNvbXBsaWFuY2Vfc2NyZWVuIiwidGltZXN0YW1wX21zIjoxNzE2NDk0NDAwMDAwfQ==",
+      "expected_action_ref": "3a028e43a3020711a8bfcc8630f0c4b923ec8faa7baa7be205cf61fabd7cd4d8",
+      "different_hash_from": ["action-ref-ns-v0-001"]
+    },
+    {
+      "vector_id": "action-ref-ns-v0-006",
+      "description": "Unprefixed stark_settlement (collision-risk form).",
+      "pair_group": "unprefixed",
+      "expectation": "reference",
+      "scope": "stark_settlement",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "screen",
+        "scope": "stark_settlement",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InNjcmVlbiIsImFnZW50X2lkIjoiYWdlbnRfYWxwaGEiLCJzY29wZSI6InN0YXJrX3NldHRsZW1lbnQiLCJ0aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_action_ref": "0df5918bd4205d5770d0353f1717b14f43d82dd3248a1f8d64ce23e7fb429ad1",
+      "different_hash_from": ["action-ref-ns-v0-002"]
+    },
+    {
+      "vector_id": "action-ref-ns-v0-007",
+      "description": "Unprefixed committed_claim (collision-risk form).",
+      "pair_group": "unprefixed",
+      "expectation": "reference",
+      "scope": "committed_claim",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "screen",
+        "scope": "committed_claim",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InNjcmVlbiIsImFnZW50X2lkIjoiYWdlbnRfYWxwaGEiLCJzY29wZSI6ImNvbW1pdHRlZF9jbGFpbSIsInRpbWVzdGFtcF9tcyI6MTcxNjQ5NDQwMDAwMH0=",
+      "expected_action_ref": "f4fb4c7a8f31b2ed995360419680c029f35beae37061bc998e76f2abe8894b18",
+      "different_hash_from": ["action-ref-ns-v0-003"]
+    },
+    {
+      "vector_id": "action-ref-ns-v0-008",
+      "description": "Unprefixed reputation_observe (collision-risk form).",
+      "pair_group": "unprefixed",
+      "expectation": "reference",
+      "scope": "reputation_observe",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "screen",
+        "scope": "reputation_observe",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InNjcmVlbiIsImFnZW50X2lkIjoiYWdlbnRfYWxwaGEiLCJzY29wZSI6InJlcHV0YXRpb25fb2JzZXJ2ZSIsInRpbWVzdGFtcF9tcyI6MTcxNjQ5NDQwMDAwMH0=",
+      "expected_action_ref": "e6cdc50be4cdc1cd98478b8d07fe9d609287e32e62f458b95bc4fd82982fa355",
+      "different_hash_from": ["action-ref-ns-v0-004"]
+    }
+  ],
+  "pair_invariants": [
+    {
+      "id": "pair-001",
+      "description": "algovoi:compliance_screen must produce a byte-distinct digest from compliance_screen",
+      "type": "different_hash_from",
+      "left": "action-ref-ns-v0-001",
+      "right": "action-ref-ns-v0-005"
+    },
+    {
+      "id": "pair-002",
+      "description": "vauban:stark_settlement must produce a byte-distinct digest from stark_settlement",
+      "type": "different_hash_from",
+      "left": "action-ref-ns-v0-002",
+      "right": "action-ref-ns-v0-006"
+    },
+    {
+      "id": "pair-003",
+      "description": "agent_os:committed_claim must produce a byte-distinct digest from committed_claim",
+      "type": "different_hash_from",
+      "left": "action-ref-ns-v0-003",
+      "right": "action-ref-ns-v0-007"
+    },
+    {
+      "id": "pair-004",
+      "description": "aura:reputation_observe must produce a byte-distinct digest from reputation_observe",
+      "type": "different_hash_from",
+      "left": "action-ref-ns-v0-004",
+      "right": "action-ref-ns-v0-008"
+    }
+  ]
+}
