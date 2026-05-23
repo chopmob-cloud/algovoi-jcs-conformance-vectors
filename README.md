@@ -1,13 +1,21 @@
 # algovoi-jcs-conformance-vectors
 
+[![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
+[![Vectors](https://img.shields.io/badge/vectors-77-brightgreen)](#anchor-sets)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
+
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
 substrate anchor sets used by agentic-payment receipts. 77 vectors total,
 cross-validated byte-for-byte across the substrate's reference implementations.
 
 This repository is the AlgoVoi-authored reference test corpus that downstream
 implementations of x402, AP2, A2A and MPP receipts can validate against. The
-substrate underneath is formalised in PR #2436 in `x402-foundation/x402`
-(three-voice coalition co-signed) and pinned to `urn:x402:canonicalisation:jcs-rfc8785-v1`.
+[`compliance_receipt_v1`](./vectors/compliance_receipt_v1/) anchor set is the
+executable conformance test paired with IETF Internet-Draft
+[`draft-hopley-x402-compliance-receipt-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
+(Independent Submission, Informational; posted 2026-05-23). The substrate
+underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
+`urn:x402:canonicalisation:jcs-rfc8785-v1`.
 
 ## Anchor sets
 
