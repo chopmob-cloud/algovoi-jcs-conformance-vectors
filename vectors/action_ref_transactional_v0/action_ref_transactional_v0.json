@@ -1,0 +1,221 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "action-ref-transactional-conformance-v0",
+  "published_at": "2026-05-23T22:15:00Z",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust)",
+  "hash": "SHA-256, lowercase hex",
+  "anchored_to": {
+    "primitive_identity": "action_ref = SHA-256(JCS({agent_id, action_type, scope, timestamp_ms}))",
+    "primitive_transition": "transition_hash = SHA-256(JCS({action_ref, state, transition_timestamp_ms, authority_verified_at_ms, revocation_check_at_ms}))",
+    "load_bearing_invariants": [
+      "action_ref is byte-stable across every state transition of the same action.",
+      "transition_hash is byte-stable for any identical (action_ref, state, transition_timestamp_ms, authority_verified_at_ms, revocation_check_at_ms) tuple.",
+      "transition_hash differs per state under identical other-field values.",
+      "transition_hash is bound to action_ref: identical state + timestamps under a different action_ref produce a different transition_hash.",
+      "action_ref and any transition_hash are byte-distinct.",
+      "All timestamp fields are epoch-millisecond integers (Substrate Rule 2); RFC 3339 string forms are rejected at validation time."
+    ],
+    "spec_authorship": "AlgoVoi-authored. The transactional action_ref lifecycle section in x402-foundation/x402 PR #2436 (commit f81f2fe4) is the normative anchor. The transition_hash primitive shape and the five-field preimage discipline are defined in that section."
+  },
+  "derivation": "Eight vectors split into three groups: (A) a realistic three-state payment lifecycle with distinct transition timestamps per state (vectors 002 to 004); (B) a state-distinctness probe set with identical timestamps under three different states to isolate the state field's byte-load-bearing property (vectors 005 to 007); (C) an action_ref binding vector demonstrating that the same state + timestamps under a different action_ref produces a different transition_hash (vector 008). Vector 001 is the action_ref identity itself (no transition), included so verifiers can reconstruct the action_ref from its four-field preimage independently.",
+  "context": {
+    "spec_pr": "https://github.com/x402-foundation/x402/pull/2436",
+    "spec_section": "https://github.com/x402-foundation/x402/pull/2436/files#diff-c6a9b9-canonicalisation-md (Transactional action_ref lifecycle, non-normative)",
+    "substrate_docs": "https://docs.algovoi.co.uk/canonicalisation-substrate",
+    "substrate_packages": {
+      "python": "pypi.org/project/algovoi-substrate (>=0.3.0)",
+      "typescript": "npmjs.com/package/@algovoi/substrate (>=0.3.0)"
+    },
+    "primitive_module": {
+      "python": "algovoi_substrate.transactional (transition_hash, build_transactional_action_chain)",
+      "typescript": "@algovoi/substrate (transitionHash, buildTransactionalActionChain)"
+    },
+    "verification_recipe": [
+      "1. For each transition vector (002 through 008), take the preimage object verbatim (all five fields).",
+      "2. Canonicalise with RFC 8785 (any of the five reference impls in the substrate matrix).",
+      "3. base64-encode the JCS bytes; MUST equal expected_jcs_bytes_b64.",
+      "4. SHA-256 the JCS bytes, lowercase hex; MUST equal expected_transition_hash.",
+      "5. For vector 001 (action_ref identity), the same recipe applied to its four-field preimage MUST yield expected_action_ref.",
+      "6. Honour the pair invariants: state-distinctness pairs (005/006, 005/007, 006/007) MUST differ; action_ref-binding pair (005/008) MUST differ; identity-vs-transition pair (001/005) MUST differ."
+    ],
+    "pair_semantics": {
+      "state_byte_load_bearing": "MUST differ (same action_ref + same timestamps, varying state alone)",
+      "action_ref_binding": "MUST differ (same state + same timestamps, varying action_ref)",
+      "identity_vs_transition": "MUST differ (action_ref and any transition_hash are byte-distinct under different preimage shapes)"
+    }
+  },
+  "fixed_identity_preimage": {
+    "agent_id": "agent_alpha",
+    "action_type": "payment",
+    "scope": "vauban:stark_settlement",
+    "timestamp_ms": 1716494400000
+  },
+  "binding_identity_preimage": {
+    "agent_id": "agent_beta",
+    "action_type": "payment",
+    "scope": "vauban:stark_settlement",
+    "timestamp_ms": 1716494400000
+  },
+  "vectors": [
+    {
+      "vector_id": "action-ref-tx-v0-001",
+      "description": "action_ref identity for the fixed preimage. The stable identity anchor across the full lifecycle.",
+      "pair_group": "identity",
+      "expectation": "reference",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "payment",
+        "scope": "vauban:stark_settlement",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InBheW1lbnQiLCJhZ2VudF9pZCI6ImFnZW50X2FscGhhIiwic2NvcGUiOiJ2YXViYW46c3Rhcmtfc2V0dGxlbWVudCIsInRpbWVzdGFtcF9tcyI6MTcxNjQ5NDQwMDAwMH0=",
+      "expected_action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c"
+    },
+    {
+      "vector_id": "action-ref-tx-v0-002",
+      "description": "Lifecycle transition: authorisation. First transition of the realistic three-state payment lifecycle, with distinct timestamps per state.",
+      "pair_group": "lifecycle",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "authorisation",
+        "transition_timestamp_ms": 1716494400000,
+        "authority_verified_at_ms": 1716494400500,
+        "revocation_check_at_ms": 1716494400800
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDQwMDUwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDQwMDgwMCwic3RhdGUiOiJhdXRob3Jpc2F0aW9uIiwidHJhbnNpdGlvbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_transition_hash": "84ff7ea191b62cb738643e65bc7422d103f4122e8537a50d23cc8111fa5b136b"
+    },
+    {
+      "vector_id": "action-ref-tx-v0-003",
+      "description": "Lifecycle transition: settlement. Second transition of the three-state payment lifecycle.",
+      "pair_group": "lifecycle",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "settlement",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDUwMDUwMCwic3RhdGUiOiJzZXR0bGVtZW50IiwidHJhbnNpdGlvbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ1MDAwMDB9",
+      "expected_transition_hash": "62922e5bfad7e8f401bd598b8589f3ebc2caf2ebc7cc8b19b787ebd35b447aa3"
+    },
+    {
+      "vector_id": "action-ref-tx-v0-004",
+      "description": "Lifecycle transition: refund. Third transition of the three-state payment lifecycle.",
+      "pair_group": "lifecycle",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "refund",
+        "transition_timestamp_ms": 1716494600000,
+        "authority_verified_at_ms": 1716494600300,
+        "revocation_check_at_ms": 1716494600500
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDYwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDYwMDUwMCwic3RhdGUiOiJyZWZ1bmQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDYwMDAwMH0=",
+      "expected_transition_hash": "8983999a8e4d9b62400b4dc59ee20ad52cd6b3cb85cea6d9e8d64d40dd1b0034"
+    },
+    {
+      "vector_id": "action-ref-tx-v0-005",
+      "description": "State-distinctness probe: authorisation under fixed probe timestamps. Isolates the state field to demonstrate it is byte-load-bearing in the preimage.",
+      "pair_group": "probe",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "authorisation",
+        "transition_timestamp_ms": 1700000000000,
+        "authority_verified_at_ms": 1700000000500,
+        "revocation_check_at_ms": 1700000000800
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcwMDAwMDAwMDUwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcwMDAwMDAwMDgwMCwic3RhdGUiOiJhdXRob3Jpc2F0aW9uIiwidHJhbnNpdGlvbl90aW1lc3RhbXBfbXMiOjE3MDAwMDAwMDAwMDB9",
+      "expected_transition_hash": "8ad232f02d68c76643916174a571b5fbdaf3c94ccf0721326704c2ca7baa908b",
+      "different_hash_from": ["action-ref-tx-v0-006", "action-ref-tx-v0-007", "action-ref-tx-v0-008", "action-ref-tx-v0-001"]
+    },
+    {
+      "vector_id": "action-ref-tx-v0-006",
+      "description": "State-distinctness probe: settlement under the same fixed probe timestamps as 005.",
+      "pair_group": "probe",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "settlement",
+        "transition_timestamp_ms": 1700000000000,
+        "authority_verified_at_ms": 1700000000500,
+        "revocation_check_at_ms": 1700000000800
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcwMDAwMDAwMDUwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcwMDAwMDAwMDgwMCwic3RhdGUiOiJzZXR0bGVtZW50IiwidHJhbnNpdGlvbl90aW1lc3RhbXBfbXMiOjE3MDAwMDAwMDAwMDB9",
+      "expected_transition_hash": "9cf0bf1f6315ada54cf3ff3ba87eeaa609e0d2841b587332c31283ce2c65c120",
+      "different_hash_from": ["action-ref-tx-v0-005", "action-ref-tx-v0-007"]
+    },
+    {
+      "vector_id": "action-ref-tx-v0-007",
+      "description": "State-distinctness probe: refund under the same fixed probe timestamps as 005 and 006.",
+      "pair_group": "probe",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "refund",
+        "transition_timestamp_ms": 1700000000000,
+        "authority_verified_at_ms": 1700000000500,
+        "revocation_check_at_ms": 1700000000800
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcwMDAwMDAwMDUwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcwMDAwMDAwMDgwMCwic3RhdGUiOiJyZWZ1bmQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcwMDAwMDAwMDAwMH0=",
+      "expected_transition_hash": "94bf85f8a3ced6dc72866487b591fa1eb889e9a66557d8a517507dee5ba1aefb",
+      "different_hash_from": ["action-ref-tx-v0-005", "action-ref-tx-v0-006"]
+    },
+    {
+      "vector_id": "action-ref-tx-v0-008",
+      "description": "Action_ref binding: authorisation under DIFFERENT action_ref but identical state and timestamps to vector 005. Demonstrates that transition_hash is bound to its action_ref.",
+      "pair_group": "binding",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "57e861cb0929fe602823a15e2bc5a5587f0b9c3bd39147baa49819dd014c56a6",
+        "state": "authorisation",
+        "transition_timestamp_ms": 1700000000000,
+        "authority_verified_at_ms": 1700000000500,
+        "revocation_check_at_ms": 1700000000800
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNTdlODYxY2IwOTI5ZmU2MDI4MjNhMTVlMmJjNWE1NTg3ZjBiOWMzYmQzOTE0N2JhYTQ5ODE5ZGQwMTRjNTZhNiIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcwMDAwMDAwMDUwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcwMDAwMDAwMDgwMCwic3RhdGUiOiJhdXRob3Jpc2F0aW9uIiwidHJhbnNpdGlvbl90aW1lc3RhbXBfbXMiOjE3MDAwMDAwMDAwMDB9",
+      "expected_transition_hash": "b59293b5f471b2c9b7dd848b4f930921057dc77d651010869ffa29f8133e6409",
+      "different_hash_from": ["action-ref-tx-v0-005"]
+    }
+  ],
+  "pair_invariants": [
+    {
+      "id": "pair-001",
+      "description": "state byte-load-bearing: authorisation differs from settlement under identical action_ref and identical timestamps",
+      "type": "different_hash_from",
+      "left": "action-ref-tx-v0-005",
+      "right": "action-ref-tx-v0-006"
+    },
+    {
+      "id": "pair-002",
+      "description": "state byte-load-bearing: authorisation differs from refund under identical action_ref and identical timestamps",
+      "type": "different_hash_from",
+      "left": "action-ref-tx-v0-005",
+      "right": "action-ref-tx-v0-007"
+    },
+    {
+      "id": "pair-003",
+      "description": "state byte-load-bearing: settlement differs from refund under identical action_ref and identical timestamps",
+      "type": "different_hash_from",
+      "left": "action-ref-tx-v0-006",
+      "right": "action-ref-tx-v0-007"
+    },
+    {
+      "id": "pair-004",
+      "description": "action_ref binding: identical state and identical timestamps under a different action_ref produce a different transition_hash",
+      "type": "different_hash_from",
+      "left": "action-ref-tx-v0-005",
+      "right": "action-ref-tx-v0-008"
+    },
+    {
+      "id": "pair-005",
+      "description": "identity-vs-transition: the action_ref digest and any transition_hash digest are byte-distinct (different preimage shapes)",
+      "type": "different_hash_from",
+      "left": "action-ref-tx-v0-001",
+      "right": "action-ref-tx-v0-005"
+    }
+  ]
+}
