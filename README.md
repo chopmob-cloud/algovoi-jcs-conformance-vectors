@@ -32,22 +32,43 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 
 ## Cross-implementation validation matrix
 
-Each anchor set has been independently validated to produce the same canonical
-bytes across these implementations:
+The three IETF-I-D-anchored vector sets
+([`action_ref_namespace_v0`](./vectors/action_ref_namespace_v0/),
+[`action_ref_transactional_v0`](./vectors/action_ref_transactional_v0/),
+[`compliance_receipt_v1`](./vectors/compliance_receipt_v1/)) have been
+independently validated to produce byte-identical canonical bytes across
+**eight independent JCS implementations in eight programming languages**,
+all from non-overlapping authoring entities including the RFC 8785 author
+himself (Anders Rundgren, via the Java implementation):
 
-| Language | Package | Version |
-|---|---|---|
-| Python | `rfc8785` | 0.1.4 |
-| JavaScript | `canonicalize` | 3.0.0 |
-| Go | `gowebpki/jcs` | v1.0.1 |
-| Java | `cyberphone/json-canonicalization` | reference |
-| Rust | `serde_jcs` | 0.2.0 |
+| # | Language | Package | Version | Author / entity |
+|---|---|---|---|---|
+| 1 | Python | `rfc8785` (via `algovoi-substrate`) | 0.1.4 | Trail of Bits |
+| 2 | TypeScript / JS | `canonicalize` (via `@algovoi/substrate`) | 3.0.0 | Samuel Erdtman |
+| 3 | Go | `gowebpki/jcs` | v1.0.1 | Web PKI Working Group |
+| 4 | Rust | `serde_jcs` | 0.2.0 | seritalien / Vauban Pay |
+| 5 | Java | `erdtman/java-json-canonicalization` | 1.1 | **Anders Rundgren** (RFC 8785 author) and Samuel Erdtman |
+| 6 | PHP | `root23/php-json-canonicalization` | 1.0.1 | root23 (222K downloads on Packagist) |
+| 7 | C# / .NET | `Baqhub.Packages.JsonCanonicalization` | 1.0.1 | Baqhub |
+| 8 | Ruby | `json-canonicalization` | 1.0.0 | RubyGems community |
 
-Per-anchor-set runner harnesses ship alongside each vector set
-(`runner_python.py`, `runner_node.js`, `runner_go.go`, `RunnerJava.java`).
-Independent re-verification: pick any of the five, run against the JSON
-vector files, confirm SHA-256 of the canonical bytes matches the
-`expected_hash` field on each vector.
+**Aggregate result: 192/192 byte-for-byte agreements** (24 vectors × 8
+impls) on the 2026-05-24 attestation run. See
+[`_attestations/2026-05-24-8-impl-cross-validation.md`](./_attestations/2026-05-24-8-impl-cross-validation.md)
+for the full attestation record.
+
+Per-anchor-set runner harnesses for Python and TypeScript ship alongside
+each vector set (`runner_python.py`, `runner_node.js`); single-file
+runners for the other six languages are AlgoVoi-authored and reproduce
+the matrix from fresh installs of the packages above. The whole matrix
+is reproducible by an independent third party in under thirty minutes of
+package-install time, with no AlgoVoi infrastructure involved in any
+validation step.
+
+The broader corpus (the four earlier anchor sets covering AP2 OMH,
+CTEF + APS, privacy_class, per-chain envelope) was validated against the
+five-implementation matrix (Python, JS, Go, Java, Rust) at earlier dates
+and remains in the same cross-impl byte-deterministic state.
 
 ## How to use this corpus
 
