@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://json.schemastore.org/algovoi-compliance-receipt-v1.json",
   "title": "AlgoVoi Compliance Receipt v1",
   "description": "Categorical compliance screening receipt for agentic-payment flows. Emitted by a screening provider when a wallet, agent, or payee passes the regulatory gate at admission time. Retained as part of an audit chain under framework-bound retention obligations (UK MLR 2017, EU AMLD5/6, MiCA Art. 80, AMLR Art. 56, DORA Art. 14). The categorical screen result (ALLOW / REFER / DENY) is load-bearing for downstream regulatory obligations -- a REFER under UK POCA 2002 s.330 carries a mandatory SAR obligation that a DENY does not, so a score / tier projection is NOT a valid substitute. Canonicalisation discipline pinned in-band via canon_version; see https://github.com/x402-foundation/x402/pull/2436.",
