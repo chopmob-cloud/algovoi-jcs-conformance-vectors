@@ -1,0 +1,251 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "compliance-receipt-v1-conformance",
+  "published_at": "2026-05-23T23:30:00Z",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust)",
+  "hash": "SHA-256, lowercase hex",
+  "anchored_to": {
+    "ietf_id": "draft-hopley-x402-compliance-receipt-00 (Independent Submission, Informational; submitted to IETF datatracker 2026-05-23)",
+    "ietf_id_url": "https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/",
+    "schema": "JSON Schema (draft-07): https://json.schemastore.org/algovoi-compliance-receipt-v1.json (merged to SchemaStore 2026-05-23)",
+    "canonicalisation_discipline": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+    "load_bearing_invariants": [
+      "screen_result is a closed enumeration of {ALLOW, REFER, DENY}; each value produces a byte-distinct content_hash from the other two.",
+      "jurisdiction_flags is an ordered list; reordering the array elements produces a different content_hash (arrays are byte-load-bearing under RFC 8785).",
+      "canon_version is an in-band pin; changing the pin value produces a different content_hash.",
+      "screen_timestamp_ms is an epoch-millisecond integer (Substrate Rule 2). RFC 3339 string forms are rejected at validation time by the substrate's build_compliance_receipt primitive.",
+      "Audit chain rows link via prev_hash. Row N's prev_hash MUST equal row N-1's row_content_hash; row 1's prev_hash MUST be 64 zero hex characters."
+    ],
+    "spec_authorship": "AlgoVoi-authored. The receipt format and canonicalisation discipline are specified in draft-hopley-x402-compliance-receipt-00 (Sections 3, 4, 5)."
+  },
+  "derivation": "Eight receipt-shape vectors split into three groups: (A) baseline three-state coverage of the closed enumeration (ALLOW, REFER, DENY) with otherwise identical fields, proving the screen_result field is byte-load-bearing -- this is the load-bearing property under UK POCA 2002 Section 330 where a REFER outcome can trigger a Suspicious Activity Report obligation that a DENY does not; (B) array-order probe demonstrating that jurisdiction_flags is byte-load-bearing under RFC 8785 (arrays are not sorted during canonicalisation); (C) canon_version pin probe demonstrating that the in-band canonicalisation rule pin is byte-load-bearing. Three additional audit-chain-row vectors (006-008) demonstrate the chain linkage property: each row's prev_hash equals the previous row's row_content_hash, with row 1 anchoring to all-zero.",
+  "context": {
+    "ietf_id_section_anchors": {
+      "001-baseline-ALLOW": "draft-hopley-x402-compliance-receipt-00 Section 3 (Receipt Format Specification), Section 4 (Canonicalisation), Appendix A.1",
+      "002-REFER": "Section 3.2 (closed enumeration), Appendix A.2",
+      "003-DENY": "Section 3.2 (closed enumeration), Appendix A.3",
+      "004-array-reorder": "Section 3.5 (jurisdiction_flags, ordered)",
+      "005-canon-version-v2": "Section 3.6 (canon_version, in-band rule pin)",
+      "chain-001-to-003": "Section 5 (Audit Chain Composition), Section 5.2 (Linkage Verification)"
+    },
+    "substrate_packages": {
+      "python": "pypi.org/project/algovoi-substrate (>=0.3.0)",
+      "typescript": "npmjs.com/package/@algovoi/substrate (>=0.3.0)"
+    },
+    "primitive_modules": {
+      "python": "algovoi_substrate.compliance_receipt.build_compliance_receipt + algovoi_substrate.canonicalize.sha256_jcs",
+      "typescript": "@algovoi/substrate buildComplianceReceipt + sha256Jcs"
+    },
+    "verification_recipe": [
+      "1. For each receipt vector (001 through 005), take the receipt object verbatim.",
+      "2. Canonicalise under RFC 8785 (any of the five reference impls).",
+      "3. base64-encode the JCS bytes; MUST equal expected_jcs_bytes_b64.",
+      "4. SHA-256 the JCS bytes, lowercase hex; MUST equal expected_content_hash.",
+      "5. For chain rows (006 through 008), repeat steps 2-4 on the row object; the result MUST equal expected_row_content_hash.",
+      "6. Verify pair invariants: pair-001 to pair-005 MUST all hold (different_hash_from).",
+      "7. Verify chain linkage: row 1 prev_hash is 64 zeros; row 2 prev_hash equals row 1 row_content_hash; row 3 prev_hash equals row 2 row_content_hash."
+    ],
+    "pair_semantics": {
+      "closed_enum_byte_load_bearing": "MUST differ (screen_result varies across the closed three-element enumeration)",
+      "array_order_byte_load_bearing": "MUST differ (jurisdiction_flags array order is not normalised by JCS)",
+      "canon_version_pin_byte_load_bearing": "MUST differ (canon_version is a byte-significant in-band field)",
+      "chain_linkage": "each row's prev_hash MUST equal the previous row's row_content_hash"
+    }
+  },
+  "fixed_receipt_fields": {
+    "payer_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+    "screen_provider_did": "did:example:screening-provider-1",
+    "screen_timestamp_ms": 1716494400000
+  },
+  "vectors": [
+    {
+      "vector_id": "compliance-receipt-v1-001",
+      "description": "Baseline ALLOW receipt. Reference compliance screening receipt with the categorical outcome ALLOW; all other fields are the fixed baseline.",
+      "pair_group": "enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": ["UK", "EU"],
+        "payer_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "screen_provider_did": "did:example:screening-provider-1",
+        "screen_result": "ALLOW",
+        "screen_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJwYXllcl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsInNjcmVlbl9wcm92aWRlcl9kaWQiOiJkaWQ6ZXhhbXBsZTpzY3JlZW5pbmctcHJvdmlkZXItMSIsInNjcmVlbl9yZXN1bHQiOiJBTExPVyIsInNjcmVlbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_content_hash": "9149cb61082765b556128d29926ccea3e2f3c17ba200b203f2f0a7d7c83e5f70",
+      "different_hash_from": ["compliance-receipt-v1-002", "compliance-receipt-v1-003", "compliance-receipt-v1-004", "compliance-receipt-v1-005"]
+    },
+    {
+      "vector_id": "compliance-receipt-v1-002",
+      "description": "REFER receipt. All fields identical to vector 001 except screen_result is REFER. Demonstrates that the closed enumeration is byte-load-bearing; under UK POCA 2002 Section 330 a REFER outcome can carry a Suspicious Activity Report obligation that a DENY does not, and the categorical distinction is preserved at the canonical-bytes level rather than collapsed.",
+      "pair_group": "enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": ["UK", "EU"],
+        "payer_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "screen_provider_did": "did:example:screening-provider-1",
+        "screen_result": "REFER",
+        "screen_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJwYXllcl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsInNjcmVlbl9wcm92aWRlcl9kaWQiOiJkaWQ6ZXhhbXBsZTpzY3JlZW5pbmctcHJvdmlkZXItMSIsInNjcmVlbl9yZXN1bHQiOiJSRUZFUiIsInNjcmVlbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_content_hash": "14638a6b0a2f2d73884be6ff0fc475901557d08b3fdee34c7703a6f7f259712a",
+      "different_hash_from": ["compliance-receipt-v1-001", "compliance-receipt-v1-003"]
+    },
+    {
+      "vector_id": "compliance-receipt-v1-003",
+      "description": "DENY receipt. All fields identical to vector 001 except screen_result is DENY. Together with vectors 001 and 002, completes the three-state coverage of the closed enumeration.",
+      "pair_group": "enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": ["UK", "EU"],
+        "payer_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "screen_provider_did": "did:example:screening-provider-1",
+        "screen_result": "DENY",
+        "screen_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJwYXllcl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsInNjcmVlbl9wcm92aWRlcl9kaWQiOiJkaWQ6ZXhhbXBsZTpzY3JlZW5pbmctcHJvdmlkZXItMSIsInNjcmVlbl9yZXN1bHQiOiJERU5ZIiwic2NyZWVuX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDQwMDAwMH0=",
+      "expected_content_hash": "843fd44b24cdec90fe829d7f0593c53fffa984dcdc389fbd1c4221a9623ded16",
+      "different_hash_from": ["compliance-receipt-v1-001", "compliance-receipt-v1-002"]
+    },
+    {
+      "vector_id": "compliance-receipt-v1-004",
+      "description": "Array-reorder probe. All fields identical to vector 001 except jurisdiction_flags is ['EU', 'UK'] instead of ['UK', 'EU']. Demonstrates that array element order is byte-load-bearing in the canonical form: JCS RFC 8785 does not normalise array order.",
+      "pair_group": "array_order",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": ["EU", "UK"],
+        "payer_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "screen_provider_did": "did:example:screening-provider-1",
+        "screen_result": "ALLOW",
+        "screen_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiRVUiLCJVSyJdLCJwYXllcl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsInNjcmVlbl9wcm92aWRlcl9kaWQiOiJkaWQ6ZXhhbXBsZTpzY3JlZW5pbmctcHJvdmlkZXItMSIsInNjcmVlbl9yZXN1bHQiOiJBTExPVyIsInNjcmVlbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_content_hash": "3c5f58374a084f1cac9861c26337912a1f1d3a9064d7a64fa825dea29efd01d1",
+      "different_hash_from": ["compliance-receipt-v1-001"]
+    },
+    {
+      "vector_id": "compliance-receipt-v1-005",
+      "description": "canon_version pin probe. All fields identical to vector 001 except canon_version is jcs-rfc8785-v2 (hypothetical successor pin). Demonstrates that the canonicalisation-rule pin is byte-load-bearing: a successor canon_version produces a different content_hash even when the rest of the receipt content is unchanged.",
+      "pair_group": "canon_version",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v2",
+        "jurisdiction_flags": ["UK", "EU"],
+        "payer_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "screen_provider_did": "did:example:screening-provider-1",
+        "screen_result": "ALLOW",
+        "screen_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjIiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJwYXllcl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsInNjcmVlbl9wcm92aWRlcl9kaWQiOiJkaWQ6ZXhhbXBsZTpzY3JlZW5pbmctcHJvdmlkZXItMSIsInNjcmVlbl9yZXN1bHQiOiJBTExPVyIsInNjcmVlbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_content_hash": "4c0c0825c721c9589651bf5eb64517dfc55171466406823d0a0a72ca9658fde3",
+      "different_hash_from": ["compliance-receipt-v1-001"]
+    },
+    {
+      "vector_id": "compliance-receipt-v1-006",
+      "description": "Audit chain row 1. First row of a three-row hash-linked chain anchoring the receipts in vectors 001, 002, 003. The row's prev_hash is the all-zero anchor (the chain has no predecessor); the row's receipt_content_hash references vector 001's content_hash.",
+      "pair_group": "chain",
+      "expectation": "reference",
+      "row": {
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "receipt_content_hash": "9149cb61082765b556128d29926ccea3e2f3c17ba200b203f2f0a7d7c83e5f70",
+        "row_number": 1
+      },
+      "expected_jcs_bytes_b64": "eyJwcmV2X2hhc2giOiIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwicmVjZWlwdF9jb250ZW50X2hhc2giOiI5MTQ5Y2I2MTA4Mjc2NWI1NTYxMjhkMjk5MjZjY2VhM2UyZjNjMTdiYTIwMGIyMDNmMmYwYTdkN2M4M2U1ZjcwIiwicm93X251bWJlciI6MX0=",
+      "expected_row_content_hash": "a5589411e5e3feb582088dc69117aec706f852c1b3acaa8eadac8d919daf067d"
+    },
+    {
+      "vector_id": "compliance-receipt-v1-007",
+      "description": "Audit chain row 2. Second row of the three-row chain. The row's prev_hash MUST equal row 1's row_content_hash; the row's receipt_content_hash references vector 002's content_hash.",
+      "pair_group": "chain",
+      "expectation": "reference",
+      "row": {
+        "prev_hash": "a5589411e5e3feb582088dc69117aec706f852c1b3acaa8eadac8d919daf067d",
+        "receipt_content_hash": "14638a6b0a2f2d73884be6ff0fc475901557d08b3fdee34c7703a6f7f259712a",
+        "row_number": 2
+      },
+      "expected_jcs_bytes_b64": "eyJwcmV2X2hhc2giOiJhNTU4OTQxMWU1ZTNmZWI1ODIwODhkYzY5MTE3YWVjNzA2Zjg1MmMxYjNhY2FhOGVhZGFjOGQ5MTlkYWYwNjdkIiwicmVjZWlwdF9jb250ZW50X2hhc2giOiIxNDYzOGE2YjBhMmYyZDczODg0YmU2ZmYwZmM0NzU5MDE1NTdkMDhiM2ZkZWUzNGM3NzAzYTZmN2YyNTk3MTJhIiwicm93X251bWJlciI6Mn0=",
+      "expected_row_content_hash": "48ac027bef1501b105ea71fc2e67c9abdd10fef037ce49e2e05c3b1c00a1c6d4"
+    },
+    {
+      "vector_id": "compliance-receipt-v1-008",
+      "description": "Audit chain row 3. Third row of the three-row chain. The row's prev_hash MUST equal row 2's row_content_hash; the row's receipt_content_hash references vector 003's content_hash. A verifier walking the chain confirms the linkage property end-to-end.",
+      "pair_group": "chain",
+      "expectation": "reference",
+      "row": {
+        "prev_hash": "48ac027bef1501b105ea71fc2e67c9abdd10fef037ce49e2e05c3b1c00a1c6d4",
+        "receipt_content_hash": "843fd44b24cdec90fe829d7f0593c53fffa984dcdc389fbd1c4221a9623ded16",
+        "row_number": 3
+      },
+      "expected_jcs_bytes_b64": "eyJwcmV2X2hhc2giOiI0OGFjMDI3YmVmMTUwMWIxMDVlYTcxZmMyZTY3YzlhYmRkMTBmZWYwMzdjZTQ5ZTJlMDVjM2IxYzAwYTFjNmQ0IiwicmVjZWlwdF9jb250ZW50X2hhc2giOiI4NDNmZDQ0YjI0Y2RlYzkwZmU4MjlkN2YwNTkzYzUzZmZmYTk4NGRjZGMzODlmYmQxYzQyMjFhOTYyM2RlZDE2Iiwicm93X251bWJlciI6M30=",
+      "expected_row_content_hash": "bb3c3b0c103b0c5cb5508dcea56241f03a9129958b27553f7e5650a638577b78"
+    }
+  ],
+  "pair_invariants": [
+    {
+      "id": "pair-001",
+      "description": "closed enum byte-load-bearing: ALLOW differs from REFER under otherwise-identical receipts",
+      "type": "different_hash_from",
+      "left": "compliance-receipt-v1-001",
+      "right": "compliance-receipt-v1-002"
+    },
+    {
+      "id": "pair-002",
+      "description": "POCA s.330 SAR-distinction byte-load-bearing: REFER differs from DENY under otherwise-identical receipts (the categorical distinction is preserved at the canonical-bytes level rather than collapsed by scoring or tier projection)",
+      "type": "different_hash_from",
+      "left": "compliance-receipt-v1-002",
+      "right": "compliance-receipt-v1-003"
+    },
+    {
+      "id": "pair-003",
+      "description": "closed enum byte-load-bearing: ALLOW differs from DENY under otherwise-identical receipts",
+      "type": "different_hash_from",
+      "left": "compliance-receipt-v1-001",
+      "right": "compliance-receipt-v1-003"
+    },
+    {
+      "id": "pair-004",
+      "description": "jurisdiction_flags array order byte-load-bearing: ['UK','EU'] differs from ['EU','UK'] under otherwise-identical receipts (JCS RFC 8785 does not normalise array order)",
+      "type": "different_hash_from",
+      "left": "compliance-receipt-v1-001",
+      "right": "compliance-receipt-v1-004"
+    },
+    {
+      "id": "pair-005",
+      "description": "canon_version pin byte-load-bearing: jcs-rfc8785-v1 differs from jcs-rfc8785-v2 under otherwise-identical receipts",
+      "type": "different_hash_from",
+      "left": "compliance-receipt-v1-001",
+      "right": "compliance-receipt-v1-005"
+    }
+  ],
+  "chain_invariants": [
+    {
+      "id": "chain-001",
+      "description": "row 1 prev_hash is the all-zero anchor (chain has no predecessor)",
+      "type": "field_equals",
+      "vector": "compliance-receipt-v1-006",
+      "field": "row.prev_hash",
+      "value": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "chain-002",
+      "description": "row 2 prev_hash equals row 1 row_content_hash (chain linkage)",
+      "type": "field_equals_other",
+      "left_vector": "compliance-receipt-v1-007",
+      "left_field": "row.prev_hash",
+      "right_vector": "compliance-receipt-v1-006",
+      "right_field": "expected_row_content_hash"
+    },
+    {
+      "id": "chain-003",
+      "description": "row 3 prev_hash equals row 2 row_content_hash (chain linkage)",
+      "type": "field_equals_other",
+      "left_vector": "compliance-receipt-v1-008",
+      "left_field": "row.prev_hash",
+      "right_vector": "compliance-receipt-v1-007",
+      "right_field": "expected_row_content_hash"
+    }
+  ]
+}

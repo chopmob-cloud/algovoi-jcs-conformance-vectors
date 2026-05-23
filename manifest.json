@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "published_at": "2026-05-23",
   "canon_version": "jcs-rfc8785-v1",
   "anchor_sets": [
@@ -41,8 +41,17 @@
       "vector_count": 8,
       "pair_invariants": 5,
       "sha256": "sha256:2ee0c52f39dbfd1726fe95236a2500a505859d8a2737252991e5549ea9f57fea"
+    },
+    {
+      "name": "compliance_receipt_v1",
+      "primary_file": "compliance_receipt_v1.json",
+      "vector_count": 8,
+      "pair_invariants": 5,
+      "chain_invariants": 3,
+      "anchors_to": "draft-hopley-x402-compliance-receipt-00",
+      "sha256": "sha256:33af2ea0ab1d358f90b38a63c4778af93836b677466fb16ab7b90fb8196c922d"
     }
   ],
-  "total_vectors": 65,
-  "total_vectors_note": "AP2 OMH v0 (7) + CTEF + APS v1 (10 APS + 4 CTEF top-level = 14) + privacy_class v0.1 (13) + per-chain envelope v0 (19) + action_ref namespace v0 (8) + action_ref transactional v0 (8) = 69. The manifest above lists primary JSON file vector counts; the 4 additional CTEF top-level cases (envelope_vector, verdict_vector, scope_violation_vector, composition_failure_vector) are inside ctef_vectors.json under the corresponding top-level keys."
+  "total_vectors": 73,
+  "total_vectors_note": "AP2 OMH v0 (7) + CTEF + APS v1 (10 APS + 4 CTEF top-level = 14) + privacy_class v0.1 (13) + per-chain envelope v0 (19) + action_ref namespace v0 (8) + action_ref transactional v0 (8) + compliance_receipt v1 (8) = 77. The manifest above lists primary JSON file vector counts; the 4 additional CTEF top-level cases (envelope_vector, verdict_vector, scope_violation_vector, composition_failure_vector) are inside ctef_vectors.json under the corresponding top-level keys."
 }
