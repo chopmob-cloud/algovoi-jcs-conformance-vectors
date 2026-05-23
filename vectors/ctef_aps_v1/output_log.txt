@@ -1,0 +1,35 @@
+======================================================================
+AlgoVoi �3.8 byte-match validation receipt
+Canonicalizer: rfc8785 v0.1.4 (Python, pure RFC 8785)
+======================================================================
+
+CTEF v0.3.1 (CTEF (Composable Trust Evidence Format))
+  Source: https://agentgraph.co/.well-known/cte-test-vectors.json
+  Canonicalization rule: RFC 8785 (JSON Canonicalization Scheme)
+
+  [PASS] CTEF/envelope_vector
+  [PASS] CTEF/verdict_vector
+  [PASS] CTEF/scope_violation_vector
+  [PASS] CTEF/composition_failure_vector
+
+APS v1 (JCS � RFC 8785)
+  Source: aeoess/agent-passport-system/fixtures/bilateral-delegation/canonicalize-fixture-v1.json
+  Canonicalization: APS SDK canonicalizeJCS (src/core/canonical-jcs.ts)
+  Generated: 2026-04-22
+
+  [PASS] APS/nested-null-preservation: JCS preserves null values at every nesting depth (legacy can
+  [PASS] APS/key-ordering-unicode: Keys sort by Unicode code point: a(0x61) < m(0x6D) < z(0x7A)
+  [PASS] APS/empty-containers: Empty object and empty array serialize as {} and [] respecti
+  [PASS] APS/deeply-nested: Five levels of mixed object/array nesting. Tests recursive c
+  [PASS] APS/string-escape-tab: Tab (U+0009) and newline (U+000A) must be escaped as \t and 
+  [PASS] APS/string-escape-unicode: Non-ASCII characters above U+001F emit as literal UTF-8 byte
+  [PASS] APS/numeric-edge-cases: Number formatting per ECMA-262: -0 serializes as "0"; intege
+  [PASS] APS/array-of-objects: Array preserves element order; each object inside is indepen
+  [PASS] APS/bilateral-receipt-shape: Realistic in-toto Statement v1 envelope wrapping an AEOESS b
+  [PASS] APS/migration-attestation-shape: Realistic SINT migrationAttestation envelope (reference sint
+
+======================================================================
+Summary: 14/14 vectors byte-match
+======================================================================
+
+Receipt: receipt.json (14 per-vector records)

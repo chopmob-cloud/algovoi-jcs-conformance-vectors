@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+node_modules/
+*.class
+*.jar
+target/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
