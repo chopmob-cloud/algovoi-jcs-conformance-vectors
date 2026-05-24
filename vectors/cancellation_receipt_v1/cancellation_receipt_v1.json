@@ -1,0 +1,293 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "cancellation-receipt-v1-conformance",
+  "published_at": "2026-05-24T22:25:35Z",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust) / root23/php-json-canonicalization (PHP) / Baqhub.Packages.JsonCanonicalization (.NET) / json-canonicalization (Ruby)",
+  "hash": "SHA-256, lowercase hex",
+  "anchored_to": {
+    "ietf_id": "draft-hopley-x402-cancellation-receipt-00 (Independent Submission, Informational; AlgoVoi-authored)",
+    "ietf_id_url": "https://datatracker.ietf.org/doc/draft-hopley-x402-cancellation-receipt/",
+    "canonicalisation_discipline": "urn:x402:canonicalisation:jcs-rfc8785-v1 (normatively specified in draft-hopley-x402-canonicalisation-jcs-v1)",
+    "load_bearing_invariants": [
+      "cancellation_reason is a closed enumeration of {USER_REQUESTED, MERCHANT_REQUESTED, COMPLIANCE_TERMINATED, EXPIRED}; each value produces a byte-distinct content_hash.",
+      "jurisdiction_flags is an ordered list (RFC 8785 §3.2.3).",
+      "canon_version is an in-band pin; changing it produces a different content_hash.",
+      "cancellation_timestamp_ms and effective_from_ms are epoch-millisecond integers (Substrate Rule 2). RFC 3339 string forms are rejected.",
+      "effective_from_ms MUST be >= cancellation_timestamp_ms.",
+      "mandate_ref is content-addressed (sha256:<hex>); the prefix is part of canonical bytes.",
+      "Audit chain rows link via prev_hash."
+    ],
+    "spec_authorship": "AlgoVoi-authored under sole authorship. Welcomes downstream-adopter contributions per Appendix C 'Known Adopters' pattern established in draft-hopley-x402-canonicalisation-jcs-v1-01.",
+    "composes_with": "compliance_receipt_v1 (mandate setup), settlement_attestation_v1 (recurring execution), refund_receipt_v1 (PSD2 Art. 64 refund of revoked debits)"
+  },
+  "derivation": "Eight cancellation-receipt-shape vectors split into two groups: (A) baseline four-state coverage of the closed enumeration (USER_REQUESTED, MERCHANT_REQUESTED, COMPLIANCE_TERMINATED, EXPIRED). The four-value enum is one wider than the three-value enums in sibling formats because the regulatorily-load-bearing distinctions in mandate termination genuinely are four-state: payer-vs-payee-vs-operator-vs-time. (B) canon_version pin probe. Three audit-chain-row vectors (006-008) demonstrate chain linkage.",
+  "context": {
+    "substrate_packages": {
+      "python": "pypi.org/project/algovoi-cancellation-receipt (>=0.1.0)",
+      "typescript": "npmjs.com/package/@algovoi/cancellation-receipt (>=0.1.0)"
+    },
+    "primitive_modules": {
+      "python": "algovoi_cancellation_receipt.build_cancellation_receipt",
+      "typescript": "@algovoi/cancellation-receipt buildCancellationReceipt"
+    },
+    "verification_recipe": [
+      "1. For each receipt vector (001 through 005), take the receipt object verbatim.",
+      "2. Canonicalise under RFC 8785.",
+      "3. base64-encode the JCS bytes; MUST equal expected_jcs_bytes_b64.",
+      "4. SHA-256 the JCS bytes, lowercase hex; MUST equal expected_content_hash.",
+      "5. For chain rows (006-008), repeat on row object; MUST equal expected_row_content_hash.",
+      "6. Verify pair invariants: all seven MUST hold.",
+      "7. Verify chain linkage: row 1 prev_hash zeros; rows 2, 3 link to prior row_content_hash."
+    ]
+  },
+  "fixed_receipt_fields": {
+    "cancellation_provider_did": "did:example:cancellation-provider-1",
+    "cancellation_timestamp_ms": 1716494400000,
+    "effective_from_ms": 1716537600000,
+    "mandate_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f"
+  },
+  "vectors": [
+    {
+      "vector_id": "cancellation-receipt-v1-001",
+      "description": "USER_REQUESTED cancellation (baseline). Payer revoked the mandate; effective end-of-business-day before next scheduled execution per PSD2 (Directive 2015/2366) Article 64(3)(a) for direct-debit revocation timing.",
+      "pair_group": "reason-enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "cancellation_provider_did": "did:example:cancellation-provider-1",
+        "cancellation_reason": "USER_REQUESTED",
+        "cancellation_timestamp_ms": 1716494400000,
+        "effective_from_ms": 1716537600000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "mandate_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5jZWxsYXRpb25fcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6Y2FuY2VsbGF0aW9uLXByb3ZpZGVyLTEiLCJjYW5jZWxsYXRpb25fcmVhc29uIjoiVVNFUl9SRVFVRVNURUQiLCJjYW5jZWxsYXRpb25fdGltZXN0YW1wX21zIjoxNzE2NDk0NDAwMDAwLCJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJlZmZlY3RpdmVfZnJvbV9tcyI6MTcxNjUzNzYwMDAwMCwianVyaXNkaWN0aW9uX2ZsYWdzIjpbIlVLIiwiRVUiXSwibWFuZGF0ZV9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiJ9",
+      "expected_content_hash": "e50f8d4f9fcd8b0cf142bd65528a90d8814dd71127d4529ca77137b4b41ad407",
+      "different_hash_from": [
+        "cancellation-receipt-v1-002",
+        "cancellation-receipt-v1-003",
+        "cancellation-receipt-v1-004",
+        "cancellation-receipt-v1-005"
+      ]
+    },
+    {
+      "vector_id": "cancellation-receipt-v1-002",
+      "description": "MERCHANT_REQUESTED cancellation. Payee-initiated end of recurring billing under PSD2 Article 72 and contractual terms. Does not trigger consumer-revocation refund-window obligations on already-settled debits.",
+      "pair_group": "reason-enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "cancellation_provider_did": "did:example:cancellation-provider-1",
+        "cancellation_reason": "MERCHANT_REQUESTED",
+        "cancellation_timestamp_ms": 1716494400000,
+        "effective_from_ms": 1716537600000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "mandate_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5jZWxsYXRpb25fcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6Y2FuY2VsbGF0aW9uLXByb3ZpZGVyLTEiLCJjYW5jZWxsYXRpb25fcmVhc29uIjoiTUVSQ0hBTlRfUkVRVUVTVEVEIiwiY2FuY2VsbGF0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDQwMDAwMCwiY2Fub25fdmVyc2lvbiI6Impjcy1yZmM4Nzg1LXYxIiwiZWZmZWN0aXZlX2Zyb21fbXMiOjE3MTY1Mzc2MDAwMDAsImp1cmlzZGljdGlvbl9mbGFncyI6WyJVSyIsIkVVIl0sIm1hbmRhdGVfcmVmIjoic2hhMjU2OjBkZDVkMGI3NmM5YjkyODFmZGViMjUwOWFkMzhhYjEzMmIxNmExNzM4NWNhMDFkOTc2ZmY5ZTZlMTI1NjNhMGYifQ==",
+      "expected_content_hash": "daa36f4fb78b51ea3e76c273fa31a39c01497a8fadb273c5968fed00135a918e",
+      "different_hash_from": [
+        "cancellation-receipt-v1-001",
+        "cancellation-receipt-v1-003",
+        "cancellation-receipt-v1-004"
+      ]
+    },
+    {
+      "vector_id": "cancellation-receipt-v1-003",
+      "description": "COMPLIANCE_TERMINATED cancellation. Operator-forced under post-mandate compliance trigger (sanctions hit on payer, KYC failure, AML alert, court order, regulator directive). Triggers POCA s.330 / AML 5+6 audit-chain linkage back to the originating compliance event.",
+      "pair_group": "reason-enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "cancellation_provider_did": "did:example:cancellation-provider-1",
+        "cancellation_reason": "COMPLIANCE_TERMINATED",
+        "cancellation_timestamp_ms": 1716494400000,
+        "effective_from_ms": 1716537600000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "mandate_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5jZWxsYXRpb25fcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6Y2FuY2VsbGF0aW9uLXByb3ZpZGVyLTEiLCJjYW5jZWxsYXRpb25fcmVhc29uIjoiQ09NUExJQU5DRV9URVJNSU5BVEVEIiwiY2FuY2VsbGF0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDQwMDAwMCwiY2Fub25fdmVyc2lvbiI6Impjcy1yZmM4Nzg1LXYxIiwiZWZmZWN0aXZlX2Zyb21fbXMiOjE3MTY1Mzc2MDAwMDAsImp1cmlzZGljdGlvbl9mbGFncyI6WyJVSyIsIkVVIl0sIm1hbmRhdGVfcmVmIjoic2hhMjU2OjBkZDVkMGI3NmM5YjkyODFmZGViMjUwOWFkMzhhYjEzMmIxNmExNzM4NWNhMDFkOTc2ZmY5ZTZlMTI1NjNhMGYifQ==",
+      "expected_content_hash": "d8b5c7a533d7b882f2284e28e6e081ec7b2222d74d195ae42681c9eae89bbaf9",
+      "different_hash_from": [
+        "cancellation-receipt-v1-001",
+        "cancellation-receipt-v1-002",
+        "cancellation-receipt-v1-004"
+      ]
+    },
+    {
+      "vector_id": "cancellation-receipt-v1-004",
+      "description": "EXPIRED cancellation. Mandate reached its agreed end-date or maximum-execution count. No party-initiated decision; the mandate's own terms terminated it. Standard record-keeping applies.",
+      "pair_group": "reason-enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "cancellation_provider_did": "did:example:cancellation-provider-1",
+        "cancellation_reason": "EXPIRED",
+        "cancellation_timestamp_ms": 1716494400000,
+        "effective_from_ms": 1716537600000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "mandate_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5jZWxsYXRpb25fcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6Y2FuY2VsbGF0aW9uLXByb3ZpZGVyLTEiLCJjYW5jZWxsYXRpb25fcmVhc29uIjoiRVhQSVJFRCIsImNhbmNlbGxhdGlvbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDAsImNhbm9uX3ZlcnNpb24iOiJqY3MtcmZjODc4NS12MSIsImVmZmVjdGl2ZV9mcm9tX21zIjoxNzE2NTM3NjAwMDAwLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJtYW5kYXRlX3JlZiI6InNoYTI1NjowZGQ1ZDBiNzZjOWI5MjgxZmRlYjI1MDlhZDM4YWIxMzJiMTZhMTczODVjYTAxZDk3NmZmOWU2ZTEyNTYzYTBmIn0=",
+      "expected_content_hash": "e152ddee7c089165f4b0f5955ca4a9fa388dc4be7fcf543dee46ed419b61de51",
+      "different_hash_from": [
+        "cancellation-receipt-v1-001",
+        "cancellation-receipt-v1-002",
+        "cancellation-receipt-v1-003"
+      ]
+    },
+    {
+      "vector_id": "cancellation-receipt-v1-005",
+      "description": "Canonicalisation rule pin probe. All fields identical to vector 001 except canon_version is 'jcs-rfc8785-v2'. Demonstrates the in-band canonicalisation rule pin is byte-load-bearing.",
+      "pair_group": "canon-version-pin",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v2",
+        "cancellation_provider_did": "did:example:cancellation-provider-1",
+        "cancellation_reason": "USER_REQUESTED",
+        "cancellation_timestamp_ms": 1716494400000,
+        "effective_from_ms": 1716537600000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "mandate_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5jZWxsYXRpb25fcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6Y2FuY2VsbGF0aW9uLXByb3ZpZGVyLTEiLCJjYW5jZWxsYXRpb25fcmVhc29uIjoiVVNFUl9SRVFVRVNURUQiLCJjYW5jZWxsYXRpb25fdGltZXN0YW1wX21zIjoxNzE2NDk0NDAwMDAwLCJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjIiLCJlZmZlY3RpdmVfZnJvbV9tcyI6MTcxNjUzNzYwMDAwMCwianVyaXNkaWN0aW9uX2ZsYWdzIjpbIlVLIiwiRVUiXSwibWFuZGF0ZV9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiJ9",
+      "expected_content_hash": "913f15d32bced7faa0b4d5411bca605635c0e4715a7bfbdad5628a95659dd2c7",
+      "different_hash_from": [
+        "cancellation-receipt-v1-001"
+      ]
+    },
+    {
+      "vector_id": "cancellation-receipt-v1-006",
+      "description": "Audit chain row 1 anchoring the USER_REQUESTED receipt (vector 001).",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "e50f8d4f9fcd8b0cf142bd65528a90d8814dd71127d4529ca77137b4b41ad407",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "row_number": 1
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiJlNTBmOGQ0ZjlmY2Q4YjBjZjE0MmJkNjU1MjhhOTBkODgxNGRkNzExMjdkNDUyOWNhNzcxMzdiNGI0MWFkNDA3IiwicHJldl9oYXNoIjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsInJvd19udW1iZXIiOjF9",
+      "expected_row_content_hash": "ddf4b716559c72ebd1a20f528d1522c3c31f18b9c472e8c8eaf444c90fedc938"
+    },
+    {
+      "vector_id": "cancellation-receipt-v1-007",
+      "description": "Audit chain row 2 anchoring the MERCHANT_REQUESTED receipt (vector 002).",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "daa36f4fb78b51ea3e76c273fa31a39c01497a8fadb273c5968fed00135a918e",
+        "prev_hash": "ddf4b716559c72ebd1a20f528d1522c3c31f18b9c472e8c8eaf444c90fedc938",
+        "row_number": 2
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiJkYWEzNmY0ZmI3OGI1MWVhM2U3NmMyNzNmYTMxYTM5YzAxNDk3YThmYWRiMjczYzU5NjhmZWQwMDEzNWE5MThlIiwicHJldl9oYXNoIjoiZGRmNGI3MTY1NTljNzJlYmQxYTIwZjUyOGQxNTIyYzNjMzFmMThiOWM0NzJlOGM4ZWFmNDQ0YzkwZmVkYzkzOCIsInJvd19udW1iZXIiOjJ9",
+      "expected_row_content_hash": "67379fbcab6d8a66755613a7be1305b0d3f272bfbc156218d0ee3b51bd29672e"
+    },
+    {
+      "vector_id": "cancellation-receipt-v1-008",
+      "description": "Audit chain row 3 anchoring the COMPLIANCE_TERMINATED receipt (vector 003).",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "d8b5c7a533d7b882f2284e28e6e081ec7b2222d74d195ae42681c9eae89bbaf9",
+        "prev_hash": "67379fbcab6d8a66755613a7be1305b0d3f272bfbc156218d0ee3b51bd29672e",
+        "row_number": 3
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiJkOGI1YzdhNTMzZDdiODgyZjIyODRlMjhlNmUwODFlYzdiMjIyMmQ3NGQxOTVhZTQyNjgxYzllYWU4OWJiYWY5IiwicHJldl9oYXNoIjoiNjczNzlmYmNhYjZkOGE2Njc1NTYxM2E3YmUxMzA1YjBkM2YyNzJiZmJjMTU2MjE4ZDBlZTNiNTFiZDI5NjcyZSIsInJvd19udW1iZXIiOjN9",
+      "expected_row_content_hash": "e9d699387eec26efd18c6573d9c792578c4d719ea937860d3cb90ac5dc303752"
+    }
+  ],
+  "pair_invariants": [
+    {
+      "id": "pair-cancel-001-002",
+      "type": "different_hash_from",
+      "left": "cancellation-receipt-v1-001",
+      "right": "cancellation-receipt-v1-002",
+      "rationale": "Closed enumeration byte-load-bearing: USER_REQUESTED vs MERCHANT_REQUESTED"
+    },
+    {
+      "id": "pair-cancel-001-003",
+      "type": "different_hash_from",
+      "left": "cancellation-receipt-v1-001",
+      "right": "cancellation-receipt-v1-003",
+      "rationale": "Closed enumeration byte-load-bearing: USER_REQUESTED vs COMPLIANCE_TERMINATED"
+    },
+    {
+      "id": "pair-cancel-001-004",
+      "type": "different_hash_from",
+      "left": "cancellation-receipt-v1-001",
+      "right": "cancellation-receipt-v1-004",
+      "rationale": "Closed enumeration byte-load-bearing: USER_REQUESTED vs EXPIRED"
+    },
+    {
+      "id": "pair-cancel-002-003",
+      "type": "different_hash_from",
+      "left": "cancellation-receipt-v1-002",
+      "right": "cancellation-receipt-v1-003",
+      "rationale": "Closed enumeration byte-load-bearing: MERCHANT_REQUESTED vs COMPLIANCE_TERMINATED"
+    },
+    {
+      "id": "pair-cancel-002-004",
+      "type": "different_hash_from",
+      "left": "cancellation-receipt-v1-002",
+      "right": "cancellation-receipt-v1-004",
+      "rationale": "Closed enumeration byte-load-bearing: MERCHANT_REQUESTED vs EXPIRED"
+    },
+    {
+      "id": "pair-cancel-003-004",
+      "type": "different_hash_from",
+      "left": "cancellation-receipt-v1-003",
+      "right": "cancellation-receipt-v1-004",
+      "rationale": "Closed enumeration byte-load-bearing: COMPLIANCE_TERMINATED vs EXPIRED"
+    },
+    {
+      "id": "pair-cancel-001-005",
+      "type": "different_hash_from",
+      "left": "cancellation-receipt-v1-001",
+      "right": "cancellation-receipt-v1-005",
+      "rationale": "canon_version pin byte-load-bearing"
+    }
+  ],
+  "chain_invariants": [
+    {
+      "id": "chain-cancel-001",
+      "type": "field_equals",
+      "vector": "cancellation-receipt-v1-006",
+      "field": "row.prev_hash",
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rationale": "Chain row 1 anchors to all-zero prev_hash"
+    },
+    {
+      "id": "chain-cancel-002",
+      "type": "field_equals_other",
+      "left_vector": "cancellation-receipt-v1-007",
+      "left_field": "row.prev_hash",
+      "right_vector": "cancellation-receipt-v1-006",
+      "right_field": "expected_row_content_hash",
+      "rationale": "Chain row 2's prev_hash equals row 1's row_content_hash"
+    },
+    {
+      "id": "chain-cancel-003",
+      "type": "field_equals_other",
+      "left_vector": "cancellation-receipt-v1-008",
+      "left_field": "row.prev_hash",
+      "right_vector": "cancellation-receipt-v1-007",
+      "right_field": "expected_row_content_hash",
+      "rationale": "Chain row 3's prev_hash equals row 2's row_content_hash"
+    }
+  ]
+}
