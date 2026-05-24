@@ -1,0 +1,299 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "settlement-attestation-v1-conformance",
+  "published_at": "2026-05-24T22:03:29Z",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust) / root23/php-json-canonicalization (PHP) / Baqhub.Packages.JsonCanonicalization (.NET) / json-canonicalization (Ruby)",
+  "hash": "SHA-256, lowercase hex",
+  "anchored_to": {
+    "ietf_id": "draft-hopley-x402-settlement-attestation-00 (Independent Submission, Informational; AlgoVoi-authored)",
+    "ietf_id_url": "https://datatracker.ietf.org/doc/draft-hopley-x402-settlement-attestation/",
+    "canonicalisation_discipline": "urn:x402:canonicalisation:jcs-rfc8785-v1 (normatively specified in draft-hopley-x402-canonicalisation-jcs-v1)",
+    "load_bearing_invariants": [
+      "settlement_result is a closed enumeration of {SETTLED, PENDING_FINALITY, REVERSED}; each value produces a byte-distinct content_hash from the other two.",
+      "jurisdiction_flags is an ordered list; reordering the array elements produces a different content_hash.",
+      "canon_version is an in-band pin; changing the pin value produces a different content_hash.",
+      "settlement_timestamp_ms is an epoch-millisecond integer (Substrate Rule 2). RFC 3339 string forms are rejected.",
+      "settlement_amount is a sub-object {amount_minor: string, asset_id: string}; JCS sorts the sub-object's keys lexicographically.",
+      "settlement_chain is a flat string identifier (<chain_family> or <chain_family>:<network>); JCS canonicalises the string as opaque bytes without decomposition.",
+      "Audit chain rows link via prev_hash. Row N's prev_hash MUST equal row N-1's row_content_hash; row 1's prev_hash MUST be 64 zero hex characters."
+    ],
+    "spec_authorship": "AlgoVoi-authored. The receipt format and canonicalisation discipline are specified in draft-hopley-x402-settlement-attestation-00 (companion to the compliance receipt and refund receipt I-Ds).",
+    "composes_with": "compliance_receipt_v1 (via settled_payment_ref linkage); refund_receipt_v1 (a refund receipt's original_payment_ref MAY equal a settlement attestation content_hash)"
+  },
+  "derivation": "Eight settlement-attestation-shape vectors split into three groups: (A) baseline three-state coverage of the closed enumeration (SETTLED, PENDING_FINALITY, REVERSED), proving the settlement_result field is byte-load-bearing -- regulatorily load-bearing for settlement-finality record-keeping (MiCA Art. 80, AMLR Art. 56) and PSD2 Article 89 refund-window timing; (B) jurisdiction array-order probe; (C) canon_version pin probe. Three audit-chain-row vectors (006-008) demonstrate chain linkage.",
+  "context": {
+    "substrate_packages": {
+      "python": "pypi.org/project/algovoi-settlement-attestation (>=0.1.0)",
+      "typescript": "npmjs.com/package/@algovoi/settlement-attestation (>=0.1.0)"
+    },
+    "primitive_modules": {
+      "python": "algovoi_settlement_attestation.build_settlement_attestation",
+      "typescript": "@algovoi/settlement-attestation buildSettlementAttestation"
+    },
+    "verification_recipe": [
+      "1. For each receipt vector (001 through 005), take the receipt object verbatim.",
+      "2. Canonicalise under RFC 8785.",
+      "3. base64-encode the JCS bytes; MUST equal expected_jcs_bytes_b64.",
+      "4. SHA-256 the JCS bytes, lowercase hex; MUST equal expected_content_hash.",
+      "5. For chain rows (006 through 008), repeat steps 2-4 on the row object; result MUST equal expected_row_content_hash.",
+      "6. Verify pair invariants: all five MUST hold (different_hash_from).",
+      "7. Verify chain linkage: row 1 prev_hash is 64 zeros; row 2 prev_hash equals row 1 row_content_hash; row 3 prev_hash equals row 2 row_content_hash."
+    ]
+  },
+  "fixed_receipt_fields": {
+    "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+    "settlement_amount": {
+      "amount_minor": "100000",
+      "asset_id": "USDC.6"
+    },
+    "settlement_chain": "ethereum:8453",
+    "settlement_provider_did": "did:example:settlement-provider-1",
+    "settlement_timestamp_ms": 1716494400000
+  },
+  "vectors": [
+    {
+      "vector_id": "settlement-attestation-v1-001",
+      "description": "Baseline SETTLED attestation on Base mainnet (ethereum:8453). Payment confirmed on-chain with sufficient finality for the operator's risk model. Triggers settlement-finality record-keeping obligations under MiCA Article 80 and AMLR Article 56. PSD2 Article 89 refund-window clock starts ticking from this point.",
+      "pair_group": "result-enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "SETTLED",
+        "settlement_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJzZXR0bGVkX3BheW1lbnRfcmVmIjoic2hhMjU2OjBkZDVkMGI3NmM5YjkyODFmZGViMjUwOWFkMzhhYjEzMmIxNmExNzM4NWNhMDFkOTc2ZmY5ZTZlMTI1NjNhMGYiLCJzZXR0bGVtZW50X2Ftb3VudCI6eyJhbW91bnRfbWlub3IiOiIxMDAwMDAiLCJhc3NldF9pZCI6IlVTREMuNiJ9LCJzZXR0bGVtZW50X2NoYWluIjoiZXRoZXJldW06ODQ1MyIsInNldHRsZW1lbnRfcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6c2V0dGxlbWVudC1wcm92aWRlci0xIiwic2V0dGxlbWVudF9yZXN1bHQiOiJTRVRUTEVEIiwic2V0dGxlbWVudF90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_content_hash": "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3",
+      "different_hash_from": [
+        "settlement-attestation-v1-002",
+        "settlement-attestation-v1-003",
+        "settlement-attestation-v1-004",
+        "settlement-attestation-v1-005"
+      ]
+    },
+    {
+      "vector_id": "settlement-attestation-v1-002",
+      "description": "PENDING_FINALITY attestation. All fields identical to vector 001 except settlement_result. Payment broadcast and included in a block, but awaiting the operator's required confirmation depth. Operator has visibility of inclusion but does not yet assert finality. Under PSD2 Article 89, refund-window timing differs between PENDING and SETTLED states.",
+      "pair_group": "result-enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "PENDING_FINALITY",
+        "settlement_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJzZXR0bGVkX3BheW1lbnRfcmVmIjoic2hhMjU2OjBkZDVkMGI3NmM5YjkyODFmZGViMjUwOWFkMzhhYjEzMmIxNmExNzM4NWNhMDFkOTc2ZmY5ZTZlMTI1NjNhMGYiLCJzZXR0bGVtZW50X2Ftb3VudCI6eyJhbW91bnRfbWlub3IiOiIxMDAwMDAiLCJhc3NldF9pZCI6IlVTREMuNiJ9LCJzZXR0bGVtZW50X2NoYWluIjoiZXRoZXJldW06ODQ1MyIsInNldHRsZW1lbnRfcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6c2V0dGxlbWVudC1wcm92aWRlci0xIiwic2V0dGxlbWVudF9yZXN1bHQiOiJQRU5ESU5HX0ZJTkFMSVRZIiwic2V0dGxlbWVudF90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_content_hash": "e7777a9a77a9c3f02339594395bfb2620e07edc62d3dcb48c4f2e82a8c37a1c4",
+      "different_hash_from": [
+        "settlement-attestation-v1-001",
+        "settlement-attestation-v1-003"
+      ]
+    },
+    {
+      "vector_id": "settlement-attestation-v1-003",
+      "description": "REVERSED attestation. Previously SETTLED payment now considered reversed (chain reorganisation, fraud reversal, double-spend resolution, or operator-initiated reversal under regulatory directive). Triggers reversal-evidence obligations under POCA s.330 and AML5/6, and creates a chain-of-custody record for chain-reorg adjudication.",
+      "pair_group": "result-enum",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "REVERSED",
+        "settlement_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJzZXR0bGVkX3BheW1lbnRfcmVmIjoic2hhMjU2OjBkZDVkMGI3NmM5YjkyODFmZGViMjUwOWFkMzhhYjEzMmIxNmExNzM4NWNhMDFkOTc2ZmY5ZTZlMTI1NjNhMGYiLCJzZXR0bGVtZW50X2Ftb3VudCI6eyJhbW91bnRfbWlub3IiOiIxMDAwMDAiLCJhc3NldF9pZCI6IlVTREMuNiJ9LCJzZXR0bGVtZW50X2NoYWluIjoiZXRoZXJldW06ODQ1MyIsInNldHRsZW1lbnRfcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6c2V0dGxlbWVudC1wcm92aWRlci0xIiwic2V0dGxlbWVudF9yZXN1bHQiOiJSRVZFUlNFRCIsInNldHRsZW1lbnRfdGltZXN0YW1wX21zIjoxNzE2NDk0NDAwMDAwfQ==",
+      "expected_content_hash": "4c5fed7ab1bcfb6cbb02599d52de034446582007dfe66f28e5a9b0715405c12e",
+      "different_hash_from": [
+        "settlement-attestation-v1-001",
+        "settlement-attestation-v1-002"
+      ]
+    },
+    {
+      "vector_id": "settlement-attestation-v1-004",
+      "description": "Jurisdiction array-order probe. All fields identical to vector 001 except jurisdiction_flags is reordered from ['UK','EU'] to ['EU','UK']. Demonstrates that jurisdiction_flags is byte-load-bearing under RFC 8785 (arrays are not normalised during canonicalisation).",
+      "pair_group": "jurisdiction-order",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "EU",
+          "UK"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "SETTLED",
+        "settlement_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiRVUiLCJVSyJdLCJzZXR0bGVkX3BheW1lbnRfcmVmIjoic2hhMjU2OjBkZDVkMGI3NmM5YjkyODFmZGViMjUwOWFkMzhhYjEzMmIxNmExNzM4NWNhMDFkOTc2ZmY5ZTZlMTI1NjNhMGYiLCJzZXR0bGVtZW50X2Ftb3VudCI6eyJhbW91bnRfbWlub3IiOiIxMDAwMDAiLCJhc3NldF9pZCI6IlVTREMuNiJ9LCJzZXR0bGVtZW50X2NoYWluIjoiZXRoZXJldW06ODQ1MyIsInNldHRsZW1lbnRfcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6c2V0dGxlbWVudC1wcm92aWRlci0xIiwic2V0dGxlbWVudF9yZXN1bHQiOiJTRVRUTEVEIiwic2V0dGxlbWVudF90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_content_hash": "e011a1c8b2481291c120518403c043424d12e048a78d5ef4d861192d0e7a5c5e",
+      "different_hash_from": [
+        "settlement-attestation-v1-001"
+      ]
+    },
+    {
+      "vector_id": "settlement-attestation-v1-005",
+      "description": "Canonicalisation rule pin probe. All fields identical to vector 001 except canon_version is 'jcs-rfc8785-v2'. Demonstrates that the in-band canonicalisation rule pin is byte-load-bearing: an attestation emitted under one discipline version cannot be silently re-hashed under a successor rule.",
+      "pair_group": "canon-version-pin",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v2",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "SETTLED",
+        "settlement_timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjIiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJzZXR0bGVkX3BheW1lbnRfcmVmIjoic2hhMjU2OjBkZDVkMGI3NmM5YjkyODFmZGViMjUwOWFkMzhhYjEzMmIxNmExNzM4NWNhMDFkOTc2ZmY5ZTZlMTI1NjNhMGYiLCJzZXR0bGVtZW50X2Ftb3VudCI6eyJhbW91bnRfbWlub3IiOiIxMDAwMDAiLCJhc3NldF9pZCI6IlVTREMuNiJ9LCJzZXR0bGVtZW50X2NoYWluIjoiZXRoZXJldW06ODQ1MyIsInNldHRsZW1lbnRfcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6c2V0dGxlbWVudC1wcm92aWRlci0xIiwic2V0dGxlbWVudF9yZXN1bHQiOiJTRVRUTEVEIiwic2V0dGxlbWVudF90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_content_hash": "014dfcd6a2c364d749f3beaddfa6fa8a8433b171249760985cc0f3ae816afebd",
+      "different_hash_from": [
+        "settlement-attestation-v1-001"
+      ]
+    },
+    {
+      "vector_id": "settlement-attestation-v1-006",
+      "description": "Audit chain row 1 anchoring the SETTLED attestation (vector 001). prev_hash is 64 zero hex characters (chain anchor).",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "row_number": 1
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiIwZWFkNzViZmU3ZmM3NGNjMDQyMTEyNDkwM2U1NmNiNWM1MDA2ZDAyYzM5MzIzMWExZDVmMjYwZmE4N2U5NmQzIiwicHJldl9oYXNoIjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsInJvd19udW1iZXIiOjF9",
+      "expected_row_content_hash": "a4058baecb8c97476e391de102c745ee38f536effa957459fffc1354d6d658c7"
+    },
+    {
+      "vector_id": "settlement-attestation-v1-007",
+      "description": "Audit chain row 2 anchoring the PENDING_FINALITY attestation (vector 002). prev_hash equals row 1's expected_row_content_hash.",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "e7777a9a77a9c3f02339594395bfb2620e07edc62d3dcb48c4f2e82a8c37a1c4",
+        "prev_hash": "a4058baecb8c97476e391de102c745ee38f536effa957459fffc1354d6d658c7",
+        "row_number": 2
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiJlNzc3N2E5YTc3YTljM2YwMjMzOTU5NDM5NWJmYjI2MjBlMDdlZGM2MmQzZGNiNDhjNGYyZTgyYThjMzdhMWM0IiwicHJldl9oYXNoIjoiYTQwNThiYWVjYjhjOTc0NzZlMzkxZGUxMDJjNzQ1ZWUzOGY1MzZlZmZhOTU3NDU5ZmZmYzEzNTRkNmQ2NThjNyIsInJvd19udW1iZXIiOjJ9",
+      "expected_row_content_hash": "d7adf60c8833450ef9179a7dd1475937f909a564bbf6bf225396fce05eb00e1d"
+    },
+    {
+      "vector_id": "settlement-attestation-v1-008",
+      "description": "Audit chain row 3 anchoring the REVERSED attestation (vector 003). prev_hash equals row 2's expected_row_content_hash, completing a three-row chain a verifier can walk end-to-end.",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "4c5fed7ab1bcfb6cbb02599d52de034446582007dfe66f28e5a9b0715405c12e",
+        "prev_hash": "d7adf60c8833450ef9179a7dd1475937f909a564bbf6bf225396fce05eb00e1d",
+        "row_number": 3
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiI0YzVmZWQ3YWIxYmNmYjZjYmIwMjU5OWQ1MmRlMDM0NDQ2NTgyMDA3ZGZlNjZmMjhlNWE5YjA3MTU0MDVjMTJlIiwicHJldl9oYXNoIjoiZDdhZGY2MGM4ODMzNDUwZWY5MTc5YTdkZDE0NzU5MzdmOTA5YTU2NGJiZjZiZjIyNTM5NmZjZTA1ZWIwMGUxZCIsInJvd19udW1iZXIiOjN9",
+      "expected_row_content_hash": "8d11bb5d54e856115a04745ff06855549d1750fdaf58e4bb14477c37c62c7dda"
+    }
+  ],
+  "pair_invariants": [
+    {
+      "id": "pair-settle-001-002",
+      "type": "different_hash_from",
+      "left": "settlement-attestation-v1-001",
+      "right": "settlement-attestation-v1-002",
+      "rationale": "Closed enumeration byte-load-bearing: SETTLED vs PENDING_FINALITY"
+    },
+    {
+      "id": "pair-settle-001-003",
+      "type": "different_hash_from",
+      "left": "settlement-attestation-v1-001",
+      "right": "settlement-attestation-v1-003",
+      "rationale": "Closed enumeration byte-load-bearing: SETTLED vs REVERSED"
+    },
+    {
+      "id": "pair-settle-002-003",
+      "type": "different_hash_from",
+      "left": "settlement-attestation-v1-002",
+      "right": "settlement-attestation-v1-003",
+      "rationale": "Closed enumeration byte-load-bearing: PENDING_FINALITY vs REVERSED"
+    },
+    {
+      "id": "pair-settle-001-004",
+      "type": "different_hash_from",
+      "left": "settlement-attestation-v1-001",
+      "right": "settlement-attestation-v1-004",
+      "rationale": "jurisdiction_flags array-order byte-load-bearing"
+    },
+    {
+      "id": "pair-settle-001-005",
+      "type": "different_hash_from",
+      "left": "settlement-attestation-v1-001",
+      "right": "settlement-attestation-v1-005",
+      "rationale": "canon_version pin byte-load-bearing"
+    }
+  ],
+  "chain_invariants": [
+    {
+      "id": "chain-settle-001",
+      "type": "field_equals",
+      "vector": "settlement-attestation-v1-006",
+      "field": "row.prev_hash",
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rationale": "Chain row 1 anchors to all-zero prev_hash (genesis)"
+    },
+    {
+      "id": "chain-settle-002",
+      "type": "field_equals_other",
+      "left_vector": "settlement-attestation-v1-007",
+      "left_field": "row.prev_hash",
+      "right_vector": "settlement-attestation-v1-006",
+      "right_field": "expected_row_content_hash",
+      "rationale": "Chain row 2's prev_hash equals row 1's row_content_hash"
+    },
+    {
+      "id": "chain-settle-003",
+      "type": "field_equals_other",
+      "left_vector": "settlement-attestation-v1-008",
+      "left_field": "row.prev_hash",
+      "right_vector": "settlement-attestation-v1-007",
+      "right_field": "expected_row_content_hash",
+      "rationale": "Chain row 3's prev_hash equals row 2's row_content_hash"
+    }
+  ]
+}
