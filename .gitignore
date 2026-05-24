@@ -4,6 +4,8 @@ node_modules/
 *.class
 *.jar
 target/
+bin/
+obj/
 *.log
 .DS_Store
 Thumbs.db

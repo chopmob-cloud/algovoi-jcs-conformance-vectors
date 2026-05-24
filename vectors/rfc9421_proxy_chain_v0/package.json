@@ -1,0 +1,13 @@
+{
+  "name": "rfc9421-proxy-chain-v0-runner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Node.js runner for the rfc9421_proxy_chain_v0 fixture",
+  "scripts": {
+    "verify": "node runner_node.js"
+  },
+  "dependencies": {
+    "@algovoi/rfc9421-verifier": "^0.1.0"
+  }
+}
