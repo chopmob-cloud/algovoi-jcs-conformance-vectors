@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "service-trust-conformance-v0",
+  "published_at": "2026-05-23T18:12:46.199Z",
+  "provider": "did:web:supership.crestsystems.ai",
+  "category": "service_trust",
+  "canonicalizer": "JCS RFC 8785 + SHA-256",
+  "signing": "EdDSA (Ed25519)",
+  "canon_version": "jcs-rfc8785-v1",
+  "anchored_to": {
+    "spec": "x402-foundation/x402 PR #2422 (risk-check extension)",
+    "canonicalization": "x402-foundation/x402 PR #2436 (shared canonicalization section)",
+    "fixtures": "x402-foundation/x402 PR #2398 (action-ref-verify)",
+    "thread": "https://github.com/x402-foundation/x402/issues/2421"
+  },
+  "derivation": "Trust scores derived from on-chain USDC payment flows on Base mainnet. score:null for unobserved services is intentional (no signal != bad signal).",
+  "verification_recipe": [
+    "1. POST each vector input to https://supership.crestsystems.ai/v1/risk-check",
+    "2. Check in_index matches expected_result",
+    "3. Check score matches expected (null or within range)",
+    "4. Check tier and recommendation match expected values",
+    "5. If JWS present, verify against https://supership.crestsystems.ai/.well-known/jwks.json",
+    "6. Check canon_version in JWS claims equals jcs-rfc8785-v1"
+  ],
+  "vectors": [
+    {
+      "name": "known-service-scored",
+      "description": "Service with observed x402 payment history returns real trust score",
+      "input": {
+        "service_url": "https://api.exa.ai/search"
+      },
+      "expected_result": "in_index",
+      "expected_score_range": [
+        60,
+        100
+      ],
+      "expected_tier": "low",
+      "expected_recommendation": "allow",
+      "pair_note": "Positive case: service with 70K+ calls and 231 payers"
+    },
+    {
+      "name": "unknown-service-null",
+      "description": "Service without observed x402 payment activity returns null score",
+      "input": {
+        "service_url": "https://unknown-service.example.com/api"
+      },
+      "expected_result": "not_in_index",
+      "expected_score": null,
+      "expected_tier": "unknown",
+      "expected_recommendation": "no_data",
+      "pair_note": "Negative case: explicit null, not a default score"
+    },
+    {
+      "name": "timestamp-ms-canonicalization",
+      "description": "JWS attestation uses timestamp_ms (epoch integer) per shared canonicalization discipline #2326",
+      "input": {
+        "service_url": "https://api.exa.ai/search"
+      },
+      "jws_claim_check": "iat and exp fields MUST be Unix epoch integers, NOT RFC 3339 strings",
+      "canon_version_check": "jcs-rfc8785-v1",
+      "pair_note": "Validates alignment with privacy_class v0.1 vector 007a timestamp convention"
+    },
+    {
+      "name": "null-score-not-default",
+      "description": "score:null is semantically distinct from score:0 or score:50",
+      "input": {
+        "service_url": "https://nonexistent-x402-service.test"
+      },
+      "expected_score": null,
+      "must_not_equal": [
+        0,
+        50,
+        80,
+        100
+      ],
+      "pair_note": "Prevents soft-erosion: null means no signal, not bad signal"
+    },
+    {
+      "name": "batch-composition",
+      "description": "Batch endpoint returns independent scores per query",
+      "input": {
+        "queries": [
+          {
+            "service_url": "https://api.exa.ai/search"
+          },
+          {
+            "service_url": "https://nonexistent.test"
+          }
+        ]
+      },
+      "expected_count": 2,
+      "expected_mixed": true,
+      "pair_note": "First query scored, second null -- batch preserves per-query independence"
+    }
+  ]
+}
