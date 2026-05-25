@@ -1,0 +1,292 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "composite-trust-query-v1-conformance",
+  "published_at": "2026-05-25T04:20:52Z",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust) / root23/php-json-canonicalization (PHP) / Baqhub.Packages.JsonCanonicalization (.NET) / json-canonicalization (Ruby)",
+  "hash": "SHA-256, lowercase hex",
+  "anchored_to": {
+    "ietf_id": "draft-hopley-x402-composite-trust-query-00 (Independent Submission, Informational; AlgoVoi-authored)",
+    "ietf_id_url": "https://datatracker.ietf.org/doc/draft-hopley-x402-composite-trust-query/",
+    "canonicalisation_discipline": "urn:x402:canonicalisation:jcs-rfc8785-v1 (normatively specified in draft-hopley-x402-canonicalisation-jcs-v1)",
+    "load_bearing_invariants": [
+      "trust_outcome is a closed enumeration of {TRUSTED, PROVISIONAL, INSUFFICIENT_EVIDENCE, UNTRUSTED}; each value produces a byte-distinct content_hash.",
+      "jurisdiction_flags is an ordered list (RFC 8785 §3.2.3).",
+      "canon_version is an in-band pin; changing it produces a different content_hash.",
+      "ctq_timestamp_ms is an epoch-millisecond integer (Substrate Rule 2). RFC 3339 string forms are rejected.",
+      "chain_ref and query_ref are content-addressed (sha256:<hex>); prefix is part of canonical bytes.",
+      "Audit chain rows link via prev_hash."
+    ],
+    "spec_authorship": "AlgoVoi-authored. Welcomes downstream-adopter contributions per Appendix C 'Known Adopters' pattern established in draft-hopley-x402-canonicalisation-jcs-v1-01.",
+    "composes_with": "compliance_receipt_v1 (admission), settlement_attestation_v1 (settlement), cancellation_receipt_v1 (mandate termination), refund_receipt_v1 (refund). The CTQ response sits above the four receipt formats and references an audit chain composed of them via chain_ref."
+  },
+  "derivation": "Eight composite-trust-query-shape vectors split into two groups: (A) baseline four-state coverage of the closed enumeration (TRUSTED, PROVISIONAL, INSUFFICIENT_EVIDENCE, UNTRUSTED). The four-value enum captures a genuinely four-state decision space: proceed, proceed-with-caution, hold-pending-more-data, halt. Collapsing to three values loses the operationally-distinct INSUFFICIENT_EVIDENCE state. (B) canon_version pin probe. Three audit-chain-row vectors (006-008) demonstrate chain linkage when a CTQ response is itself embedded in an audit chain.",
+  "context": {
+    "substrate_packages": {
+      "python": "pypi.org/project/algovoi-composite-trust-query (>=0.1.0)",
+      "typescript": "npmjs.com/package/@algovoi/composite-trust-query (>=0.1.0)"
+    },
+    "primitive_modules": {
+      "python": "algovoi_composite_trust_query.build_ctq_response",
+      "typescript": "@algovoi/composite-trust-query buildCtqResponse"
+    },
+    "verification_recipe": [
+      "1. For each response vector (001 through 005), take the response object verbatim.",
+      "2. Canonicalise under RFC 8785.",
+      "3. base64-encode the JCS bytes; MUST equal expected_jcs_bytes_b64.",
+      "4. SHA-256 the JCS bytes, lowercase hex; MUST equal expected_content_hash.",
+      "5. For chain rows (006-008), repeat on row object; MUST equal expected_row_content_hash.",
+      "6. Verify pair invariants: all seven MUST hold.",
+      "7. Verify chain linkage: row 1 prev_hash zeros; rows 2, 3 link to prior row_content_hash."
+    ]
+  },
+  "fixed_response_fields": {
+    "chain_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+    "ctq_timestamp_ms": 1716494400000,
+    "query_ref": "sha256:8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
+    "verifier_did": "did:example:trust-verifier-1"
+  },
+  "vectors": [
+    {
+      "vector_id": "composite-trust-query-v1-001",
+      "description": "TRUSTED outcome (baseline). Verifier walked the audit chain, all anchored receipts present and consistent under the asserted jurisdiction(s). No revocation, reversal, or compliance-forced termination on the chain. Operator may proceed.",
+      "pair_group": "outcome-enum",
+      "expectation": "reference",
+      "response": {
+        "canon_version": "jcs-rfc8785-v1",
+        "chain_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "ctq_timestamp_ms": 1716494400000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "query_ref": "sha256:8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
+        "trust_outcome": "TRUSTED",
+        "verifier_did": "did:example:trust-verifier-1"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJjaGFpbl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsImN0cV90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDAsImp1cmlzZGljdGlvbl9mbGFncyI6WyJVSyIsIkVVIl0sInF1ZXJ5X3JlZiI6InNoYTI1Njo4YjdkZjE0M2Q5MWM3MTZlY2ZhNWZjMTczMDAyMmY2YjQyMWIwNWNlZGVlOGZkNTJiMWZjNjVhOTYwMzBhZDUyIiwidHJ1c3Rfb3V0Y29tZSI6IlRSVVNURUQiLCJ2ZXJpZmllcl9kaWQiOiJkaWQ6ZXhhbXBsZTp0cnVzdC12ZXJpZmllci0xIn0=",
+      "expected_content_hash": "fd461c6c63330e0b15ed57b40d687ccadbd1ca2359cb5cf0f53e23c5d4f5c555",
+      "different_hash_from": [
+        "composite-trust-query-v1-002",
+        "composite-trust-query-v1-003",
+        "composite-trust-query-v1-004",
+        "composite-trust-query-v1-005"
+      ]
+    },
+    {
+      "vector_id": "composite-trust-query-v1-002",
+      "description": "PROVISIONAL outcome. Some receipts in the chain are in PENDING_FINALITY or analogous non-terminal state; verifier can affirm partial state but not full settlement. Operator should proceed cautiously and re-query after pending events finalise.",
+      "pair_group": "outcome-enum",
+      "expectation": "reference",
+      "response": {
+        "canon_version": "jcs-rfc8785-v1",
+        "chain_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "ctq_timestamp_ms": 1716494400000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "query_ref": "sha256:8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
+        "trust_outcome": "PROVISIONAL",
+        "verifier_did": "did:example:trust-verifier-1"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJjaGFpbl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsImN0cV90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDAsImp1cmlzZGljdGlvbl9mbGFncyI6WyJVSyIsIkVVIl0sInF1ZXJ5X3JlZiI6InNoYTI1Njo4YjdkZjE0M2Q5MWM3MTZlY2ZhNWZjMTczMDAyMmY2YjQyMWIwNWNlZGVlOGZkNTJiMWZjNjVhOTYwMzBhZDUyIiwidHJ1c3Rfb3V0Y29tZSI6IlBST1ZJU0lPTkFMIiwidmVyaWZpZXJfZGlkIjoiZGlkOmV4YW1wbGU6dHJ1c3QtdmVyaWZpZXItMSJ9",
+      "expected_content_hash": "c4d0ff19946ec926475e340c73f0e0d61019fe8ef6fc6086c98e5e2efa88bd54",
+      "different_hash_from": [
+        "composite-trust-query-v1-001",
+        "composite-trust-query-v1-003",
+        "composite-trust-query-v1-004"
+      ]
+    },
+    {
+      "vector_id": "composite-trust-query-v1-003",
+      "description": "INSUFFICIENT_EVIDENCE outcome. Chain does not contain enough evidence to answer the query: chain segments missing, query references state outside the chain, or content-addressed pointers undereferenceable. Operator should gather more evidence; do not proceed under TRUSTED.",
+      "pair_group": "outcome-enum",
+      "expectation": "reference",
+      "response": {
+        "canon_version": "jcs-rfc8785-v1",
+        "chain_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "ctq_timestamp_ms": 1716494400000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "query_ref": "sha256:8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
+        "trust_outcome": "INSUFFICIENT_EVIDENCE",
+        "verifier_did": "did:example:trust-verifier-1"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJjaGFpbl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsImN0cV90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDAsImp1cmlzZGljdGlvbl9mbGFncyI6WyJVSyIsIkVVIl0sInF1ZXJ5X3JlZiI6InNoYTI1Njo4YjdkZjE0M2Q5MWM3MTZlY2ZhNWZjMTczMDAyMmY2YjQyMWIwNWNlZGVlOGZkNTJiMWZjNjVhOTYwMzBhZDUyIiwidHJ1c3Rfb3V0Y29tZSI6IklOU1VGRklDSUVOVF9FVklERU5DRSIsInZlcmlmaWVyX2RpZCI6ImRpZDpleGFtcGxlOnRydXN0LXZlcmlmaWVyLTEifQ==",
+      "expected_content_hash": "7f295d3431a028ee2bd57125b4b30035b015c5af0371d02c411a3122cdd8a81e",
+      "different_hash_from": [
+        "composite-trust-query-v1-001",
+        "composite-trust-query-v1-002",
+        "composite-trust-query-v1-004"
+      ]
+    },
+    {
+      "vector_id": "composite-trust-query-v1-004",
+      "description": "UNTRUSTED outcome. Chain contains evidence that negates the query (compliance-forced termination, settled-then-reversed transaction, REJECTED refund, expired mandate). Operator should halt the action the query was framed to authorise.",
+      "pair_group": "outcome-enum",
+      "expectation": "reference",
+      "response": {
+        "canon_version": "jcs-rfc8785-v1",
+        "chain_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "ctq_timestamp_ms": 1716494400000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "query_ref": "sha256:8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
+        "trust_outcome": "UNTRUSTED",
+        "verifier_did": "did:example:trust-verifier-1"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJjaGFpbl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsImN0cV90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDAsImp1cmlzZGljdGlvbl9mbGFncyI6WyJVSyIsIkVVIl0sInF1ZXJ5X3JlZiI6InNoYTI1Njo4YjdkZjE0M2Q5MWM3MTZlY2ZhNWZjMTczMDAyMmY2YjQyMWIwNWNlZGVlOGZkNTJiMWZjNjVhOTYwMzBhZDUyIiwidHJ1c3Rfb3V0Y29tZSI6IlVOVFJVU1RFRCIsInZlcmlmaWVyX2RpZCI6ImRpZDpleGFtcGxlOnRydXN0LXZlcmlmaWVyLTEifQ==",
+      "expected_content_hash": "6e7a95c85136549a67417da3b71b5f1cbbc8c9d4fb9d91e30674a727e274db51",
+      "different_hash_from": [
+        "composite-trust-query-v1-001",
+        "composite-trust-query-v1-002",
+        "composite-trust-query-v1-003"
+      ]
+    },
+    {
+      "vector_id": "composite-trust-query-v1-005",
+      "description": "Canonicalisation rule pin probe. All fields identical to vector 001 except canon_version is 'jcs-rfc8785-v2'. Demonstrates the in-band canonicalisation rule pin is byte-load-bearing.",
+      "pair_group": "canon-version-pin",
+      "expectation": "reference",
+      "response": {
+        "canon_version": "jcs-rfc8785-v2",
+        "chain_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "ctq_timestamp_ms": 1716494400000,
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "query_ref": "sha256:8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
+        "trust_outcome": "TRUSTED",
+        "verifier_did": "did:example:trust-verifier-1"
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjIiLCJjaGFpbl9yZWYiOiJzaGEyNTY6MGRkNWQwYjc2YzliOTI4MWZkZWIyNTA5YWQzOGFiMTMyYjE2YTE3Mzg1Y2EwMWQ5NzZmZjllNmUxMjU2M2EwZiIsImN0cV90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDAsImp1cmlzZGljdGlvbl9mbGFncyI6WyJVSyIsIkVVIl0sInF1ZXJ5X3JlZiI6InNoYTI1Njo4YjdkZjE0M2Q5MWM3MTZlY2ZhNWZjMTczMDAyMmY2YjQyMWIwNWNlZGVlOGZkNTJiMWZjNjVhOTYwMzBhZDUyIiwidHJ1c3Rfb3V0Y29tZSI6IlRSVVNURUQiLCJ2ZXJpZmllcl9kaWQiOiJkaWQ6ZXhhbXBsZTp0cnVzdC12ZXJpZmllci0xIn0=",
+      "expected_content_hash": "c9217bca9d6c9d95f926384688a5321626ef035a32468aea0a98778d0ba17bd1",
+      "different_hash_from": [
+        "composite-trust-query-v1-001"
+      ]
+    },
+    {
+      "vector_id": "composite-trust-query-v1-006",
+      "description": "Audit chain row 1 anchoring the TRUSTED response (vector 001).",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "fd461c6c63330e0b15ed57b40d687ccadbd1ca2359cb5cf0f53e23c5d4f5c555",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "row_number": 1
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiJmZDQ2MWM2YzYzMzMwZTBiMTVlZDU3YjQwZDY4N2NjYWRiZDFjYTIzNTljYjVjZjBmNTNlMjNjNWQ0ZjVjNTU1IiwicHJldl9oYXNoIjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsInJvd19udW1iZXIiOjF9",
+      "expected_row_content_hash": "7cade2b6984a2257b573559c88c7b93b728c6c24a2e76818cfedfa4d886e9b9a"
+    },
+    {
+      "vector_id": "composite-trust-query-v1-007",
+      "description": "Audit chain row 2 anchoring the PROVISIONAL response (vector 002).",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "c4d0ff19946ec926475e340c73f0e0d61019fe8ef6fc6086c98e5e2efa88bd54",
+        "prev_hash": "7cade2b6984a2257b573559c88c7b93b728c6c24a2e76818cfedfa4d886e9b9a",
+        "row_number": 2
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiJjNGQwZmYxOTk0NmVjOTI2NDc1ZTM0MGM3M2YwZTBkNjEwMTlmZThlZjZmYzYwODZjOThlNWUyZWZhODhiZDU0IiwicHJldl9oYXNoIjoiN2NhZGUyYjY5ODRhMjI1N2I1NzM1NTljODhjN2I5M2I3MjhjNmMyNGEyZTc2ODE4Y2ZlZGZhNGQ4ODZlOWI5YSIsInJvd19udW1iZXIiOjJ9",
+      "expected_row_content_hash": "eb7b910136aadc99504dd65d132338f405ba8864b63713c363cd9f86821f9713"
+    },
+    {
+      "vector_id": "composite-trust-query-v1-008",
+      "description": "Audit chain row 3 anchoring the UNTRUSTED response (vector 004).",
+      "pair_group": "audit-chain",
+      "expectation": "reference",
+      "row": {
+        "content_hash": "6e7a95c85136549a67417da3b71b5f1cbbc8c9d4fb9d91e30674a727e274db51",
+        "prev_hash": "eb7b910136aadc99504dd65d132338f405ba8864b63713c363cd9f86821f9713",
+        "row_number": 3
+      },
+      "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiI2ZTdhOTVjODUxMzY1NDlhNjc0MTdkYTNiNzFiNWYxY2JiYzhjOWQ0ZmI5ZDkxZTMwNjc0YTcyN2UyNzRkYjUxIiwicHJldl9oYXNoIjoiZWI3YjkxMDEzNmFhZGM5OTUwNGRkNjVkMTMyMzM4ZjQwNWJhODg2NGI2MzcxM2MzNjNjZDlmODY4MjFmOTcxMyIsInJvd19udW1iZXIiOjN9",
+      "expected_row_content_hash": "058eec4f0f544eaa8d57b7b8ead47d104404e1b7f4b20fcd7a1060c9af26ea46"
+    }
+  ],
+  "pair_invariants": [
+    {
+      "id": "pair-ctq-001-002",
+      "type": "different_hash_from",
+      "left": "composite-trust-query-v1-001",
+      "right": "composite-trust-query-v1-002",
+      "rationale": "Closed enumeration byte-load-bearing: TRUSTED vs PROVISIONAL"
+    },
+    {
+      "id": "pair-ctq-001-003",
+      "type": "different_hash_from",
+      "left": "composite-trust-query-v1-001",
+      "right": "composite-trust-query-v1-003",
+      "rationale": "Closed enumeration byte-load-bearing: TRUSTED vs INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "id": "pair-ctq-001-004",
+      "type": "different_hash_from",
+      "left": "composite-trust-query-v1-001",
+      "right": "composite-trust-query-v1-004",
+      "rationale": "Closed enumeration byte-load-bearing: TRUSTED vs UNTRUSTED"
+    },
+    {
+      "id": "pair-ctq-002-003",
+      "type": "different_hash_from",
+      "left": "composite-trust-query-v1-002",
+      "right": "composite-trust-query-v1-003",
+      "rationale": "Closed enumeration byte-load-bearing: PROVISIONAL vs INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "id": "pair-ctq-002-004",
+      "type": "different_hash_from",
+      "left": "composite-trust-query-v1-002",
+      "right": "composite-trust-query-v1-004",
+      "rationale": "Closed enumeration byte-load-bearing: PROVISIONAL vs UNTRUSTED"
+    },
+    {
+      "id": "pair-ctq-003-004",
+      "type": "different_hash_from",
+      "left": "composite-trust-query-v1-003",
+      "right": "composite-trust-query-v1-004",
+      "rationale": "Closed enumeration byte-load-bearing: INSUFFICIENT_EVIDENCE vs UNTRUSTED"
+    },
+    {
+      "id": "pair-ctq-001-005",
+      "type": "different_hash_from",
+      "left": "composite-trust-query-v1-001",
+      "right": "composite-trust-query-v1-005",
+      "rationale": "canon_version pin byte-load-bearing"
+    }
+  ],
+  "chain_invariants": [
+    {
+      "id": "chain-ctq-001",
+      "type": "field_equals",
+      "vector": "composite-trust-query-v1-006",
+      "field": "row.prev_hash",
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rationale": "Chain row 1 anchors to all-zero prev_hash"
+    },
+    {
+      "id": "chain-ctq-002",
+      "type": "field_equals_other",
+      "left_vector": "composite-trust-query-v1-007",
+      "left_field": "row.prev_hash",
+      "right_vector": "composite-trust-query-v1-006",
+      "right_field": "expected_row_content_hash",
+      "rationale": "Chain row 2's prev_hash equals row 1's row_content_hash"
+    },
+    {
+      "id": "chain-ctq-003",
+      "type": "field_equals_other",
+      "left_vector": "composite-trust-query-v1-008",
+      "left_field": "row.prev_hash",
+      "right_vector": "composite-trust-query-v1-007",
+      "right_field": "expected_row_content_hash",
+      "rationale": "Chain row 3's prev_hash equals row 2's row_content_hash"
+    }
+  ]
+}
