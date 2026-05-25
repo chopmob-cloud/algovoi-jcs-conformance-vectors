@@ -2,7 +2,7 @@
 
 AlgoVoi-authored conformance vector set for the **compliance receipt format**
 specified in IETF Internet-Draft
-[`draft-hopley-x402-compliance-receipt-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
+[`draft-hopley-x402-compliance-receipt`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
 (Independent Submission, Informational; submitted to the IETF datatracker
 2026-05-23).
 
@@ -54,7 +54,7 @@ properties of the receipt format:
    confirms linkage end-to-end.
 
 Any implementation claiming conformance with
-`draft-hopley-x402-compliance-receipt-00` at the canonical-bytes layer
+`draft-hopley-x402-compliance-receipt` at the canonical-bytes layer
 MUST reproduce all eight `expected_content_hash` / `expected_row_content_hash`
 values verbatim and MUST honour all five pair invariants and all three
 chain invariants.

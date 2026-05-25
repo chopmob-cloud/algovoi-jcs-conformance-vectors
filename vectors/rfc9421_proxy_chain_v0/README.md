@@ -13,7 +13,7 @@ key and the on-wire request bytes.
 
 This fixture is part of the AlgoVoi conformance corpus paired with IETF
 Internet-Draft
-[`draft-hopley-x402-compliance-receipt-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/);
+[`draft-hopley-x402-compliance-receipt`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/);
 the receipt format's audit-chain property assumes signed receipts can
 be transported and re-verified independent of the originating gateway,
 which is the property this fixture pins on the HTTP-signature layer.
@@ -110,7 +110,7 @@ without changing the underlying property the fixture demonstrates.
 - **Authorship**: AlgoVoi (chopmob-cloud).
 - **Generated**: 2026-05-16 (initial fixture + wire-capture proof).
 - **Companion IETF I-D**:
-  [`draft-hopley-x402-compliance-receipt-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
+  [`draft-hopley-x402-compliance-receipt`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
   (Independent Submission, Informational; the receipt-format audit-chain
   property depends on the signed-receipt transport survival demonstrated
   here).

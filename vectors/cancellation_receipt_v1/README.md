@@ -2,7 +2,7 @@
 
 AlgoVoi-authored conformance vector set for the **mandate cancellation
 receipt format** specified in IETF Internet-Draft
-[`draft-hopley-x402-cancellation-receipt-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-cancellation-receipt/)
+[`draft-hopley-x402-cancellation-receipt`](https://datatracker.ietf.org/doc/draft-hopley-x402-cancellation-receipt/)
 (Independent Submission, Informational; AlgoVoi-authored).
 
 Records that a recurring-payment mandate (or any standing payer→payee

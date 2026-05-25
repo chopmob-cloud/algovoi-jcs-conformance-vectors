@@ -17,7 +17,7 @@ receipt        attestation    receipt
 All three pin the same canonicalisation discipline
 (`urn:x402:canonicalisation:jcs-rfc8785-v1`).
 
-**Targeted IETF I-D**: `draft-hopley-x402-settlement-attestation-00`
+**Targeted IETF I-D**: `draft-hopley-x402-settlement-attestation`
 (Independent Submission, Informational).
 
 ## Authorship
@@ -200,7 +200,7 @@ canonicalisation pin.
 
 ## Year-N auditability
 
-Same five properties pinned by `draft-hopley-x402-compliance-receipt-00`
+Same five properties pinned by `draft-hopley-x402-compliance-receipt`
 §6 apply to the settlement attestation:
 
 1. Self-describing canonicalisation pin via `canon_version`.

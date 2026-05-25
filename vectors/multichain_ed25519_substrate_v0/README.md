@@ -14,7 +14,7 @@ key originated.
 
 This fixture supports the broader substrate-authorship claim that
 AlgoVoi receipts (specified in
-[`draft-hopley-x402-compliance-receipt-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/))
+[`draft-hopley-x402-compliance-receipt`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/))
 can be signed by gateways operating on any chain that adopts Ed25519
 key material via BIP44, without coupling the receipt format to a
 specific chain.

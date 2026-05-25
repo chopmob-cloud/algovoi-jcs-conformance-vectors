@@ -2,7 +2,7 @@
 
 AlgoVoi-authored conformance vector set for the **composite trust
 query response format** specified in IETF Internet-Draft
-[`draft-hopley-x402-composite-trust-query-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-composite-trust-query/)
+[`draft-hopley-x402-composite-trust-query`](https://datatracker.ietf.org/doc/draft-hopley-x402-composite-trust-query/)
 (Independent Submission, Informational; AlgoVoi-authored).
 
 Records a verifier's categorical conclusion over an audit chain

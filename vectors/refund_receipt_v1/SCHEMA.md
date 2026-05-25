@@ -6,7 +6,7 @@ locked.
 
 **Companion**: this format composes with the compliance receipt format
 specified in
-[`draft-hopley-x402-compliance-receipt-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/).
+[`draft-hopley-x402-compliance-receipt`](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/).
 The refund receipt is the post-settlement counterpart that records
 **reversal-of-funds events** with the same canonicalisation discipline
 (JCS RFC 8785) and the same audit-chain semantics. A receipt-format
@@ -14,7 +14,7 @@ acquirer who reads both specifications can verify the entire payment
 lifecycle from admission-time screening through settlement to refund
 under one byte-deterministic canonicalisation pin.
 
-**Targeted IETF I-D**: `draft-hopley-x402-refund-receipt-00`
+**Targeted IETF I-D**: `draft-hopley-x402-refund-receipt`
 (Independent Submission, Informational).
 
 ## Authorship
@@ -156,7 +156,7 @@ the chain rows preserve hash-linkage end-to-end.
 
 ## Year-five auditability
 
-The same five properties pinned by `draft-hopley-x402-compliance-receipt-00`
+The same five properties pinned by `draft-hopley-x402-compliance-receipt`
 §6 apply to the refund receipt verbatim:
 
 1. **Self-describing canonicalisation pin** via `canon_version`.

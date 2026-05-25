@@ -18,7 +18,7 @@ Composes with the AlgoVoi receipt-format suite under the same
 canonicalisation discipline pinned by IETF I-D
 `draft-hopley-x402-canonicalisation-jcs-v1`.
 
-**Targeted IETF I-D**: `draft-hopley-x402-composite-trust-query-00`
+**Targeted IETF I-D**: `draft-hopley-x402-composite-trust-query`
 (Independent Submission, Informational).
 
 ## Authorship

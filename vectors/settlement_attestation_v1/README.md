@@ -2,7 +2,7 @@
 
 AlgoVoi-authored conformance vector set for the **settlement attestation format**
 specified in IETF Internet-Draft
-[`draft-hopley-x402-settlement-attestation-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-settlement-attestation/)
+[`draft-hopley-x402-settlement-attestation`](https://datatracker.ietf.org/doc/draft-hopley-x402-settlement-attestation/)
 (Independent Submission, Informational; AlgoVoi-authored).
 
 Lifecycle position: closes the gap between admission-time compliance
