@@ -1,0 +1,96 @@
+{
+  "card_schema": "fiscal_authority_readiness_card_v0",
+  "sample_case": "algovoi-signed-attestation",
+  "as_of": "2026-05-25T08:35:00Z",
+  "resource": {
+    "provider_id": "did:web:api.algovoi.co.uk",
+    "resource_id": "sample-algovoi-facilitated-x402-resource",
+    "resource_url": "https://api.algovoi.co.uk/compliance/attestation"
+  },
+  "price": {
+    "status": "PARTIAL",
+    "discovery_ceiling": {
+      "max_amount": "1.00",
+      "asset": "USDC",
+      "network": "base"
+    },
+    "receipt_amount_field": "settlement.amount",
+    "notes": "Discovery-ceiling is the resource-server-declared upper bound; settled amount is read from the settlement receipt's amount field at execution time. The two are deliberately separate fields in the card per the v0 discriminator design."
+  },
+  "authority": {
+    "status": "PARTIAL",
+    "approval_source": {
+      "kind": "human_principal",
+      "principal_id": null
+    },
+    "notes": "Per-call human-principal approval. principal_id resolution depends on the inbound mandate; left null in the sample. Approval source is one of {human_principal, policy_engine, allowance, budget_rule, none, unknown} per the v0 tagged union."
+  },
+  "cap": {
+    "status": "PASS",
+    "enforcement": "facilitator_policy",
+    "max_per_tx": "100.00",
+    "max_per_period": "300.00",
+    "period": "per_account",
+    "currency": "GBP",
+    "grant_hash": null,
+    "regulatory_basis": "EMR 2011 reg 20-21 safeguarding obligations enforced at admission. AlgoVoi APM (Agent Payment Module) production platform safeguards prepaid GBP balances on agent mandates; caps are enforced server-side at the gateway pre-payment, not via cryptographic grant.",
+    "notes": "cap.enforcement = 'facilitator_policy' is the non-cryptographic discriminator of the v0 card. The Vauban Pay companion card (0001-vauban-bounded-spend.json) exercises the 'cryptographic' enforcement path with a grant_hash; this card exercises the regulatory-policy enforcement path with grant_hash = null. Both paths are first-class under the v0 card shape."
+  },
+  "charge_evidence": {
+    "status": "PASS",
+    "type": "signed_attestation",
+    "reference_url": "https://api.algovoi.co.uk/compliance/attestation",
+    "attestation_anchor": {
+      "in_db_chain_head": 5,
+      "off_vm_object_lock_until": "2033-05-04T18:07:00Z",
+      "scheme": "monotonic per-row SHA-256 over RFC 8785 canonical JSON, off-VM Object-Lock COMPLIANCE retention",
+      "scheme_normative_source": "draft-hopley-x402-canonicalisation-jcs-v1 (POSTED on IETF datatracker, sole AlgoVoi authorship)"
+    },
+    "notes": "charge_evidence.type = 'signed_attestation' is the v0 card discriminator for evidence retrieved via a signed attestation manifest (vs per-settlement 'receipt' which the Vauban companion card uses). Both shapes carry attestation_anchor: receipt-style anchor populates a per-tx SettlementReceipt hash; attestation-style anchor populates the manifest root, chain head, and retention deadline."
+  },
+  "canonicalisation": {
+    "status": "PASS",
+    "canon_version": "jcs-rfc8785-v1",
+    "urn": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+    "normative_source": "https://datatracker.ietf.org/doc/draft-hopley-x402-canonicalisation-jcs-v1/",
+    "cross_validation": {
+      "cumulative_byte_for_byte_agreements": "512/512",
+      "implementations": 8,
+      "vector_sets": 7,
+      "attestations": [
+        "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/blob/main/_attestations/2026-05-24-8-impl-cross-validation.md",
+        "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/blob/main/_attestations/2026-05-25-8-impl-5-format-cross-validation.md"
+      ]
+    }
+  },
+  "revocation": {
+    "status": "PASS",
+    "type": "facilitator_policy",
+    "check_url": "https://api.algovoi.co.uk/compliance/screen",
+    "notes": "Revocation surface is the AlgoVoi APM /compliance/screen endpoint. A buyer-agent preflight resolves the URL and reads the categorical decision (ALLOW / REFER / DENY) per draft-hopley-x402-compliance-receipt before constructing an x402 payment payload. Sanctions / KYC / KYB checks complete pre-payment; a REFER or DENY outcome blocks payment construction."
+  },
+  "audit_trail": {
+    "status": "PASS",
+    "available": true,
+    "reference_type": "api_endpoint",
+    "reference_url": "https://api.algovoi.co.uk/compliance/attestation",
+    "retention": {
+      "scheme": "Object Lock COMPLIANCE 7-year retention on B2 storage; daily pg_dump to VM2 02:00 UTC with 30-day on-VM rolling window",
+      "regulatory_basis": "MiCA Article 80, AMLR Article 56, DORA Article 14 record-keeping obligations"
+    }
+  },
+  "next_safe_threshold": {
+    "requires": "(a) authority.principal_id resolution against an inbound AP2 mandate (sample is null here because the card is a sample, not an active settlement); (b) price.status promotion to PASS by binding a settled_amount to the settlement-receipt hash for a specific transaction. Both fields move from PARTIAL to PASS in a live settlement."
+  },
+  "preflight_verdict": {
+    "buyer_agent_can_spend_without_human": false,
+    "reason": "authority.status = PARTIAL (principal_id null in sample) and price.status = PARTIAL (no specific settlement amount bound). Per the v0 card discipline, all status fields must be PASS and all referenced URLs must resolve fresh before buyer_agent_can_spend_without_human can be true."
+  },
+  "links": {
+    "v0_card_schema_thread": "https://github.com/x402-foundation/x402/issues/2405",
+    "fiscal_authority_proposal": "https://github.com/x402-foundation/x402/issues/2405",
+    "algovoi_substrate_authorship_provenance": "https://docs.algovoi.co.uk/substrate-authorship-provenance",
+    "algovoi_adopters_registry": "https://docs.algovoi.co.uk/adopters",
+    "algovoi_apm": "https://docs.algovoi.co.uk/platform/apm"
+  }
+}
