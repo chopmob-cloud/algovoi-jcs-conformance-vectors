@@ -27,21 +27,21 @@
   },
   "timestamp": 1778955520,
   "chain": {
-    "description": "3-hop proxy chain: Cloudflare -> nginx (VM1) -> FastAPI",
+    "description": "3-hop proxy chain: edge CDN -> reverse proxy -> application server",
     "hops": [
       {
         "hop": 1,
-        "name": "Cloudflare",
+        "name": "Edge CDN",
         "role": "Edge proxy"
       },
       {
         "hop": 2,
-        "name": "nginx",
-        "role": "Reverse proxy (VM1 45.77.57.62)"
+        "name": "Reverse proxy",
+        "role": "Reverse proxy"
       },
       {
         "hop": 3,
-        "name": "FastAPI",
+        "name": "Application server",
         "role": "Application server"
       }
     ]

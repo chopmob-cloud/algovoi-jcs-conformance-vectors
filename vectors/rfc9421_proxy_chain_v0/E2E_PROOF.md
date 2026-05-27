@@ -1,7 +1,7 @@
-# E2E Proxy-Chain Header Survival — BYTE-LEVEL PROOF
+# E2E Proxy-Chain Header Survival — Byte-Level Proof
 
 **Date**: 2026-05-16
-**Method**: tcpdump on VM1 (45.77.57.62) capturing packets between nginx container (172.30.0.20) and gateway container (172.30.0.12) on port 8080.
+**Method**: Packet capture between proxy hops at the origin, verifying that the RFC 9421 and RFC 9530 headers reach the application server byte-for-byte unchanged after traversing a multi-hop proxy chain (edge CDN → reverse proxy → application server).
 
 ## Request Sent (client side)
 
@@ -13,7 +13,7 @@ Signature: sig=:mFTiJpaYK2uSne18+cqnbAVeYrRxVTIN9v6tY3kLF5fMs9hfZXe2JqST15dZfVVe
 User-Agent: algovoi-proxy-chain-smoke-test
 ```
 
-## Request Received at FastAPI (captured via tcpdump on host)
+## Request Received at Application Server (captured at the origin)
 
 ```
 GET /compliance/attestation HTTP/1.1
@@ -23,45 +23,32 @@ Signature: sig=:mFTiJpaYK2uSne18+cqnbAVeYrRxVTIN9v6tY3kLF5fMs9hfZXe2JqST15dZfVVe
 Signature-Input: sig=("@method" "@authority" "@path" "content-digest" "created");created=1778957126;keyid="did:web:api.algovoi.co.uk";alg="ed25519"
 ```
 
-## Result: BYTE-IDENTICAL HEADER SURVIVAL
+## Result: Byte-Identical Header Survival
 
-All three critical signature/digest headers arrived at FastAPI **byte-for-byte unchanged** after traversing the full 3-hop chain:
+All three critical signature and digest headers arrived at the application server **byte-for-byte unchanged** after traversing the full 3-hop chain:
 
 | Header | Sent | Received | Survived |
 |--------|------|----------|----------|
-| `Content-Digest` (RFC 9530) | `sha-256=:47DEQpj8...:` | `sha-256=:47DEQpj8...:` | ✅ |
-| `Signature-Input` (RFC 9421) | `sig=("@method"...);keyid="did:web:api.algovoi.co.uk"` | same | ✅ |
-| `Signature` (RFC 9421) | `sig=:mFTiJpaYK2u...:` | `sig=:mFTiJpaYK2u...:` | ✅ |
+| `Content-Digest` (RFC 9530) | `sha-256=:47DEQpj8...:` | `sha-256=:47DEQpj8...:` | yes |
+| `Signature-Input` (RFC 9421) | `sig=("@method"...);keyid="did:web:api.algovoi.co.uk"` | same | yes |
+| `Signature` (RFC 9421) | `sig=:mFTiJpaYK2u...:` | `sig=:mFTiJpaYK2u...:` | yes |
 
 ## Chain Traversed
 
 ```
-Client (UK ISP 80.195.141.108)
+Client
    ↓ TLS
-Cloudflare edge (MAN, CF-RAY: 9fcc8a1f3e2cc494-MAN)
-   ↓ TLS (re-terminated at CF)
-Origin: 45.77.57.62:443 (VM1)
-   ↓ nginx container (172.30.0.20) — TLS termination, header pass-through
-   ↓ HTTP plaintext on internal Docker network (algovoi_public_net)
-FastAPI gateway container (172.30.0.12:8080)
+Edge CDN (TLS termination, header pass-through)
+   ↓ TLS (re-terminated at edge)
+Reverse proxy at origin (TLS termination, header pass-through)
+   ↓ HTTP plaintext on internal network
+Application server
 ```
 
 All three RFC 9421 / RFC 9530 headers were preserved unmodified across:
-1. **TLS re-termination at Cloudflare** (no header rewriting)
-2. **TLS re-termination at nginx** (no header stripping)
-3. **HTTP plaintext hop within Docker network** (no edge proxy intervention)
 
-This is the strongest possible empirical evidence that AlgoVoi's deployment correctly preserves RFC 9421 + RFC 9530 headers — they pass the chain unchanged at byte level.
+1. **TLS re-termination at the CDN edge** (no header rewriting)
+2. **TLS re-termination at the origin reverse proxy** (no header stripping)
+3. **HTTP plaintext hop within the internal network** (no edge proxy intervention)
 
-## Reproduction
-
-```bash
-# On VM1 (root)
-tcpdump -i any -s 0 -A -n "tcp port 8080" -w capture.pcap &
-
-# From local
-python smoke_test.py
-
-# Read capture
-tcpdump -r capture.pcap -A | grep -E "(Signature|Content-Digest|signature-input)"
-```
+This is empirical evidence that a correctly configured multi-hop proxy chain preserves RFC 9421 and RFC 9530 headers byte-for-byte, so a verifier downstream of the chain can re-derive and verify the signature without any per-hop accommodation.

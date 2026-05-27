@@ -123,11 +123,11 @@ def generate_request_fixture():
             "signature_value_hex": signature_hex
         },
         "chain": {
-            "description": "3-hop proxy chain: Cloudflare -> nginx (VM1) -> FastAPI",
+            "description": "3-hop proxy chain: edge CDN -> reverse proxy -> application server",
             "hops": [
-                {"hop": 1, "name": "Cloudflare", "role": "Edge proxy"},
-                {"hop": 2, "name": "nginx", "server": "45.77.57.62", "role": "Reverse proxy"},
-                {"hop": 3, "name": "FastAPI", "server": "45.77.57.62", "role": "Application server"}
+                {"hop": 1, "name": "Edge CDN", "role": "Edge proxy"},
+                {"hop": 2, "name": "Reverse proxy", "role": "Reverse proxy"},
+                {"hop": 3, "name": "Application server", "role": "Application server"}
             ]
         }
     }

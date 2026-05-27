@@ -118,12 +118,12 @@ def main():
     print()
     
     if success:
-        print("  [OK] Request reached FastAPI without rejection by CF or nginx")
+        print("  [OK] Request reached the application server without rejection by the proxy chain")
         print("  [OK] Signature headers were accepted (200 response means no header-stripping caused error)")
         print()
-        print("  Note: For DEEP verification, would need to check VM1 nginx access logs")
-        print("        or echo-headers endpoint to confirm signature arrived intact.")
-        print("        Currently relying on: CF + nginx accept the headers without modification.")
+        print("  Note: For DEEP verification, would need to check origin reverse-proxy access logs")
+        print("        or an echo-headers endpoint to confirm signature arrived intact.")
+        print("        Currently relying on: edge CDN + reverse proxy accept the headers without modification.")
         print()
     else:
         print("  [WARN] Request was rejected somewhere in the chain")

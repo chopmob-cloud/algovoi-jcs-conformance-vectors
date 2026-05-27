@@ -75,7 +75,7 @@
     "reference_type": "api_endpoint",
     "reference_url": "https://api.algovoi.co.uk/compliance/attestation",
     "retention": {
-      "scheme": "Object Lock COMPLIANCE 7-year retention on B2 storage; daily pg_dump to VM2 02:00 UTC with 30-day on-VM rolling window",
+      "scheme": "Object Lock COMPLIANCE mode 7-year retention on off-VM storage; daily backup with 30-day rolling window",
       "regulatory_basis": "MiCA Article 80, AMLR Article 56, DORA Article 14 record-keeping obligations"
     }
   },
