@@ -118,6 +118,26 @@ The vectors are referenced in AEOESS Consilium Pass Candidate 5
 substrate matrix at
 <https://gist.github.com/chopmob-cloud/b327814c4e17ed9fc7b4f29c8bda523c>.
 
+### As a developer — instant verification
+
+Any of the `action_ref` vectors in this corpus can be verified against the
+AlgoVoi production reference endpoint without installing anything:
+
+```bash
+curl -X POST https://verify.algovoi.co.uk/action-ref \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_id": "did:web:api.algovoi.co.uk",
+    "action_type": "algovoi:compliance_screen",
+    "scope": "base:0xabc123",
+    "timestamp_ms": 1748534400000
+  }'
+```
+
+Returns the RFC 8785 JCS canonical form and SHA-256 digest. Verified
+byte-identical across 8 independent implementations (see cross-implementation
+validation matrix above).
+
 ## Discipline rules tested
 
 The substrate enforces these rules; the vectors exercise each:
