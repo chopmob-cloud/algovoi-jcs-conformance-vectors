@@ -92,15 +92,11 @@ Each runner exits `0` iff every vector's recomputed SHA-256 matches `expected_pe
 
 **76 byte-for-byte agreements** across four reference implementations / four languages / four non-overlapping author sets, including Anders Rundgren's Java reference impl cited in RFC 8785.
 
-A fifth Rust implementation (`serde_jcs 0.2.0`, run by @seritalien at Vauban Pay) covers the AP2 OMH v0 + CTEF/APS v1 + privacy_class v0.1 sets, with an explicit commitment to extend the runner to this set on publication day. Cumulative cross-impl coverage when that lands: 53/53 vectors + 37/37 pair invariants across four AlgoVoi-published vector sets.
-
 ## Cross-references
 
 - AP2 OMH v0: <https://gist.github.com/chopmob-cloud/1dca25fd6107db4b7a30bed5dbf2ded8>
 - privacy_class v0 + v0.1: <https://gist.github.com/chopmob-cloud/30bcbc717c86493f737feb92c415ba07>
 - CTEF + APS v1: <https://gist.github.com/chopmob-cloud/5f35eaa527d292bf3ddc52f8725a85c9>
-- Vauban Rust 5th-impl: <https://gist.github.com/seritalien/b0b86baabae33e289fdb6d2f3fb30130>
 - Coalition shared canonicalisation section: <https://github.com/x402-foundation/x402/issues/2326>
-- In-tree fixtures mirror (Vauban-authored PR pending): `fixtures/canonicalisation-substrate/v0/`
 
 — AlgoVoi (chopmob-cloud)
