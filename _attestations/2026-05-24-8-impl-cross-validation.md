@@ -29,9 +29,9 @@ empirically reproducible by every major JCS implementation that exists.
 | 1 | Python | `rfc8785` (wrapped by `algovoi-substrate`) | 0.1.4 / 0.3.0 | Trail of Bits / AlgoVoi | `pip install algovoi-substrate>=0.3.0` |
 | 2 | TypeScript | `canonicalize` (wrapped by `@algovoi/substrate`) | 3.0.0 / 0.3.0 | Samuel Erdtman / AlgoVoi | `npm install @algovoi/substrate@^0.3.0` |
 | 3 | Go | `gowebpki/jcs` | v1.0.1 | Web PKI Working Group | `go get github.com/gowebpki/jcs@v1.0.1` |
-| 4 | Rust | `serde_jcs` | 0.2.0 | seritalien / Vauban Pay | `cargo add serde_jcs@0.2.0` |
+| 4 | Rust | `serde_jcs` | 0.2.0 | [l1h3r](https://github.com/l1h3r) | `cargo add serde_jcs@0.2.0` |
 | 5 | Java | `io.github.erdtman:java-json-canonicalization` | 1.1 | Anders Rundgren (**RFC 8785 author**) and Samuel Erdtman | Maven artefact (see runner) |
-| 6 | PHP | `root23/php-json-canonicalization` | 1.0.1 | root23 (222K downloads on Packagist) | `composer require root23/php-json-canonicalization` |
+| 6 | PHP | inline pure-stdlib JCS | AlgoVoi | AlgoVoi-authored runner (~50 lines, no external dependency) |
 | 7 | C# / .NET | `Baqhub.Packages.JsonCanonicalization` | 1.0.1 | Baqhub | `dotnet add package Baqhub.Packages.JsonCanonicalization` |
 | 8 | Ruby | `json-canonicalization` | 1.0.0 | RubyGems community | `gem install json-canonicalization` |
 
@@ -50,7 +50,7 @@ specification that the substrate pins.
 | Go (`gowebpki/jcs v1.0.1`) | 8/8 | 8/8 | 8/8 | **24/24** |
 | Rust (`serde_jcs@0.2.0`) | 8/8 | 8/8 | 8/8 | **24/24** |
 | Java (`erdtman/java-json-canonicalization 1.1`) | 8/8 | 8/8 | 8/8 | **24/24** |
-| PHP (`root23/php-json-canonicalization 1.0.1`) | 8/8 | 8/8 | 8/8 | **24/24** |
+| PHP (AlgoVoi inline pure-stdlib JCS) | 8/8 | 8/8 | 8/8 | **24/24** |
 | C# / .NET (`Baqhub.Packages.JsonCanonicalization 1.0.1`) | 8/8 | 8/8 | 8/8 | **24/24** |
 | Ruby (`json-canonicalization 1.0.0`) | 8/8 | 8/8 | 8/8 | **24/24** |
 | **Total** | **64/64** | **64/64** | **64/64** | **192/192** |
