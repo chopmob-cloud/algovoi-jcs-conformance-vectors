@@ -36,8 +36,14 @@ IETF submission system and are independently verifiable on the datatracker.
 This repository does NOT define or pin JCS usage for:
 
 - **Agent identity hashing** -- hashing an agent descriptor to produce a stable
-  identity token. That is a different application of JCS with a different input
-  schema, different canonicalisation semantics, and different threat model.
+  identity token for a transparency log or identity registry. That is a different
+  application of JCS with a different input schema, different canonicalisation
+  semantics, and different threat model. Note: the `action_ref` function in
+  AlgoVoi's substrate takes an `(agent_id, action_type, scope, timestamp_ms)`
+  tuple; the output hash identifies the **payment action** (not the agent).
+  The `agent_id` field is a participant identifier used to bind the payment
+  action to its authorising party -- the result is a transaction reference,
+  not an agent identity derivation.
 - **Transparency log commitments** -- using JCS to canonicalise a log entry
   before committing to a Merkle tree or RFC 9162 log. That is a different JCS
   application with a different signed-object shape.
