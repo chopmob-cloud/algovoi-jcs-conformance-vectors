@@ -1,0 +1,185 @@
+{
+  "format": "zkp_receipt_v1",
+  "spec": "draft-hopley-x402-pqc-credential-binding-00",
+  "iacr_eprint": "2026/109852",
+  "canon_version": "jcs-rfc8785-v1",
+  "vector_count": 8,
+  "vectors": [
+    {
+      "vector_id": "zkp_receipt_v1_algo",
+      "receipt": {
+        "type": "zkp_receipt",
+        "version": "1",
+        "payment_id": "pay-zkp_receipt_v1_algo",
+        "chain": "algorand_mainnet",
+        "amount_microusd": 10000000,
+        "recipient": "ALGO7777TEST",
+        "tx_id": "TXALGO001",
+        "settled_at": "2026-06-04T10:00:00Z",
+        "atb_cert_version": "2",
+        "bench_issuer": "did:web:agent-trust-bench.algovoi.co.uk",
+        "commitment_b64": "oaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaE=",
+        "proof_b64": "Xl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl4=",
+        "threshold_milliunits": 700,
+        "expires_at": "2026-07-04T10:00:00Z",
+        "issued_at": "2026-06-04T10:00:00Z"
+      },
+      "expected_jcs_bytes_b64": "eyJhbW91bnRfbWljcm91c2QiOjEwMDAwMDAwLCJhdGJfY2VydF92ZXJzaW9uIjoiMiIsImJlbmNoX2lzc3VlciI6ImRpZDp3ZWI6YWdlbnQtdHJ1c3QtYmVuY2guYWxnb3ZvaS5jby51ayIsImNoYWluIjoiYWxnb3JhbmRfbWFpbm5ldCIsImNvbW1pdG1lbnRfYjY0Ijoib2FHaG9hR2hvYUdob2FHaG9hR2hvYUdob2FHaG9hR2hvYUdob2FHaG9hRT0iLCJleHBpcmVzX2F0IjoiMjAyNi0wNy0wNFQxMDowMDowMFoiLCJpc3N1ZWRfYXQiOiIyMDI2LTA2LTA0VDEwOjAwOjAwWiIsInBheW1lbnRfaWQiOiJwYXktemtwX3JlY2VpcHRfdjFfYWxnbyIsInByb29mX2I2NCI6IlhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsNWVYbDVlWGw1ZVhsND0iLCJyZWNpcGllbnQiOiJBTEdPNzc3N1RFU1QiLCJzZXR0bGVkX2F0IjoiMjAyNi0wNi0wNFQxMDowMDowMFoiLCJ0aHJlc2hvbGRfbWlsbGl1bml0cyI6NzAwLCJ0eF9pZCI6IlRYQUxHTzAwMSIsInR5cGUiOiJ6a3BfcmVjZWlwdCIsInZlcnNpb24iOiIxIn0=",
+      "expected_content_hash": "1a54562dbd331a4d241cc35a3d495e46cb5815dcfe9d40298efe3f008428033e"
+    },
+    {
+      "vector_id": "zkp_receipt_v1_base",
+      "receipt": {
+        "type": "zkp_receipt",
+        "version": "1",
+        "payment_id": "pay-zkp_receipt_v1_base",
+        "chain": "base_mainnet",
+        "amount_microusd": 5000000,
+        "recipient": "0xABCDEF1234567890",
+        "tx_id": "0xTXBASE002",
+        "settled_at": "2026-06-04T11:00:00Z",
+        "atb_cert_version": "2",
+        "bench_issuer": "did:web:agent-trust-bench.algovoi.co.uk",
+        "commitment_b64": "zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMw=",
+        "proof_b64": "MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMw==",
+        "threshold_milliunits": 800,
+        "expires_at": "2026-07-04T11:00:00Z",
+        "issued_at": "2026-06-04T11:00:00Z"
+      },
+      "expected_jcs_bytes_b64": "eyJhbW91bnRfbWljcm91c2QiOjUwMDAwMDAsImF0Yl9jZXJ0X3ZlcnNpb24iOiIyIiwiYmVuY2hfaXNzdWVyIjoiZGlkOndlYjphZ2VudC10cnVzdC1iZW5jaC5hbGdvdm9pLmNvLnVrIiwiY2hhaW4iOiJiYXNlX21haW5uZXQiLCJjb21taXRtZW50X2I2NCI6InpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXc9IiwiZXhwaXJlc19hdCI6IjIwMjYtMDctMDRUMTE6MDA6MDBaIiwiaXNzdWVkX2F0IjoiMjAyNi0wNi0wNFQxMTowMDowMFoiLCJwYXltZW50X2lkIjoicGF5LXprcF9yZWNlaXB0X3YxX2Jhc2UiLCJwcm9vZl9iNjQiOiJNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek13PT0iLCJyZWNpcGllbnQiOiIweEFCQ0RFRjEyMzQ1Njc4OTAiLCJzZXR0bGVkX2F0IjoiMjAyNi0wNi0wNFQxMTowMDowMFoiLCJ0aHJlc2hvbGRfbWlsbGl1bml0cyI6ODAwLCJ0eF9pZCI6IjB4VFhCQVNFMDAyIiwidHlwZSI6InprcF9yZWNlaXB0IiwidmVyc2lvbiI6IjEifQ==",
+      "expected_content_hash": "7dd78b8cb8784f5a87969c48a5a5f7939eb07497ac63db99740774f846aa5dfe"
+    },
+    {
+      "vector_id": "zkp_receipt_v1_solana",
+      "receipt": {
+        "type": "zkp_receipt",
+        "version": "1",
+        "payment_id": "pay-zkp_receipt_v1_solana",
+        "chain": "solana_mainnet",
+        "amount_microusd": 1000000,
+        "recipient": "SoLANATestAddr",
+        "tx_id": "TXSOL003",
+        "settled_at": "2026-06-04T12:00:00Z",
+        "atb_cert_version": "2",
+        "bench_issuer": "did:web:agent-trust-bench.algovoi.co.uk",
+        "commitment_b64": "7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u4=",
+        "proof_b64": "ERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERER",
+        "threshold_milliunits": 700,
+        "expires_at": "2026-07-04T12:00:00Z",
+        "issued_at": "2026-06-04T12:00:00Z"
+      },
+      "expected_jcs_bytes_b64": "eyJhbW91bnRfbWljcm91c2QiOjEwMDAwMDAsImF0Yl9jZXJ0X3ZlcnNpb24iOiIyIiwiYmVuY2hfaXNzdWVyIjoiZGlkOndlYjphZ2VudC10cnVzdC1iZW5jaC5hbGdvdm9pLmNvLnVrIiwiY2hhaW4iOiJzb2xhbmFfbWFpbm5ldCIsImNvbW1pdG1lbnRfYjY0IjoiN3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1ND0iLCJleHBpcmVzX2F0IjoiMjAyNi0wNy0wNFQxMjowMDowMFoiLCJpc3N1ZWRfYXQiOiIyMDI2LTA2LTA0VDEyOjAwOjAwWiIsInBheW1lbnRfaWQiOiJwYXktemtwX3JlY2VpcHRfdjFfc29sYW5hIiwicHJvb2ZfYjY0IjoiRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUiIsInJlY2lwaWVudCI6IlNvTEFOQVRlc3RBZGRyIiwic2V0dGxlZF9hdCI6IjIwMjYtMDYtMDRUMTI6MDA6MDBaIiwidGhyZXNob2xkX21pbGxpdW5pdHMiOjcwMCwidHhfaWQiOiJUWFNPTDAwMyIsInR5cGUiOiJ6a3BfcmVjZWlwdCIsInZlcnNpb24iOiIxIn0=",
+      "expected_content_hash": "a3042527ca061cbb2d71b99b72a142668a20ac4a6e0f458c8650d82b2ea447c9"
+    },
+    {
+      "vector_id": "zkp_receipt_v1_voi",
+      "receipt": {
+        "type": "zkp_receipt",
+        "version": "1",
+        "payment_id": "pay-zkp_receipt_v1_voi",
+        "chain": "voi_mainnet",
+        "amount_microusd": 50000000,
+        "recipient": "VOIADDR004",
+        "tx_id": "TXVOI004",
+        "settled_at": "2026-06-04T13:00:00Z",
+        "atb_cert_version": "2",
+        "bench_issuer": "did:web:agent-trust-bench.algovoi.co.uk",
+        "commitment_b64": "ERERERERERERERERERERERERERERERERERERERERERE=",
+        "proof_b64": "7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7g==",
+        "threshold_milliunits": 900,
+        "expires_at": "2026-07-04T13:00:00Z",
+        "issued_at": "2026-06-04T13:00:00Z"
+      },
+      "expected_jcs_bytes_b64": "eyJhbW91bnRfbWljcm91c2QiOjUwMDAwMDAwLCJhdGJfY2VydF92ZXJzaW9uIjoiMiIsImJlbmNoX2lzc3VlciI6ImRpZDp3ZWI6YWdlbnQtdHJ1c3QtYmVuY2guYWxnb3ZvaS5jby51ayIsImNoYWluIjoidm9pX21haW5uZXQiLCJjb21taXRtZW50X2I2NCI6IkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkVSRVJFUkU9IiwiZXhwaXJlc19hdCI6IjIwMjYtMDctMDRUMTM6MDA6MDBaIiwiaXNzdWVkX2F0IjoiMjAyNi0wNi0wNFQxMzowMDowMFoiLCJwYXltZW50X2lkIjoicGF5LXprcF9yZWNlaXB0X3YxX3ZvaSIsInByb29mX2I2NCI6Ijd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3dTd1N3U3Zz09IiwicmVjaXBpZW50IjoiVk9JQUREUjAwNCIsInNldHRsZWRfYXQiOiIyMDI2LTA2LTA0VDEzOjAwOjAwWiIsInRocmVzaG9sZF9taWxsaXVuaXRzIjo5MDAsInR4X2lkIjoiVFhWT0kwMDQiLCJ0eXBlIjoiemtwX3JlY2VpcHQiLCJ2ZXJzaW9uIjoiMSJ9",
+      "expected_content_hash": "b1a75f89d83afe391b713cbac0ebff39f9742aaffef074cb6e194542c5f4f91f"
+    },
+    {
+      "vector_id": "zkp_receipt_v1_stellar",
+      "receipt": {
+        "type": "zkp_receipt",
+        "version": "1",
+        "payment_id": "pay-zkp_receipt_v1_stellar",
+        "chain": "stellar_mainnet",
+        "amount_microusd": 100000000,
+        "recipient": "GADDRESS005",
+        "tx_id": "TXSTELLAR005",
+        "settled_at": "2026-06-04T14:00:00Z",
+        "atb_cert_version": "2",
+        "bench_issuer": "did:algovoi:federation-validator",
+        "commitment_b64": "MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM=",
+        "proof_b64": "zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMw=",
+        "threshold_milliunits": 700,
+        "expires_at": "2026-07-04T14:00:00Z",
+        "issued_at": "2026-06-04T14:00:00Z"
+      },
+      "expected_jcs_bytes_b64": "eyJhbW91bnRfbWljcm91c2QiOjEwMDAwMDAwMCwiYXRiX2NlcnRfdmVyc2lvbiI6IjIiLCJiZW5jaF9pc3N1ZXIiOiJkaWQ6YWxnb3ZvaTpmZWRlcmF0aW9uLXZhbGlkYXRvciIsImNoYWluIjoic3RlbGxhcl9tYWlubmV0IiwiY29tbWl0bWVudF9iNjQiOiJNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNPSIsImV4cGlyZXNfYXQiOiIyMDI2LTA3LTA0VDE0OjAwOjAwWiIsImlzc3VlZF9hdCI6IjIwMjYtMDYtMDRUMTQ6MDA6MDBaIiwicGF5bWVudF9pZCI6InBheS16a3BfcmVjZWlwdF92MV9zdGVsbGFyIiwicHJvb2ZfYjY0Ijoiek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNek16TXpNdz0iLCJyZWNpcGllbnQiOiJHQUREUkVTUzAwNSIsInNldHRsZWRfYXQiOiIyMDI2LTA2LTA0VDE0OjAwOjAwWiIsInRocmVzaG9sZF9taWxsaXVuaXRzIjo3MDAsInR4X2lkIjoiVFhTVEVMTEFSMDA1IiwidHlwZSI6InprcF9yZWNlaXB0IiwidmVyc2lvbiI6IjEifQ==",
+      "expected_content_hash": "05fd0f244fa5285538314ed1ae3a7812c8fe6e91b7469d5fa9a9d3278e47f8dd"
+    },
+    {
+      "vector_id": "zkp_receipt_v1_hedera",
+      "receipt": {
+        "type": "zkp_receipt",
+        "version": "1",
+        "payment_id": "pay-zkp_receipt_v1_hedera",
+        "chain": "hedera_mainnet",
+        "amount_microusd": 500000,
+        "recipient": "0.0.123456789",
+        "tx_id": "TXHEDERA006",
+        "settled_at": "2026-06-04T15:00:00Z",
+        "atb_cert_version": "2",
+        "bench_issuer": "did:web:agent-trust-bench.algovoi.co.uk",
+        "commitment_b64": "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=",
+        "proof_b64": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+        "threshold_milliunits": 700,
+        "expires_at": "2026-07-04T15:00:00Z",
+        "issued_at": "2026-06-04T15:00:00Z"
+      },
+      "expected_jcs_bytes_b64": "eyJhbW91bnRfbWljcm91c2QiOjUwMDAwMCwiYXRiX2NlcnRfdmVyc2lvbiI6IjIiLCJiZW5jaF9pc3N1ZXIiOiJkaWQ6d2ViOmFnZW50LXRydXN0LWJlbmNoLmFsZ292b2kuY28udWsiLCJjaGFpbiI6ImhlZGVyYV9tYWlubmV0IiwiY29tbWl0bWVudF9iNjQiOiJWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZVPSIsImV4cGlyZXNfYXQiOiIyMDI2LTA3LTA0VDE1OjAwOjAwWiIsImlzc3VlZF9hdCI6IjIwMjYtMDYtMDRUMTU6MDA6MDBaIiwicGF5bWVudF9pZCI6InBheS16a3BfcmVjZWlwdF92MV9oZWRlcmEiLCJwcm9vZl9iNjQiOiJxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcSIsInJlY2lwaWVudCI6IjAuMC4xMjM0NTY3ODkiLCJzZXR0bGVkX2F0IjoiMjAyNi0wNi0wNFQxNTowMDowMFoiLCJ0aHJlc2hvbGRfbWlsbGl1bml0cyI6NzAwLCJ0eF9pZCI6IlRYSEVERVJBMDA2IiwidHlwZSI6InprcF9yZWNlaXB0IiwidmVyc2lvbiI6IjEifQ==",
+      "expected_content_hash": "0c9817a1a6dfcbf1fa21dc760e17d0cef8369256dc1132ffefc81b961cf79754"
+    },
+    {
+      "vector_id": "zkp_receipt_v1_tempo",
+      "receipt": {
+        "type": "zkp_receipt",
+        "version": "1",
+        "payment_id": "pay-zkp_receipt_v1_tempo",
+        "chain": "tempo_mainnet",
+        "amount_microusd": 2000000,
+        "recipient": "TEMPOADDR007",
+        "tx_id": "TXTEMPO007",
+        "settled_at": "2026-06-04T16:00:00Z",
+        "atb_cert_version": "2",
+        "bench_issuer": "did:web:agent-trust-bench.algovoi.co.uk",
+        "commitment_b64": "d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3c=",
+        "proof_b64": "iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIg=",
+        "threshold_milliunits": 700,
+        "expires_at": "2026-07-04T16:00:00Z",
+        "issued_at": "2026-06-04T16:00:00Z"
+      },
+      "expected_jcs_bytes_b64": "eyJhbW91bnRfbWljcm91c2QiOjIwMDAwMDAsImF0Yl9jZXJ0X3ZlcnNpb24iOiIyIiwiYmVuY2hfaXNzdWVyIjoiZGlkOndlYjphZ2VudC10cnVzdC1iZW5jaC5hbGdvdm9pLmNvLnVrIiwiY2hhaW4iOiJ0ZW1wb19tYWlubmV0IiwiY29tbWl0bWVudF9iNjQiOiJkM2QzZDNkM2QzZDNkM2QzZDNkM2QzZDNkM2QzZDNkM2QzZDNkM2QzZDNjPSIsImV4cGlyZXNfYXQiOiIyMDI2LTA3LTA0VDE2OjAwOjAwWiIsImlzc3VlZF9hdCI6IjIwMjYtMDYtMDRUMTY6MDA6MDBaIiwicGF5bWVudF9pZCI6InBheS16a3BfcmVjZWlwdF92MV90ZW1wbyIsInByb29mX2I2NCI6ImlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlpSWlJaUlnPSIsInJlY2lwaWVudCI6IlRFTVBPQUREUjAwNyIsInNldHRsZWRfYXQiOiIyMDI2LTA2LTA0VDE2OjAwOjAwWiIsInRocmVzaG9sZF9taWxsaXVuaXRzIjo3MDAsInR4X2lkIjoiVFhURU1QTzAwNyIsInR5cGUiOiJ6a3BfcmVjZWlwdCIsInZlcnNpb24iOiIxIn0=",
+      "expected_content_hash": "ec825356e01b6a57acff6892ebc172070ba02d0fba91936d550a37f1d5fd9185"
+    },
+    {
+      "vector_id": "zkp_receipt_v1_base_large",
+      "receipt": {
+        "type": "zkp_receipt",
+        "version": "1",
+        "payment_id": "pay-zkp_receipt_v1_base_large",
+        "chain": "base_mainnet",
+        "amount_microusd": 1000000000,
+        "recipient": "0x9876543210FEDCBA",
+        "tx_id": "0xTXBASE008",
+        "settled_at": "2026-06-04T17:00:00Z",
+        "atb_cert_version": "2",
+        "bench_issuer": "did:web:agent-trust-bench.algovoi.co.uk",
+        "commitment_b64": "mZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZk=",
+        "proof_b64": "ZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZm",
+        "threshold_milliunits": 700,
+        "expires_at": "2026-07-04T17:00:00Z",
+        "issued_at": "2026-06-04T17:00:00Z"
+      },
+      "expected_jcs_bytes_b64": "eyJhbW91bnRfbWljcm91c2QiOjEwMDAwMDAwMDAsImF0Yl9jZXJ0X3ZlcnNpb24iOiIyIiwiYmVuY2hfaXNzdWVyIjoiZGlkOndlYjphZ2VudC10cnVzdC1iZW5jaC5hbGdvdm9pLmNvLnVrIiwiY2hhaW4iOiJiYXNlX21haW5uZXQiLCJjb21taXRtZW50X2I2NCI6Im1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWms9IiwiZXhwaXJlc19hdCI6IjIwMjYtMDctMDRUMTc6MDA6MDBaIiwiaXNzdWVkX2F0IjoiMjAyNi0wNi0wNFQxNzowMDowMFoiLCJwYXltZW50X2lkIjoicGF5LXprcF9yZWNlaXB0X3YxX2Jhc2VfbGFyZ2UiLCJwcm9vZl9iNjQiOiJabVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abVptWm1abSIsInJlY2lwaWVudCI6IjB4OTg3NjU0MzIxMEZFRENCQSIsInNldHRsZWRfYXQiOiIyMDI2LTA2LTA0VDE3OjAwOjAwWiIsInRocmVzaG9sZF9taWxsaXVuaXRzIjo3MDAsInR4X2lkIjoiMHhUWEJBU0UwMDgiLCJ0eXBlIjoiemtwX3JlY2VpcHQiLCJ2ZXJzaW9uIjoiMSJ9",
+      "expected_content_hash": "570ecd1999ce9d1d6a91e36546fa882ef7400067382a175b1abb5286645d233c"
+    }
+  ]
+}
