@@ -5,14 +5,15 @@
 # algovoi-jcs-conformance-vectors
 
 [![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
-[![Vectors](https://img.shields.io/badge/vectors-117-brightgreen)](#anchor-sets)
+[![Vectors](https://img.shields.io/badge/vectors-130-brightgreen)](#anchor-sets)
 [![Cross-validated](https://img.shields.io/badge/cross--validated-576%2F576-brightgreen)](#cross-implementation-validation-matrix)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts. 117 vectors total,
-cross-validated **576/576 byte-for-byte agreements** across eight independent
-JCS implementations in eight programming languages.
+substrate anchor sets used by agentic-payment receipts. 130 vectors across
+16 anchor sets, with **576/576 byte-for-byte agreements directly executed**
+across eight independent JCS implementations in eight programming languages
+(cumulative as of 2026-05-30; see the cross-implementation validation matrix).
 
 This repository is the AlgoVoi-authored reference test corpus that downstream
 implementations of x402, AP2, A2A and MPP receipts can validate against. The
@@ -28,7 +29,7 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | Anchor set | Vectors | What it exercises |
 |---|---|---|
 | [`vectors/ap2_omh_v0/`](./vectors/ap2_omh_v0/) | 7 | AP2 `open_mandate_hash` derivation — object-key-order, array-order, optional-fields, currency-minor-unit, Unicode NFC-vs-NFD pairs |
-| [`vectors/ctef_aps_v1/`](./vectors/ctef_aps_v1/) | 14 | CTEF v0.3.1 + APS v1 envelope, verdict, scope-violation, composition-failure cases plus the APS attestation vector set |
+| [`vectors/ctef_aps_v1/`](./vectors/ctef_aps_v1/) | 10 | CTEF v0.3.1 + APS v1 — the APS attestation vector set (`aps_vectors.json`). 4 further CTEF top-level cases (envelope / verdict / scope-violation / composition-failure) live in `ctef_vectors.json`. |
 | [`vectors/privacy_class_v0_1/`](./vectors/privacy_class_v0_1/) | 13 | Settlement-plane visibility declarations across the six privacy invariants in PR #2334 (privacy_class v0.1 supersedes v0) |
 | [`vectors/per_chain_envelope_v0/`](./vectors/per_chain_envelope_v0/) | 19 | Per-chain receipt envelopes across seven chain families (Algorand, VOI, Hedera, Stellar, Base, Solana, Tempo) |
 | [`vectors/action_ref_namespace_v0/`](./vectors/action_ref_namespace_v0/) | 8 | `action_ref` namespace-prefixing convention. Pins the four production-anchor digests (algovoi:compliance_screen, vauban:stark_settlement, agent_os:committed_claim, aura:reputation_observe) plus four unprefixed equivalents; 4 pair invariants prove the namespace prefix is byte-load-bearing. Validates against `algovoi-substrate>=0.2.1` on PyPI / `@algovoi/substrate>=0.2.1` on npm. |
@@ -39,7 +40,9 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | [`vectors/refund_receipt_v1/`](./vectors/refund_receipt_v1/) | 8 | **Refund receipt format**. Pins byte-level reference hashes for the post-settlement refund receipt format specified in IETF `draft-hopley-x402-refund-receipt`. Covers FULL / PARTIAL refund_result enum, refund_amount sub-object canonicalisation, original_payment_ref content-addressing. 5 pair invariants + 3 chain invariants. |
 | [`vectors/composite_trust_query_v1/`](./vectors/composite_trust_query_v1/) | 8 | **Composite trust-query response format**. Pins byte-level reference hashes for the top-of-stack verifier response format specified in IETF `draft-hopley-x402-composite-trust-query`. Covers TRUSTED / PROVISIONAL / INSUFFICIENT_EVIDENCE / UNTRUSTED trust_outcome enum, receipt_count field, evaluated_at timestamp. 7 pair invariants + 3 chain invariants. |
 | [`vectors/pef_v1/`](./vectors/pef_v1/) | 8 | **Payment Evidence Frame v1**. Pins byte-level `frame_id` values for all five PEF claim types (`payment_admission`, `payment_settlement`, `payment_cancellation`, `payment_refund`, `composite_verdict`). Each vector validates two hashes: `sha256(JCS(receipt))` = `receipt_hash` and `sha256(JCS(preimage))` = `frame_id`. Normative spec: `draft-hopley-x402-payment-evidence-frame` (IETF I-D, filing pending). Reference implementations: [`algovoi-pef`](https://pypi.org/project/algovoi-pef/) (PyPI) / [`@algovoi/pef`](https://www.npmjs.com/package/@algovoi/pef) (npm). |
-| **Total** | **117** | |
+| [`vectors/zkp_receipt_v1/`](./vectors/zkp_receipt_v1/) | 8 | **ZKP receipt v1**. Canonical-bytes / `frame_id` vectors for the zero-knowledge settlement receipt across seven chains (Algorand, Base, Solana, VOI, Stellar, Hedera, Tempo). Companion to IACR ePrint 2026/109852. |
+| [`vectors/service_trust_v0/`](./vectors/service_trust_v0/) | 5 | Service-trust check envelope (`urn:crest:trust-check-v1`) vectors. |
+| **Total (JCS vectors, 14 sets)** | **126** | + 4 entries across the 2 cryptographic fixtures below = **130 vectors / 16 sets** |
 
 ## Cryptographic-property fixtures (complementary to JCS canonicalisation)
 
@@ -54,10 +57,13 @@ support the substrate authorship claim:
 
 ## Cross-implementation validation matrix
 
-Nine vector sets have been independently validated to produce byte-identical
-canonical bytes across **eight independent JCS implementations in eight
-programming languages**, all from non-overlapping authoring entities including
-the RFC 8785 author himself (Anders Rundgren, via the Java implementation):
+The eight receipt-format / `action_ref` vector sets below were directly validated
+to produce byte-identical canonical bytes across **eight independent JCS
+implementations in eight programming languages** (576/576 agreements, cumulative
+as of 2026-05-30), all from non-overlapping authoring entities including the
+RFC 8785 author himself (Anders Rundgren, via the Java implementation). A ninth
+set (`zkp_receipt_v1`, 2026-06-04) was directly executed across five of the eight
+implementations and is reported separately below, not folded into the 576:
 
 | # | Language | Runtime | Package | Version | Author / entity |
 |---|---|---|---|---|---|
@@ -77,7 +83,10 @@ the RFC 8785 author himself (Anders Rundgren, via the Java implementation):
 | 2026-05-24 | `action_ref_namespace_v0`, `action_ref_transactional_v0`, `compliance_receipt_v1` | 24 × 8 | **192/192** | [`_attestations/2026-05-24-8-impl-cross-validation.md`](./_attestations/2026-05-24-8-impl-cross-validation.md) |
 | 2026-05-25 | `compliance_receipt_v1`, `settlement_attestation_v1`, `cancellation_receipt_v1`, `refund_receipt_v1`, `composite_trust_query_v1` | 40 × 8 | **320/320** | [`_attestations/2026-05-25-8-impl-5-format-cross-validation.md`](./_attestations/2026-05-25-8-impl-5-format-cross-validation.md) |
 | 2026-05-30 | `pef_v1` (PEF frame_id -- both `receipt_hash` and `frame_id` layers) | 8 × 8 | **64/64** | [`_attestations/2026-05-30-8-impl-pef-v1.md`](./_attestations/2026-05-30-8-impl-pef-v1.md) |
-| **Cumulative** | **9 distinct vector sets** | **576 comparisons** | **576/576** | |
+| **Cumulative (directly executed)** | **8 distinct vector sets** | **72 × 8** | **576/576** | |
+| 2026-06-04 | `zkp_receipt_v1` (5 impls directly executed; remaining 3 asserted by transitivity — primitive-only payload covered by the 2026-05-25 run) | 8 × 5 direct | **40/40 direct** (+24 by transitivity, *not* added to the 576) | [`_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md`](./_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md) |
+
+A separate signature-survival fixture, `rfc9421_proxy_chain_v0`, was validated **24/24** (8 implementations × 3 checks: signing-base + content-digest + Ed25519 verify) on 2026-05-24 ([attestation](./_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md)); it is tracked apart from the JCS byte-agreement total.
 
 ### What the matrix covers
 
@@ -117,7 +126,7 @@ step.
 
 ### As a JCS implementation maintainer
 
-The four anchor sets cover the JCS edge cases that show up in production
+These anchor sets cover the JCS edge cases that show up in production
 agentic-payment receipts and that synthetic conformance suites typically miss:
 
 - Sub-100ms `timestamp_ms` integer values around retry windows.
@@ -126,7 +135,7 @@ agentic-payment receipts and that synthetic conformance suites typically miss:
 - Unicode NFC vs NFD normalisation in mandate identifiers.
 - Optional-fields presence vs absence in conformance pairs.
 
-A JCS implementation that passes all 53 vectors is exercised against the
+A JCS implementation that passes all 126 JCS vectors is exercised against the
 substrate's actual production failure modes, not only against synthetic
 fixtures.
 
@@ -271,7 +280,7 @@ These roles describe validation, mirror, and discussion work relative to the Alg
 
 When citing in a spec PR, paper, or implementation README, please use:
 
-> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-05-30. 117 vectors across 12 anchor sets (including `pef_v1` PEF frame_id vectors), 576/576 byte-for-byte agreements across Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, and .NET `Baqhub.Packages.JsonCanonicalization`.
+> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-04. 130 vectors across 16 anchor sets, 576/576 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-05-30.
 
 ## Licence
 

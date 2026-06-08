@@ -1,0 +1,6 @@
+# Normalise text to LF so the per-file sha256 anchors in manifest.json are
+# reproducible on any checkout (Windows autocrlf would otherwise change file
+# bytes and break `sha256sum <file>` verification).
+*.json text eol=lf
+*.md   text eol=lf
+*.sh   text eol=lf

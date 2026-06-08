@@ -1,38 +1,46 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "published_at": "2026-05-23",
+  "updated_at": "2026-06-04",
   "canon_version": "jcs-rfc8785-v1",
+  "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
     {
       "name": "ap2_omh_v0",
       "primary_file": "ap2-omh-v0.json",
       "vector_count": 7,
+      "cross_validated": "5-impl (original gist generation, 2026-05)",
       "sha256": "sha256:0b5770e7a6470c6db085c4c017583ff27cf3c083f843c7af07ceb01983440020"
     },
     {
       "name": "ctef_aps_v1",
       "primary_file": "aps_vectors.json",
       "vector_count": 10,
+      "additional_cases_note": "4 further CTEF top-level cases (envelope_vector, verdict_vector, scope_violation_vector, composition_failure_vector) live in ctef_vectors.json under the corresponding keys.",
+      "cross_validated": "5-impl (original gist generation, 2026-05)",
       "sha256": "sha256:353c71a82d7be79d7cdb52c46787e4ea52e5cf94c6cff408e2bc0e60fa782603"
     },
     {
       "name": "privacy_class_v0_1",
       "primary_file": "privacy_class_v0.1.json",
       "vector_count": 13,
-      "sha256": "sha256:d170ab568cd9bdc9075c4d56fb0af1c2e42f549a0a77abd3ab8f8ba221d9ad61"
+      "cross_validated": "5-impl (original gist generation, 2026-05)",
+      "sha256": "sha256:f62267d1b48348db06ea03fc9b150872d7a694576565a0efab3a1ff9fb2de4df"
     },
     {
       "name": "per_chain_envelope_v0",
       "primary_file": "per_chain_envelope_v0.json",
       "vector_count": 19,
-      "sha256": "sha256:5193d3c637c353eafdcbebd68796b76cffbc2e1682c3a1572048481aa50ed58d"
+      "cross_validated": "5-impl (original gist generation, 2026-05)",
+      "sha256": "sha256:3a39af34e74c8ae0ac5e1a6e7e6a1c55155cc3c238217e0e44d68d325498f57e"
     },
     {
       "name": "action_ref_namespace_v0",
       "primary_file": "action_ref_namespace_v0.json",
       "vector_count": 8,
       "pair_invariants": 4,
+      "cross_validated": "8-impl direct (2026-05-24)",
       "sha256": "sha256:e95bfb171cffb3ae6b7f3e842ea39b35b6e975ff6d5d31928430ab30fd08617c"
     },
     {
@@ -40,6 +48,7 @@
       "primary_file": "action_ref_transactional_v0.json",
       "vector_count": 8,
       "pair_invariants": 5,
+      "cross_validated": "8-impl direct (2026-05-24)",
       "sha256": "sha256:2ee0c52f39dbfd1726fe95236a2500a505859d8a2737252991e5549ea9f57fea"
     },
     {
@@ -48,8 +57,58 @@
       "vector_count": 8,
       "pair_invariants": 5,
       "chain_invariants": 3,
-      "anchors_to": "draft-hopley-x402-compliance-receipt-00",
+      "anchors_to": "draft-hopley-x402-compliance-receipt",
+      "cross_validated": "8-impl direct (2026-05-24, 2026-05-25)",
       "sha256": "sha256:33af2ea0ab1d358f90b38a63c4778af93836b677466fb16ab7b90fb8196c922d"
+    },
+    {
+      "name": "settlement_attestation_v1",
+      "primary_file": "settlement_attestation_v1.json",
+      "vector_count": 8,
+      "anchors_to": "draft-hopley-x402-settlement-attestation",
+      "cross_validated": "8-impl direct (2026-05-25)",
+      "sha256": "sha256:bfd2838c9cdd5fd83cf1bd27e73e32a9bca2ac3de7464ccb89451bfd78bfdd08"
+    },
+    {
+      "name": "cancellation_receipt_v1",
+      "primary_file": "cancellation_receipt_v1.json",
+      "vector_count": 8,
+      "anchors_to": "draft-hopley-x402-cancellation-receipt",
+      "cross_validated": "8-impl direct (2026-05-25)",
+      "sha256": "sha256:0d5c3f762c7933f216185228f2f0d5158a0e74c52ecfe9455510a98efa398127"
+    },
+    {
+      "name": "refund_receipt_v1",
+      "primary_file": "refund_receipt_v1.json",
+      "vector_count": 8,
+      "anchors_to": "draft-hopley-x402-refund-receipt",
+      "cross_validated": "8-impl direct (2026-05-25)",
+      "sha256": "sha256:a4329fb1775549544627566a98253732fc67f574c50957d5e6f23dcad16c49e6"
+    },
+    {
+      "name": "composite_trust_query_v1",
+      "primary_file": "composite_trust_query_v1.json",
+      "vector_count": 8,
+      "anchors_to": "draft-hopley-x402-composite-trust-query",
+      "cross_validated": "8-impl direct (2026-05-25)",
+      "sha256": "sha256:0180d2a8a1423145d4abe3ce8c37351fe409104e284c0fe8c5ce82a8ce243918"
+    },
+    {
+      "name": "pef_v1",
+      "primary_file": "pef_v1.json",
+      "vector_count": 8,
+      "anchors_to": "draft-hopley-x402-payment-evidence-frame",
+      "cross_validated": "8-impl direct (2026-05-30)",
+      "sha256": "sha256:7c797cf6695f7d03c9a8d74fed14842145c65c0fd1fc6eeb4e77b4ac322df0df"
+    },
+    {
+      "name": "zkp_receipt_v1",
+      "primary_file": "zkp_receipt_v1.json",
+      "vector_count": 8,
+      "chains": ["algorand", "base", "solana", "voi", "stellar", "hedera", "tempo"],
+      "anchors_to": "eprint-2026/109852",
+      "cross_validated": "8-impl (5 directly executed = 40/40; remaining 3 by transitivity, primitive-only payload; 2026-06-04). NOT counted in the directly-executed cumulative.",
+      "sha256": "sha256:ea0add29a6e028e2d27bca9acafe950d9b7a4d41daff3eb1c41fab255b628811"
     },
     {
       "name": "rfc9421_proxy_chain_v0",
@@ -57,7 +116,8 @@
       "vector_count": 1,
       "fixture_type": "rfc9421_signature_survival",
       "rfc_anchors": ["RFC 9421", "RFC 9530", "RFC 8032"],
-      "sha256": "sha256:deeeb6f400d24da00a2e3f5c8fc4d75c5a08074ec342d5e4b926a4f4ee8da497"
+      "cross_validated": "8-impl signature-survival, 24/24 (8 impls x 3 checks, 2026-05-24)",
+      "sha256": "sha256:5224a7b088732b01beea6c4027e13a5929714170aa4e9eb57911d54284f0dfbf"
     },
     {
       "name": "multichain_ed25519_substrate_v0",
@@ -66,9 +126,36 @@
       "fixture_type": "ed25519_multi_chain_signing",
       "chains": ["algorand", "solana", "stellar"],
       "rfc_anchors": ["RFC 8032", "BIP44"],
-      "sha256": "sha256:b77aceaedb246aaa69a19ba72e46187da77f5ac981e14b2c848db680297ab543"
+      "sha256": "sha256:281477935167a6d9b9eb1da4cdf1437420902704a7f682484177bc6fcabdfc03"
+    },
+    {
+      "name": "service_trust_v0",
+      "primary_file": "service_trust_v0.json",
+      "vector_count": 5,
+      "sha256": "sha256:c3767c6f700bc062b1dbc55a6a1ccf354c960531caa12f63ca4c0ace5437bca1"
     }
   ],
-  "total_vectors": 77,
-  "total_vectors_note": "JCS canonicalisation sets (7 anchor sets / 77 byte-deterministic vectors): AP2 OMH v0 (7) + CTEF + APS v1 (10 APS + 4 CTEF top-level = 14) + privacy_class v0.1 (13) + per-chain envelope v0 (19) + action_ref namespace v0 (8) + action_ref transactional v0 (8) + compliance_receipt v1 (8) = 77 JCS vectors. Two additional cryptographic fixtures complement the corpus on adjacent properties: rfc9421_proxy_chain_v0 (1 fixture demonstrating RFC 9421 HTTP signature + RFC 9530 content-digest survival through a 3-hop TLS-re-terminating proxy chain), multichain_ed25519_substrate_v0 (3 signatures demonstrating Ed25519 signing over a shared canonical payload across BIP44-derived keys for Algorand / Solana / Stellar). The 4 additional CTEF top-level cases (envelope_vector, verdict_vector, scope_violation_vector, composition_failure_vector) are inside ctef_vectors.json under the corresponding top-level keys."
+  "total_anchor_sets": 16,
+  "total_vectors": 130,
+  "total_vectors_note": "16 sets / 130 entries = 126 JCS canonicalisation vectors across 14 sets, plus 4 entries across 2 adjacent cryptographic fixtures (rfc9421_proxy_chain_v0: 1 signature-survival fixture; multichain_ed25519_substrate_v0: 3 Ed25519 signatures over a shared canonical payload). ctef_aps_v1 carries 4 further CTEF top-level cases in ctef_vectors.json beyond its 10 primary vectors.",
+  "cross_validation": {
+    "implementations": 8,
+    "languages": ["Python", "JavaScript", "Go", "Rust", "Java", "PHP", "C#/.NET", "Ruby"],
+    "languages_note": "Eight independent, non-overlapping JCS RFC 8785 implementations, including the RFC 8785 author's own Java implementation (Anders Rundgren).",
+    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 576/576 as of 2026-05-30. zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity (primitive-only payload already covered by the 2026-05-25 320/320 run) and are deliberately NOT added to the directly-executed cumulative.",
+    "runs": [
+      { "date": "2026-05-24", "sets": ["action_ref_namespace_v0", "action_ref_transactional_v0", "compliance_receipt_v1"], "vectors": 24, "implementations": 8, "agreements": "192/192", "executed": "direct", "attestation": "_attestations/2026-05-24-8-impl-cross-validation.md" },
+      { "date": "2026-05-25", "sets": ["compliance_receipt_v1", "settlement_attestation_v1", "cancellation_receipt_v1", "refund_receipt_v1", "composite_trust_query_v1"], "vectors": 40, "implementations": 8, "agreements": "320/320", "executed": "direct", "attestation": "_attestations/2026-05-25-8-impl-5-format-cross-validation.md" },
+      { "date": "2026-05-30", "sets": ["pef_v1"], "vectors": 8, "implementations": 8, "agreements": "64/64", "executed": "direct", "attestation": "_attestations/2026-05-30-8-impl-pef-v1.md" },
+      { "date": "2026-06-04", "sets": ["zkp_receipt_v1"], "vectors": 8, "implementations": 8, "agreements": "40/40 direct (5 impls); remaining 3 by transitivity", "executed": "partial", "attestation": "_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md" }
+    ],
+    "cumulative_direct_jcs": "576/576 byte-for-byte agreements (as of 2026-05-30)",
+    "signature_survival": {
+      "set": "rfc9421_proxy_chain_v0",
+      "date": "2026-05-24",
+      "agreements": "24/24",
+      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain.",
+      "attestation": "_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md"
+    }
+  }
 }
