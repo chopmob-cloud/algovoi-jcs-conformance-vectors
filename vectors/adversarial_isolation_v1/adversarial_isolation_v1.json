@@ -1,0 +1,305 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "adversarial-isolation-conformance-v1",
+  "published_at": "2026-06-09T00:00:00Z",
+  "canon_version": "jcs-rfc8785-v1",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust)",
+  "hash": "SHA-256, lowercase hex",
+  "claims": {
+    "claim_1_bytes_8lang": "Every `input` (control + mutated) canonicalises to input_jcs_bytes_b64 / input_content_sha256 byte-for-byte across 8 independent RFC 8785 implementations. The adversarial input is a real, reproducible object; canonicalisation does not reject it.",
+    "claim_2_rejection_por": "The named substrate-1 check (transition_preimage / action_ref / audit_chain) raises on every mutated input, and ACCEPTS the control. Attested on the reference implementation only (substrate2 gate + runner_python.py). NOT an 8-lang byte claim."
+  },
+  "checks": {
+    "transition_preimage": "substrate.transactional.transition_preimage -> TransactionalError",
+    "action_ref": "substrate.action.action_ref_object -> ActionRefError",
+    "audit_chain": "substrate.audit.verify_audit_chain -> AuditChainError"
+  },
+  "vector_count": 12,
+  "reject_count": 11,
+  "control_count": 1,
+  "vectors": [
+    {
+      "vector_id": "adv-v1-000-control",
+      "expectation": "reference",
+      "check": "transition_preimage",
+      "reject_reason": "valid transition preimage \u2014 the check MUST accept this (control)",
+      "input": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDUwMDUwMCwic3RhdGUiOiJDT01NSVRURUQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDUwMDAwMH0=",
+      "input_content_sha256": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f"
+    },
+    {
+      "vector_id": "adv-v1-001-ts-rfc3339",
+      "expectation": "reject",
+      "check": "transition_preimage",
+      "reject_reason": "RFC 3339 string timestamp where an epoch-millisecond integer is required (Substrate Rule 2)",
+      "expected_rejection": {
+        "code": "REJECT_NON_INT_TIMESTAMP",
+        "check": "transition_preimage",
+        "error": "TransactionalError"
+      },
+      "expected_error": "TransactionalError",
+      "input": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": "2026-06-09T00:00:00Z",
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDUwMDUwMCwic3RhdGUiOiJDT01NSVRURUQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6IjIwMjYtMDYtMDlUMDA6MDA6MDBaIn0=",
+      "input_content_sha256": "d82b5ac3e52a698751bfbc54f658efe2dfae8bb5d3e2c58d0d8e85089c2e8259"
+    },
+    {
+      "vector_id": "adv-v1-002-ts-negative",
+      "expectation": "reject",
+      "check": "transition_preimage",
+      "reject_reason": "negative timestamp (must be non-negative)",
+      "expected_rejection": {
+        "code": "REJECT_NEGATIVE_TIMESTAMP",
+        "check": "transition_preimage",
+        "error": "TransactionalError"
+      },
+      "expected_error": "TransactionalError",
+      "input": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": -1,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6LTEsInJldm9jYXRpb25fY2hlY2tfYXRfbXMiOjE3MTY0OTQ1MDA1MDAsInN0YXRlIjoiQ09NTUlUVEVEIiwidHJhbnNpdGlvbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ1MDAwMDB9",
+      "input_content_sha256": "4d8cfabb2e0d9fb9952015a26752bc7e92a16195ca49c90d72dbd85063099b26"
+    },
+    {
+      "vector_id": "adv-v1-003-ts-bool",
+      "expectation": "reject",
+      "check": "transition_preimage",
+      "reject_reason": "boolean where an integer timestamp is required (bool is not an int)",
+      "expected_rejection": {
+        "code": "REJECT_BOOL_TIMESTAMP",
+        "check": "transition_preimage",
+        "error": "TransactionalError"
+      },
+      "expected_error": "TransactionalError",
+      "input": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": true
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6dHJ1ZSwic3RhdGUiOiJDT01NSVRURUQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDUwMDAwMH0=",
+      "input_content_sha256": "a5cc6f5067af17d8d54e5d0a453984c0c9bbf2bbc9bd48064a482cf765562b23"
+    },
+    {
+      "vector_id": "adv-v1-004-action-ref-nonhex",
+      "expectation": "reject",
+      "check": "transition_preimage",
+      "reject_reason": "action_ref is 64 chars but not lowercase hex",
+      "expected_rejection": {
+        "code": "REJECT_MALFORMED_ACTION_REF",
+        "check": "transition_preimage",
+        "error": "TransactionalError"
+      },
+      "expected_error": "TransactionalError",
+      "input": {
+        "action_ref": "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDUwMDUwMCwic3RhdGUiOiJDT01NSVRURUQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDUwMDAwMH0=",
+      "input_content_sha256": "ca922e8b92b3032fb631736aa06de3d6c81c5956a30e63f1c55b6b4b64f3155b"
+    },
+    {
+      "vector_id": "adv-v1-005-action-ref-short",
+      "expectation": "reject",
+      "check": "transition_preimage",
+      "reject_reason": "action_ref shorter than 64 hex chars",
+      "expected_rejection": {
+        "code": "REJECT_MALFORMED_ACTION_REF",
+        "check": "transition_preimage",
+        "error": "TransactionalError"
+      },
+      "expected_error": "TransactionalError",
+      "input": {
+        "action_ref": "abcd1234",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiYWJjZDEyMzQiLCJhdXRob3JpdHlfdmVyaWZpZWRfYXRfbXMiOjE3MTY0OTQ1MDAzMDAsInJldm9jYXRpb25fY2hlY2tfYXRfbXMiOjE3MTY0OTQ1MDA1MDAsInN0YXRlIjoiQ09NTUlUVEVEIiwidHJhbnNpdGlvbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ1MDAwMDB9",
+      "input_content_sha256": "1a80b44a2bb77bb2bb67d623dd2e5625b969d921227f7b1324eaed6b50281020"
+    },
+    {
+      "vector_id": "adv-v1-006-state-empty",
+      "expectation": "reject",
+      "check": "transition_preimage",
+      "reject_reason": "empty state string (state is byte-load-bearing and must be non-empty)",
+      "expected_rejection": {
+        "code": "REJECT_EMPTY_STATE",
+        "check": "transition_preimage",
+        "error": "TransactionalError"
+      },
+      "expected_error": "TransactionalError",
+      "input": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDUwMDUwMCwic3RhdGUiOiIiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDUwMDAwMH0=",
+      "input_content_sha256": "51f5c6e26d8d3a641f5440cf7cc4d28cab4482b917ab8abeb1ab6a6f07e86a25"
+    },
+    {
+      "vector_id": "adv-v1-007-identity-ts-rfc3339",
+      "expectation": "reject",
+      "check": "action_ref",
+      "reject_reason": "identity timestamp_ms as RFC 3339 string (Substrate Rule 1: integer ms)",
+      "expected_rejection": {
+        "code": "REJECT_NON_INT_TIMESTAMP",
+        "check": "action_ref",
+        "error": "ActionRefError"
+      },
+      "expected_error": "ActionRefError",
+      "input": {
+        "agent_id": "agent_alpha",
+        "action_type": "payment",
+        "scope": "vauban:stark_settlement",
+        "timestamp_ms": "2026-06-09T00:00:00Z"
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InBheW1lbnQiLCJhZ2VudF9pZCI6ImFnZW50X2FscGhhIiwic2NvcGUiOiJ2YXViYW46c3Rhcmtfc2V0dGxlbWVudCIsInRpbWVzdGFtcF9tcyI6IjIwMjYtMDYtMDlUMDA6MDA6MDBaIn0=",
+      "input_content_sha256": "8aed6c3ffbe32239e4fd9efe4442c19a37f8a78f60064b0d0d72e8b08fed9d41"
+    },
+    {
+      "vector_id": "adv-v1-008-identity-scope-empty",
+      "expectation": "reject",
+      "check": "action_ref",
+      "reject_reason": "empty scope string (must be a non-empty string at the canonicalisation layer)",
+      "expected_rejection": {
+        "code": "REJECT_EMPTY_SCOPE",
+        "check": "action_ref",
+        "error": "ActionRefError"
+      },
+      "expected_error": "ActionRefError",
+      "input": {
+        "agent_id": "agent_alpha",
+        "action_type": "payment",
+        "scope": "",
+        "timestamp_ms": 1716494400000
+      },
+      "input_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InBheW1lbnQiLCJhZ2VudF9pZCI6ImFnZW50X2FscGhhIiwic2NvcGUiOiIiLCJ0aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "input_content_sha256": "5b77b38ec6aaec68cab9c5b067992cc1a48c98600fe07a4135d6216528aa2444"
+    },
+    {
+      "vector_id": "adv-v1-009-chain-prev-break",
+      "expectation": "reject",
+      "check": "audit_chain",
+      "reject_reason": "row 1 prev_hash does not equal row 0 content_hash (linkage break)",
+      "expected_rejection": {
+        "code": "REJECT_PREV_HASH_BREAK",
+        "check": "audit_chain",
+        "error": "AuditChainError"
+      },
+      "expected_error": "AuditChainError",
+      "input": [
+        {
+          "chain_position": 0,
+          "prev_hash": null,
+          "content_hash": "a20a9727708f3c1bbbe26b824f940e656d768e445dba4ade5f77a3d5c33e0f62",
+          "payload": {
+            "event": "issue",
+            "n": 1
+          }
+        },
+        {
+          "chain_position": 1,
+          "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "content_hash": "73cfebca42aac2377e9452ebdf49542a3d62ef927bdc68d7265e7178b2242f6f",
+          "payload": {
+            "event": "settle",
+            "n": 2
+          }
+        }
+      ],
+      "input_jcs_bytes_b64": "W3siY2hhaW5fcG9zaXRpb24iOjAsImNvbnRlbnRfaGFzaCI6ImEyMGE5NzI3NzA4ZjNjMWJiYmUyNmI4MjRmOTQwZTY1NmQ3NjhlNDQ1ZGJhNGFkZTVmNzdhM2Q1YzMzZTBmNjIiLCJwYXlsb2FkIjp7ImV2ZW50IjoiaXNzdWUiLCJuIjoxfSwicHJldl9oYXNoIjpudWxsfSx7ImNoYWluX3Bvc2l0aW9uIjoxLCJjb250ZW50X2hhc2giOiI3M2NmZWJjYTQyYWFjMjM3N2U5NDUyZWJkZjQ5NTQyYTNkNjJlZjkyN2JkYzY4ZDcyNjVlNzE3OGIyMjQyZjZmIiwicGF5bG9hZCI6eyJldmVudCI6InNldHRsZSIsIm4iOjJ9LCJwcmV2X2hhc2giOiIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn1d",
+      "input_content_sha256": "7307952c51d1ca9163d98b0b08ff2b2aaa08455e8d341ecd006172ee8234a482"
+    },
+    {
+      "vector_id": "adv-v1-010-chain-content-mismatch",
+      "expectation": "reject",
+      "check": "audit_chain",
+      "reject_reason": "row 1 payload mutated but content_hash left stale (content_hash != sha256(jcs(payload)))",
+      "expected_rejection": {
+        "code": "REJECT_CONTENT_HASH_MISMATCH",
+        "check": "audit_chain",
+        "error": "AuditChainError"
+      },
+      "expected_error": "AuditChainError",
+      "input": [
+        {
+          "chain_position": 0,
+          "prev_hash": null,
+          "content_hash": "a20a9727708f3c1bbbe26b824f940e656d768e445dba4ade5f77a3d5c33e0f62",
+          "payload": {
+            "event": "issue",
+            "n": 1
+          }
+        },
+        {
+          "chain_position": 1,
+          "prev_hash": "a20a9727708f3c1bbbe26b824f940e656d768e445dba4ade5f77a3d5c33e0f62",
+          "content_hash": "73cfebca42aac2377e9452ebdf49542a3d62ef927bdc68d7265e7178b2242f6f",
+          "payload": {
+            "event": "settle",
+            "n": 999
+          }
+        }
+      ],
+      "input_jcs_bytes_b64": "W3siY2hhaW5fcG9zaXRpb24iOjAsImNvbnRlbnRfaGFzaCI6ImEyMGE5NzI3NzA4ZjNjMWJiYmUyNmI4MjRmOTQwZTY1NmQ3NjhlNDQ1ZGJhNGFkZTVmNzdhM2Q1YzMzZTBmNjIiLCJwYXlsb2FkIjp7ImV2ZW50IjoiaXNzdWUiLCJuIjoxfSwicHJldl9oYXNoIjpudWxsfSx7ImNoYWluX3Bvc2l0aW9uIjoxLCJjb250ZW50X2hhc2giOiI3M2NmZWJjYTQyYWFjMjM3N2U5NDUyZWJkZjQ5NTQyYTNkNjJlZjkyN2JkYzY4ZDcyNjVlNzE3OGIyMjQyZjZmIiwicGF5bG9hZCI6eyJldmVudCI6InNldHRsZSIsIm4iOjk5OX0sInByZXZfaGFzaCI6ImEyMGE5NzI3NzA4ZjNjMWJiYmUyNmI4MjRmOTQwZTY1NmQ3NjhlNDQ1ZGJhNGFkZTVmNzdhM2Q1YzMzZTBmNjIifV0=",
+      "input_content_sha256": "76bc834f971fec8a86904aced56ed605ed6db4f8a5ccca9c2cd7619b1b437d0c"
+    },
+    {
+      "vector_id": "adv-v1-011-chain-wrong-position",
+      "expectation": "reject",
+      "check": "audit_chain",
+      "reject_reason": "row 1 chain_position is 5, not its ordinal 1",
+      "expected_rejection": {
+        "code": "REJECT_POSITION",
+        "check": "audit_chain",
+        "error": "AuditChainError"
+      },
+      "expected_error": "AuditChainError",
+      "input": [
+        {
+          "chain_position": 0,
+          "prev_hash": null,
+          "content_hash": "a20a9727708f3c1bbbe26b824f940e656d768e445dba4ade5f77a3d5c33e0f62",
+          "payload": {
+            "event": "issue",
+            "n": 1
+          }
+        },
+        {
+          "chain_position": 5,
+          "prev_hash": "a20a9727708f3c1bbbe26b824f940e656d768e445dba4ade5f77a3d5c33e0f62",
+          "content_hash": "73cfebca42aac2377e9452ebdf49542a3d62ef927bdc68d7265e7178b2242f6f",
+          "payload": {
+            "event": "settle",
+            "n": 2
+          }
+        }
+      ],
+      "input_jcs_bytes_b64": "W3siY2hhaW5fcG9zaXRpb24iOjAsImNvbnRlbnRfaGFzaCI6ImEyMGE5NzI3NzA4ZjNjMWJiYmUyNmI4MjRmOTQwZTY1NmQ3NjhlNDQ1ZGJhNGFkZTVmNzdhM2Q1YzMzZTBmNjIiLCJwYXlsb2FkIjp7ImV2ZW50IjoiaXNzdWUiLCJuIjoxfSwicHJldl9oYXNoIjpudWxsfSx7ImNoYWluX3Bvc2l0aW9uIjo1LCJjb250ZW50X2hhc2giOiI3M2NmZWJjYTQyYWFjMjM3N2U5NDUyZWJkZjQ5NTQyYTNkNjJlZjkyN2JkYzY4ZDcyNjVlNzE3OGIyMjQyZjZmIiwicGF5bG9hZCI6eyJldmVudCI6InNldHRsZSIsIm4iOjJ9LCJwcmV2X2hhc2giOiJhMjBhOTcyNzcwOGYzYzFiYmJlMjZiODI0Zjk0MGU2NTZkNzY4ZTQ0NWRiYTRhZGU1Zjc3YTNkNWMzM2UwZjYyIn1d",
+      "input_content_sha256": "49e86cfadebc6e8551db79212864bf8321939b982b807912cccb67b2fe973cca"
+    }
+  ]
+}

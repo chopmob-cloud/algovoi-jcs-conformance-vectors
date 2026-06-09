@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "action-ref-exactly-once-conformance-v1",
+  "published_at": "2026-06-09T00:00:00Z",
+  "canon_version": "jcs-rfc8785-v1",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust)",
+  "hash": "SHA-256, lowercase hex",
+  "supersets": "action_ref_transactional_v0",
+  "anchored_to": {
+    "primitive_identity": "action_ref = SHA-256(JCS({agent_id, action_type, scope, timestamp_ms}))",
+    "primitive_transition": "transition_hash = SHA-256(JCS({action_ref, state, transition_timestamp_ms, authority_verified_at_ms, revocation_check_at_ms}))",
+    "load_bearing_invariants": [
+      "action_ref is byte-stable across every state of the exactly-once lifecycle.",
+      "Each lifecycle state (PENDING / COMMITTED / REVERSED) yields a distinct transition_hash under identical other-field values.",
+      "SKIP-on-retry: a re-presented transition with an identical (action_ref, state, timestamp) tuple reproduces the prior transition_hash byte-for-byte \u2014 a retry is idempotent, never a second effect.",
+      "transition_hash is bound to its action_ref: an identical state+timestamps under a different action_ref produces a different transition_hash (replay under another identity cannot collide).",
+      "All timestamp fields are epoch-millisecond integers (Substrate Rule 2); RFC 3339 string forms are rejected at validation time."
+    ],
+    "spec_authorship": "AlgoVoi-authored. Supersets the transactional action_ref lifecycle (action_ref_transactional_v0); extends authorisation/settlement/refund to the full exactly-once vocabulary PENDING/COMMITTED/REVERSED with the SKIP-on-retry idempotency invariant."
+  },
+  "fixed_identity_preimage": {
+    "agent_id": "agent_alpha",
+    "action_type": "payment",
+    "scope": "vauban:stark_settlement",
+    "timestamp_ms": 1716494400000
+  },
+  "binding_identity_preimage": {
+    "agent_id": "agent_beta",
+    "action_type": "payment",
+    "scope": "vauban:stark_settlement",
+    "timestamp_ms": 1716494400000
+  },
+  "vectors": [
+    {
+      "vector_id": "action-ref-eo-v1-001",
+      "description": "action_ref identity for the fixed preimage. Stable across the full exactly-once lifecycle.",
+      "pair_group": "identity",
+      "expectation": "reference",
+      "preimage": {
+        "agent_id": "agent_alpha",
+        "action_type": "payment",
+        "scope": "vauban:stark_settlement",
+        "timestamp_ms": 1716494400000
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fdHlwZSI6InBheW1lbnQiLCJhZ2VudF9pZCI6ImFnZW50X2FscGhhIiwic2NvcGUiOiJ2YXViYW46c3Rhcmtfc2V0dGxlbWVudCIsInRpbWVzdGFtcF9tcyI6MTcxNjQ5NDQwMDAwMH0=",
+      "expected_action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c"
+    },
+    {
+      "vector_id": "action-ref-eo-v1-002",
+      "description": "Lifecycle: PENDING. First state of the exactly-once payment lifecycle.",
+      "pair_group": "lifecycle",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "PENDING",
+        "transition_timestamp_ms": 1716494400000,
+        "authority_verified_at_ms": 1716494400500,
+        "revocation_check_at_ms": 1716494400800
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDQwMDUwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDQwMDgwMCwic3RhdGUiOiJQRU5ESU5HIiwidHJhbnNpdGlvbl90aW1lc3RhbXBfbXMiOjE3MTY0OTQ0MDAwMDB9",
+      "expected_transition_hash": "0957638b64c790292c11d90e9ae15576a6454f37f23a0aade222acf9e2ea18b0",
+      "different_hash_from": [
+        "action-ref-eo-v1-003",
+        "action-ref-eo-v1-004"
+      ]
+    },
+    {
+      "vector_id": "action-ref-eo-v1-003",
+      "description": "Lifecycle: COMMITTED. The settle/commit state \u2014 the once in exactly-once.",
+      "pair_group": "lifecycle",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDUwMDUwMCwic3RhdGUiOiJDT01NSVRURUQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDUwMDAwMH0=",
+      "expected_transition_hash": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+      "different_hash_from": [
+        "action-ref-eo-v1-002",
+        "action-ref-eo-v1-004",
+        "action-ref-eo-v1-006"
+      ]
+    },
+    {
+      "vector_id": "action-ref-eo-v1-004",
+      "description": "Lifecycle: REVERSED. Compensating state after a COMMITTED transition.",
+      "pair_group": "lifecycle",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "REVERSED",
+        "transition_timestamp_ms": 1716494600000,
+        "authority_verified_at_ms": 1716494600300,
+        "revocation_check_at_ms": 1716494600500
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDYwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDYwMDUwMCwic3RhdGUiOiJSRVZFUlNFRCIsInRyYW5zaXRpb25fdGltZXN0YW1wX21zIjoxNzE2NDk0NjAwMDAwfQ==",
+      "expected_transition_hash": "681a6026dbbac7555c46282eaf617d3f02560925ed8b44c31e3c854fcfc1f613",
+      "different_hash_from": [
+        "action-ref-eo-v1-002",
+        "action-ref-eo-v1-003"
+      ]
+    },
+    {
+      "vector_id": "action-ref-eo-v1-005",
+      "description": "SKIP-on-retry idempotency: a re-presented COMMITTED transition with IDENTICAL action_ref, state and timestamps to 003. Reproduces 003's transition_hash exactly (the exactly-once guarantee: a retry is byte-identical, never a new effect).",
+      "pair_group": "idempotency",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDUwMDUwMCwic3RhdGUiOiJDT01NSVRURUQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDUwMDAwMH0=",
+      "expected_transition_hash": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+      "same_hash_as": [
+        "action-ref-eo-v1-003"
+      ]
+    },
+    {
+      "vector_id": "action-ref-eo-v1-006",
+      "description": "Replay / action_ref binding: COMMITTED under a DIFFERENT action_ref but identical state and timestamps to 003. Diverges from 003 \u2014 transition_hash is bound to its action_ref, so a replay under another identity cannot collide.",
+      "pair_group": "binding",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "57e861cb0929fe602823a15e2bc5a5587f0b9c3bd39147baa49819dd014c56a6",
+        "state": "COMMITTED",
+        "transition_timestamp_ms": 1716494500000,
+        "authority_verified_at_ms": 1716494500300,
+        "revocation_check_at_ms": 1716494500500
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNTdlODYxY2IwOTI5ZmU2MDI4MjNhMTVlMmJjNWE1NTg3ZjBiOWMzYmQzOTE0N2JhYTQ5ODE5ZGQwMTRjNTZhNiIsImF1dGhvcml0eV92ZXJpZmllZF9hdF9tcyI6MTcxNjQ5NDUwMDMwMCwicmV2b2NhdGlvbl9jaGVja19hdF9tcyI6MTcxNjQ5NDUwMDUwMCwic3RhdGUiOiJDT01NSVRURUQiLCJ0cmFuc2l0aW9uX3RpbWVzdGFtcF9tcyI6MTcxNjQ5NDUwMDAwMH0=",
+      "expected_transition_hash": "97124ca25721d0aa31c8e30095d067c5bb1655ab10e573a08eb2f9d5f2c6a46d",
+      "different_hash_from": [
+        "action-ref-eo-v1-003"
+      ]
+    }
+  ],
+  "pair_invariants": [
+    {
+      "id": "pair-eo-001",
+      "type": "different_hash_from",
+      "description": "lifecycle state distinctness: PENDING != COMMITTED (same action_ref, distinct per-state)",
+      "left": "action-ref-eo-v1-002",
+      "right": "action-ref-eo-v1-003"
+    },
+    {
+      "id": "pair-eo-002",
+      "type": "different_hash_from",
+      "description": "lifecycle state distinctness: COMMITTED != REVERSED",
+      "left": "action-ref-eo-v1-003",
+      "right": "action-ref-eo-v1-004"
+    },
+    {
+      "id": "pair-eo-003",
+      "type": "same_hash_as",
+      "description": "SKIP-on-retry idempotency: a re-presented COMMITTED reproduces the prior transition_hash byte-for-byte (the exactly-once invariant)",
+      "left": "action-ref-eo-v1-003",
+      "right": "action-ref-eo-v1-005"
+    },
+    {
+      "id": "pair-eo-004",
+      "type": "different_hash_from",
+      "description": "action_ref replay-binding: identical state+timestamps under a different action_ref produce a different transition_hash",
+      "left": "action-ref-eo-v1-003",
+      "right": "action-ref-eo-v1-006"
+    },
+    {
+      "id": "pair-eo-005",
+      "type": "different_hash_from",
+      "description": "identity-vs-transition: the action_ref digest and any transition_hash are byte-distinct",
+      "left": "action-ref-eo-v1-001",
+      "right": "action-ref-eo-v1-003"
+    }
+  ]
+}

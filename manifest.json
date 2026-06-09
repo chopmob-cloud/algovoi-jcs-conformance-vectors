@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "published_at": "2026-05-23",
   "updated_at": "2026-06-17",
   "canon_version": "jcs-rfc8785-v1",
@@ -170,6 +170,27 @@
       "sha256": "sha256:c3767c6f700bc062b1dbc55a6a1ccf354c960531caa12f63ca4c0ace5437bca1"
     },
     {
+      "name": "action_ref_exactly_once_v1",
+      "primary_file": "action_ref_exactly_once_v1.json",
+      "vector_count": 6,
+      "pair_invariants": 5,
+      "supersets": "action_ref_transactional_v0",
+      "anchors_to": "exactly-once lifecycle (PENDING/COMMITTED/REVERSED) + SKIP-on-retry idempotency",
+      "cross_validated": "8-impl direct (2026-06-09, 48/48)",
+      "sha256": "sha256:e0872c9fedb12cc4e704880d3dc37edcf90d76abbc7eed7b4b4d37ea39e9e8ee"
+    },
+    {
+      "name": "adversarial_isolation_v1",
+      "primary_file": "adversarial_isolation_v1.json",
+      "vector_count": 12,
+      "reject_count": 11,
+      "control_count": 1,
+      "anchors_to": "failure-isolation: one rejection per vector across transition_preimage / action_ref / audit_chain",
+      "claims_note": "Claim 1 (input bytes) is 8-lang; Claim 2 (rejection) is reference-impl PoR, NOT an 8-lang byte claim.",
+      "cross_validated": "Claim 1: 8-impl direct (2026-06-09, 96/96 input bytes). Claim 2: reference-impl rejection PoR (12/12), not an 8-lang byte claim.",
+      "sha256": "sha256:4bbfce38d358cb6c5bebe8614af82244cacceba740cbf966c00f590d5348b64c"
+    },
+    {
       "name": "retention_chain_v0",
       "primary_file": "retention_chain_v0.json",
       "vector_count": 3,
@@ -191,9 +212,9 @@
       "sha256": "sha256:7db074ad0737468c29fcfad71d5d7e70354d3710a377603585e1a899d195602a"
     }
   ],
-  "total_anchor_sets": 19,
-  "total_vectors": 148,
-  "total_vectors_note": "18 sets / 134 entries = 129 JCS canonicalisation vectors across 15 sets, plus 5 entries across 3 adjacent cryptographic fixtures (rfc9421_proxy_chain_v0: 1 algovoi-v0 signing-base survival fixture; rfc9421_proxy_chain_v1: 1 RFC 9421 §2.5-conformant signing-base survival fixture; multichain_ed25519_substrate_v0: 3 Ed25519 signatures over a shared canonical payload). ctef_aps_v1 carries 4 further CTEF top-level cases in ctef_vectors.json beyond its 10 primary vectors.",
+  "total_anchor_sets": 21,
+  "total_vectors": 166,
+  "total_vectors_note": "21 sets / 166 entries = JCS canonicalisation vectors across core sets plus adjacent cryptographic and adversarial fixtures. Includes: action_ref_exactly_once_v1 (6 positive vectors, supersets action_ref_transactional_v0), adversarial_isolation_v1 (12 = 1 control + 11 failure-isolation reject vectors), retention_chain_v0 (3 genesis chain vectors), retention_chain_v1 (14 extended chain / multi-issuer / adversarial-gap vectors). rfc9421_proxy_chain_v0 and rfc9421_proxy_chain_v1 are signing-base survival fixtures (1 vector each). multichain_ed25519_substrate_v0 has 3 Ed25519 signatures. ctef_aps_v1 carries 4 further CTEF top-level cases in ctef_vectors.json beyond its 10 primary vectors.",
   "cross_validation": {
     "implementations": 8,
     "languages": [
@@ -207,7 +228,7 @@
       "Ruby"
     ],
     "languages_note": "Eight independent, non-overlapping JCS RFC 8785 implementations, including the RFC 8785 author's own Java implementation (Anders Rundgren).",
-    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 672/672 as of 2026-06-16 (192+320+64+24+40+32). zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity and are deliberately NOT added to the directly-executed cumulative. epi_interop_v0 and epi_pqc_v0 JCS runs (2026-06-16) ARE included: they confirm the same RFC 8785 canonicalisation discipline holds over external EPI-format payloads.",
+    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 832/832 as of 2026-06-17 (192+320+64+48+24+40+32+112). zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity and are deliberately NOT added to the directly-executed cumulative. adversarial_isolation_v1 Claim 1 (96/96 input bytes) is counted separately and NOT folded into the positive-vector cumulative. epi_interop_v0 and epi_pqc_v0 JCS runs (2026-06-16) ARE included: they confirm the same RFC 8785 canonicalisation discipline holds over external EPI-format payloads.",
     "runs": [
       {
         "date": "2026-05-24",
@@ -260,6 +281,28 @@
         "attestation": "_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md"
       },
       {
+        "date": "2026-06-09",
+        "sets": [
+          "action_ref_exactly_once_v1"
+        ],
+        "vectors": 6,
+        "implementations": 8,
+        "agreements": "48/48",
+        "executed": "direct",
+        "attestation": "_attestations/2026-06-09-action-ref-exactly-once-v1.md"
+      },
+      {
+        "date": "2026-06-09",
+        "sets": [
+          "adversarial_isolation_v1"
+        ],
+        "vectors": 12,
+        "implementations": 8,
+        "agreements": "Claim 1 (input bytes) 96/96 direct; Claim 2 (rejection) 12/12 reference-impl PoR (not an 8-lang byte claim)",
+        "executed": "direct (Claim 1) + reference-impl (Claim 2)",
+        "attestation": "_attestations/2026-06-09-adversarial-isolation-v1.md"
+      },
+      {
         "date": "2026-06-16",
         "sets": [
           "retention_chain_v0"
@@ -291,9 +334,20 @@
         "agreements": "32/32",
         "executed": "direct",
         "note": "proposal set; JCS + SHA-256 check only; Falcon-1024 + key-lineage verified by Python only (7/7 full checks); runners in vectors/epi_pqc_v0/"
+      },
+      {
+        "date": "2026-06-17",
+        "sets": [
+          "retention_chain_v1"
+        ],
+        "vectors": 14,
+        "implementations": 8,
+        "agreements": "112/112",
+        "executed": "direct",
+        "attestation": "_attestations/2026-06-17-retention-chain-v1-cross-validation.md"
       }
     ],
-    "cumulative_direct_jcs": "672/672 byte-for-byte agreements (as of 2026-06-16)",
+    "cumulative_direct_jcs": "832/832 byte-for-byte positive-vector agreements (as of 2026-06-17: 192+320+64+48+24+40+32+112). Separately, adversarial_isolation_v1 adds 96/96 byte-for-byte agreements on adversarial INPUTS (Claim 1); its rejection proof (Claim 2, 12/12) is reference-impl behaviour and is NOT folded into the positive-vector cumulative.",
     "signature_survival": {
       "set": "rfc9421_proxy_chain_v0",
       "signing_base_mode": "algovoi-v0",
