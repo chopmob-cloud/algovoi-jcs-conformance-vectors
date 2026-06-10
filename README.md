@@ -176,6 +176,20 @@ The substrate enforces these rules; the vectors exercise each:
 - **`canon_version` pin.** Receipts carry `canon_version: "jcs-rfc8785-v1"`.
 - **Array element order preserved.** RFC 8785 §3.2.3 ordering.
 
+## The platform behind this corpus
+
+This corpus is the public conformance proof for the **substrate-1 canonicalisation discipline** — the
+foundation of a **live production payment platform** and a commercial post-quantum suite built on it:
+
+- **Production** — a multi-chain x402 payment gateway live across 8 settlement networks, with
+  audit-chain evidence and compliance screening: [docs.algovoi.co.uk](https://docs.algovoi.co.uk).
+- **Substrate 2 (commercial)** — post-quantum receipts (ML-DSA / Falcon-1024), offline zero-knowledge
+  proofs, cross-issuer federation, and a regulatory refund / cancellation / compliance receipt family:
+  [docs.algovoi.co.uk/substrate-2](https://docs.algovoi.co.uk/substrate-2).
+
+The public corpus stays at the substrate-1 primitive level **by design**; the commercial layers are
+not published here.
+
 ## Reference implementations
 
 ### algovoi-substrate (canonicalisation primitives + receipt builders)
