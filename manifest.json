@@ -2,7 +2,7 @@
   "name": "AlgoVoi JCS Conformance Vectors",
   "version": "0.6.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-06-04",
+  "updated_at": "2026-06-11",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -157,5 +157,23 @@
       "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain.",
       "attestation": "_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md"
     }
-  }
+  },
+  "interop_sets": [
+    {
+      "name": "epi_interop_v0",
+      "primary_file": "epi_interop_v0.json",
+      "vector_count": 5,
+      "category": "interop",
+      "cross_validated": "2-impl interop (AlgoVoi rfc8785@0.1.4 + EPI Recorder), 2026-06-11",
+      "source": {
+        "repo": "https://github.com/mohdibrahimaiml/epi-recorder",
+        "file": "tests/compatibility/golden/canonical_hash_vectors.json",
+        "file_sha256": "205a911cbd984c0bbff2dce029db6d4b9220b398da646789c16a0b8f7aeaa34b"
+      },
+      "sha256": "sha256:03717edfa0cca566132032f1c41c761c61bf3994a597c862d12e3646b3cf7cbd"
+    }
+  ],
+  "total_interop_sets": 1,
+  "total_interop_vectors": 5,
+  "interop_note": "Interop sets cross-validate the JCS canonicalisation method against an external implementation (2-impl). They are NOT folded into the 8-implementation conformance totals (total_anchor_sets / total_vectors / cross_validation) above."
 }
