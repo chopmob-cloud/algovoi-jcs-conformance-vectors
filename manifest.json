@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-06-11",
+  "updated_at": "2026-06-12",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -175,5 +175,22 @@
   ],
   "total_interop_sets": 1,
   "total_interop_vectors": 5,
-  "interop_note": "Interop sets cross-validate the JCS canonicalisation method against an external implementation (2-impl). They are NOT folded into the 8-implementation conformance totals (total_anchor_sets / total_vectors / cross_validation) above."
+  "interop_note": "Interop sets cross-validate the JCS canonicalisation method against an external implementation (2-impl). They are NOT folded into the 8-implementation conformance totals (total_anchor_sets / total_vectors / cross_validation) above.",
+  "proposal_sets": [
+    {
+      "name": "epi_pqc_v0",
+      "primary_file": "epi_pqc_v0.json",
+      "vector_count": 4,
+      "category": "proposal",
+      "status": "PROPOSED optional post-quantum signature suite (falcon1024) + F7 key-lineage for the .epi format; 1-impl AlgoVoi (rfc8785 + pqcrypto); NOT externally cross-validated",
+      "source": {
+        "discussion": "https://github.com/microsoft/agent-governance-toolkit/discussions/806",
+        "spec": "https://epilabs.org"
+      },
+      "sha256": "sha256:9d81c5117a95f13123a279e549a447969ebcccf445eda996fa806b53f1ccbc36"
+    }
+  ],
+  "total_proposal_sets": 1,
+  "total_proposal_vectors": 4,
+  "proposal_note": "Proposal sets are single-implementation AlgoVoi fixtures published for standards discussion (here: the .epi PQC profile, microsoft/agent-governance-toolkit Discussion #806). They are NOT cross-validated and NOT folded into the conformance or interop totals."
 }
