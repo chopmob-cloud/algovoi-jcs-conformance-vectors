@@ -5,13 +5,13 @@
 # algovoi-jcs-conformance-vectors
 
 [![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
-[![Vectors](https://img.shields.io/badge/vectors-130-brightgreen)](#anchor-sets)
+[![Vectors](https://img.shields.io/badge/vectors-131-brightgreen)](#anchor-sets)
 [![Cross-validated](https://img.shields.io/badge/cross--validated-576%2F576-brightgreen)](#cross-implementation-validation-matrix)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts. 130 vectors across
-16 anchor sets, with **576/576 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts. 131 vectors across
+17 anchor sets, with **576/576 byte-for-byte agreements directly executed**
 across eight independent JCS implementations in eight programming languages
 (cumulative as of 2026-05-30; see the cross-implementation validation matrix).
 
@@ -42,7 +42,7 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | [`vectors/pef_v1/`](./vectors/pef_v1/) | 8 | **Payment Evidence Frame v1**. Pins byte-level `frame_id` values for all five PEF claim types (`payment_admission`, `payment_settlement`, `payment_cancellation`, `payment_refund`, `composite_verdict`). Each vector validates two hashes: `sha256(JCS(receipt))` = `receipt_hash` and `sha256(JCS(preimage))` = `frame_id`. Normative spec: `draft-hopley-x402-payment-evidence-frame` (IETF I-D, filing pending). Reference implementations: [`algovoi-pef`](https://pypi.org/project/algovoi-pef/) (PyPI) / [`@algovoi/pef`](https://www.npmjs.com/package/@algovoi/pef) (npm). |
 | [`vectors/zkp_receipt_v1/`](./vectors/zkp_receipt_v1/) | 8 | **ZKP receipt v1**. Canonical-bytes / `frame_id` vectors for the zero-knowledge settlement receipt across seven chains (Algorand, Base, Solana, VOI, Stellar, Hedera, Tempo). Companion to IACR ePrint 2026/109852. |
 | [`vectors/service_trust_v0/`](./vectors/service_trust_v0/) | 5 | Service-trust check envelope (`urn:crest:trust-check-v1`) vectors. |
-| **Total (JCS vectors, 14 sets)** | **126** | + 4 entries across the 2 cryptographic fixtures below = **130 vectors / 16 sets** |
+| **Total (JCS vectors, 14 sets)** | **126** | + 5 entries across the 3 cryptographic fixtures below = **131 vectors / 17 sets** |
 
 ## Cryptographic-property fixtures (complementary to JCS canonicalisation)
 
@@ -86,7 +86,10 @@ implementations and is reported separately below, not folded into the 576:
 | **Cumulative (directly executed)** | **8 distinct vector sets** | **72 × 8** | **576/576** | |
 | 2026-06-04 | `zkp_receipt_v1` (5 impls directly executed; remaining 3 asserted by transitivity — primitive-only payload covered by the 2026-05-25 run) | 8 × 5 direct | **40/40 direct** (+24 by transitivity, *not* added to the 576) | [`_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md`](./_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md) |
 
-A separate signature-survival fixture, `rfc9421_proxy_chain_v0`, was validated **24/24** (8 implementations × 3 checks: signing-base + content-digest + Ed25519 verify) on 2026-05-24 ([attestation](./_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md)); it is tracked apart from the JCS byte-agreement total.
+Two separate signature-survival fixtures are tracked apart from the JCS byte-agreement total:
+
+- **`rfc9421_proxy_chain_v0`** — the legacy **algovoi-v0** signing base (lowercased `@method`, `created` as a covered component, no `@signature-params` line). Validated **24/24** (8 implementations × 3 checks: signing-base + content-digest + Ed25519 verify) on 2026-05-24 ([attestation](./_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md)).
+- **`rfc9421_proxy_chain_v1`** — genuinely **RFC 9421 §2.5-conformant** (`@method` case-preserved, `created` as a parameter, trailing `@signature-params` line). Validated **8/8** across all eight implementations on 2026-06-13.
 
 ### What the matrix covers
 
@@ -294,7 +297,7 @@ These roles describe validation, mirror, and discussion work relative to the Alg
 
 When citing in a spec PR, paper, or implementation README, please use:
 
-> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-04. 130 vectors across 16 anchor sets, 576/576 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-05-30.
+> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-04. 131 vectors across 17 anchor sets, 576/576 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-05-30.
 
 ## Licence
 
