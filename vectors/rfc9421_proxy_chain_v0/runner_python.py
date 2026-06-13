@@ -30,6 +30,7 @@ def main() -> int:
         headers=req["headers"],
         body=b"",
         public_key=fix["keypair"]["public_key_hex"],
+        mode="algovoi-v0",
     )
 
     if not result.valid:

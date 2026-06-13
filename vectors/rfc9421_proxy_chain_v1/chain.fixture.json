@@ -1,0 +1,7 @@
+{
+  "fixture_name": "algovoi-proxy-chain-v1",
+  "description": "RFC 9421 \u00a72.5-conformant HTTP signature + RFC 9530 content-digest survival across a 3-hop proxy chain",
+  "endpoint": "https://api.algovoi.co.uk/compliance/attestation",
+  "signing_base_mode": "rfc9421",
+  "status": "ready_for_verification"
+}

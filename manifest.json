@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "published_at": "2026-05-23",
-  "updated_at": "2026-06-12",
+  "updated_at": "2026-06-13",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -114,10 +114,23 @@
       "name": "rfc9421_proxy_chain_v0",
       "primary_file": "request.fixture.json",
       "vector_count": 1,
-      "fixture_type": "rfc9421_signature_survival",
-      "rfc_anchors": ["RFC 9421", "RFC 9530", "RFC 8032"],
-      "cross_validated": "8-impl signature-survival, 24/24 (8 impls x 3 checks, 2026-05-24)",
+      "fixture_type": "algovoi_v0_signing_base_survival",
+      "rfc_anchors": ["RFC 9530", "RFC 8032"],
+      "signing_base_mode": "algovoi-v0",
+      "note": "Legacy algovoi-v0 signing base (pre-RFC-9421-default): lowercased @method, 'created' carried as a covered component, no @signature-params line. Verified with mode='algovoi-v0'. The genuinely RFC 9421 §2.5-conformant companion is rfc9421_proxy_chain_v1.",
+      "cross_validated": "8-impl algovoi-v0 signing-base survival, 24/24 (2026-05-24)",
       "sha256": "sha256:5224a7b088732b01beea6c4027e13a5929714170aa4e9eb57911d54284f0dfbf"
+    },
+    {
+      "name": "rfc9421_proxy_chain_v1",
+      "primary_file": "request.fixture.json",
+      "vector_count": 1,
+      "fixture_type": "rfc9421_conformant_signature_survival",
+      "rfc_anchors": ["RFC 9421", "RFC 9530", "RFC 8032"],
+      "signing_base_mode": "rfc9421",
+      "note": "RFC 9421 §2.5-conformant signing base: @method case-preserved (GET), 'created' as a signature parameter (not a covered component), trailing @signature-params line. Conformant companion to the legacy rfc9421_proxy_chain_v0.",
+      "cross_validated": "8-impl 8/8 Ed25519-verified (Python algovoi-rfc9421-verifier mode=rfc9421, Node, Go, Rust, Java, PHP/libsodium, .NET, Ruby), 2026-06-13",
+      "sha256": "sha256:7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8"
     },
     {
       "name": "multichain_ed25519_substrate_v0",
@@ -135,9 +148,9 @@
       "sha256": "sha256:c3767c6f700bc062b1dbc55a6a1ccf354c960531caa12f63ca4c0ace5437bca1"
     }
   ],
-  "total_anchor_sets": 16,
-  "total_vectors": 130,
-  "total_vectors_note": "16 sets / 130 entries = 126 JCS canonicalisation vectors across 14 sets, plus 4 entries across 2 adjacent cryptographic fixtures (rfc9421_proxy_chain_v0: 1 signature-survival fixture; multichain_ed25519_substrate_v0: 3 Ed25519 signatures over a shared canonical payload). ctef_aps_v1 carries 4 further CTEF top-level cases in ctef_vectors.json beyond its 10 primary vectors.",
+  "total_anchor_sets": 17,
+  "total_vectors": 131,
+  "total_vectors_note": "17 sets / 131 entries = 126 JCS canonicalisation vectors across 14 sets, plus 5 entries across 3 adjacent cryptographic fixtures (rfc9421_proxy_chain_v0: 1 algovoi-v0 signing-base survival fixture; rfc9421_proxy_chain_v1: 1 RFC 9421 §2.5-conformant signing-base survival fixture; multichain_ed25519_substrate_v0: 3 Ed25519 signatures over a shared canonical payload). ctef_aps_v1 carries 4 further CTEF top-level cases in ctef_vectors.json beyond its 10 primary vectors.",
   "cross_validation": {
     "implementations": 8,
     "languages": ["Python", "JavaScript", "Go", "Rust", "Java", "PHP", "C#/.NET", "Ruby"],
@@ -152,10 +165,18 @@
     "cumulative_direct_jcs": "576/576 byte-for-byte agreements (as of 2026-05-30)",
     "signature_survival": {
       "set": "rfc9421_proxy_chain_v0",
+      "signing_base_mode": "algovoi-v0",
       "date": "2026-05-24",
       "agreements": "24/24",
-      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain.",
+      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain, over the legacy algovoi-v0 signing base (lowercased @method, no @signature-params line). The RFC 9421 §2.5-conformant companion is signature_survival_rfc9421 below.",
       "attestation": "_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md"
+    },
+    "signature_survival_rfc9421": {
+      "set": "rfc9421_proxy_chain_v1",
+      "signing_base_mode": "rfc9421",
+      "date": "2026-06-13",
+      "agreements": "8/8",
+      "note": "RFC 9421 §2.5-conformant signing base (@method case-preserved, created as a parameter, trailing @signature-params line). All 8 independent implementations verify the full chain (signing-base reconstruction + RFC 9530 content-digest + Ed25519): Python (algovoi-rfc9421-verifier mode=rfc9421), Node, Go, Rust (ed25519-dalek), Java (JDK 17 stdlib), PHP (libsodium), .NET (NSec.Cryptography), Ruby. Verified 2026-06-13, matching the v0 set's 8/8 on the same host."
     }
   },
   "interop_sets": [

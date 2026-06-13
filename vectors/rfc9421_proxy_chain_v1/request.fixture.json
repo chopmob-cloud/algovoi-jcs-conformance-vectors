@@ -1,0 +1,66 @@
+{
+  "layer": "REQUEST",
+  "description": "RFC 9421-conformant signed GET request to api.algovoi.co.uk/compliance/attestation through a CF->nginx->FastAPI 3-hop proxy chain. Conformant companion to rfc9421_proxy_chain_v0.",
+  "conformance": {
+    "signing_base_mode": "rfc9421",
+    "method_case_preserved": true,
+    "created_is_parameter_not_component": true,
+    "has_signature_params_line": true
+  },
+  "spec_refs": {
+    "rfc_9421": "https://www.rfc-editor.org/rfc/rfc9421",
+    "rfc_9421_section": "2.5",
+    "rfc_9530": "https://www.rfc-editor.org/rfc/rfc9530",
+    "rfc_8032": "https://www.rfc-editor.org/rfc/rfc8032#section-7.1"
+  },
+  "keypair": {
+    "seed_hex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+    "seed_source": "RFC 8032 Section 7.1 Test 1",
+    "public_key_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+  },
+  "request": {
+    "method": "GET",
+    "uri": "https://api.algovoi.co.uk/compliance/attestation",
+    "path": "/compliance/attestation",
+    "authority": "api.algovoi.co.uk",
+    "headers": {
+      "host": "api.algovoi.co.uk",
+      "content-digest": "sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:",
+      "signature-input": "sig=(\"@method\" \"@authority\" \"@path\" \"content-digest\");created=1778955520;keyid=\"did:web:api.algovoi.co.uk\";alg=\"ed25519\"",
+      "signature": "sig=:qWRuNCsCUyKO/9MNtGApDxeznFm+07DyK4zN6eF/mnRcrQ3IaRpQOjQxY6xetCL+588L02Ajd3RjUR9jGi2jBw==:"
+    }
+  },
+  "signing": {
+    "timestamp": 1778955520,
+    "covered_components": [
+      "@method",
+      "@authority",
+      "@path",
+      "content-digest"
+    ],
+    "signature_params_raw": "(\"@method\" \"@authority\" \"@path\" \"content-digest\");created=1778955520;keyid=\"did:web:api.algovoi.co.uk\";alg=\"ed25519\"",
+    "signing_base": "\"@method\": GET\n\"@authority\": api.algovoi.co.uk\n\"@path\": /compliance/attestation\n\"content-digest\": sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\");created=1778955520;keyid=\"did:web:api.algovoi.co.uk\";alg=\"ed25519\"",
+    "algorithm": "ed25519",
+    "signature_value_b64": "qWRuNCsCUyKO/9MNtGApDxeznFm+07DyK4zN6eF/mnRcrQ3IaRpQOjQxY6xetCL+588L02Ajd3RjUR9jGi2jBw=="
+  },
+  "chain": {
+    "description": "3-hop proxy chain: edge CDN -> reverse proxy -> application server",
+    "hops": [
+      {
+        "hop": 1,
+        "name": "Edge CDN",
+        "role": "Edge proxy"
+      },
+      {
+        "hop": 2,
+        "name": "Reverse proxy",
+        "role": "Reverse proxy"
+      },
+      {
+        "hop": 3,
+        "name": "Application server",
+        "role": "Application server"
+      }
+    ]
+  }
+}
