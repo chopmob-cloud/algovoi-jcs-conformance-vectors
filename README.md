@@ -340,3 +340,6 @@ recorded in the change log** and is **not** taken into account when L1 evolves; 
 interoperation is not guaranteed. Attribution is what makes the credit structural and the
 compatibility mutual: cite the substrate, import it by hash, and your L2 is a stable,
 first-class layer on a base we keep stable for you.
+
+**How to pin →** step-by-step in [ADOPTERS.md](./ADOPTERS.md) (the import block, the NOTICE, and
+how to get your layer recorded in the change log).

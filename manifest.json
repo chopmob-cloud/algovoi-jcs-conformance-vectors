@@ -213,5 +213,23 @@
   ],
   "total_proposal_sets": 1,
   "total_proposal_vectors": 4,
-  "proposal_note": "Proposal sets are single-implementation AlgoVoi fixtures published for standards discussion (here: the .epi PQC profile, microsoft/agent-governance-toolkit Discussion #806). They are NOT cross-validated and NOT folded into the conformance or interop totals."
+  "proposal_note": "Proposal sets are single-implementation AlgoVoi fixtures published for standards discussion (here: the .epi PQC profile, microsoft/agent-governance-toolkit Discussion #806). They are NOT cross-validated and NOT folded into the conformance or interop totals.",
+  "validation_records": [
+    {
+      "name": "rfc9421_receipt_evidence_v0",
+      "primary_file": "rfc9421_receipt_evidence_v0.json",
+      "vector_count": 6,
+      "category": "validation_record",
+      "status": "AlgoVoi validation + change-management record of the L2 receipt-evidence (key-source provenance) layer specified at a2aproject/A2A#1829; imports L1 rfc9421_proxy_chain_v1 by digest; 1-impl reproducible (rfc8785); NOT cross-validated, NOT in conformance/interop totals",
+      "l2_design_venue": "a2aproject/A2A#1829",
+      "imports": {
+        "signing_base_set": "rfc9421_proxy_chain_v1",
+        "signing_base_source_sha256": "7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8"
+      },
+      "sha256": "sha256:168ad5fedddb115c282efc7ee3a7f187f4979de13870d2e1c87f9b59b22ac280"
+    }
+  ],
+  "total_validation_records": 1,
+  "total_validation_record_vectors": 6,
+  "validation_record_note": "Validation records are AlgoVoi's independent reproduction of an external L2 layer against the pinned L1 anchor, recorded for change management. The L2 design belongs to the adopting effort; AlgoVoi does not author it. Only attributed L2 (digest pin + NOTICE) is recorded. NOT cross-validated, NOT folded into the conformance or interop totals."
 }
