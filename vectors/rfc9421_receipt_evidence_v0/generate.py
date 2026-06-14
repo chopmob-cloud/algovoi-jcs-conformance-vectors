@@ -1,9 +1,12 @@
 """rfc9421_receipt_evidence_v0 — generator.
 
-Builds the L2 receipt-evidence (key-source provenance) proposal set that sits ON TOP of
-the L1 signing-base reference `rfc9421_proxy_chain_v1`. The L1 message-signature result is
-IMPORTED as a fixed anchor (signing_base_ref) and never redefined here: identical signature,
-different verifier-evidence meaning depending on how the signing key became acceptable.
+Builds AlgoVoi's VALIDATION + CHANGE-MANAGEMENT RECORD of the L2 receipt-evidence
+(key-source provenance) layer that sits ON TOP of the L1 signing-base reference
+`rfc9421_proxy_chain_v1`. The L2 design belongs to the adopting ecosystem effort
+(a2aproject/A2A#1829); AlgoVoi maintains the L1 substrate and validates the L2 against it.
+The L1 message-signature result is IMPORTED as a fixed anchor (signing_base_ref) and never
+redefined here: identical signature, different verifier-evidence meaning depending on how
+the signing key became acceptable.
 
 Trust base: a single public library (rfc8785). No AlgoVoi code is imported, so the canonical
 bytes are reproducible by anyone. `python generate.py` rewrites the JSON deterministically;
@@ -144,8 +147,15 @@ def main() -> None:
     doc = {
         "schema_version": "rfc9421-receipt-evidence-v0",
         "artefact_id": "rfc9421_receipt_evidence_v0",
-        "set_class": "proposal_set",
+        "set_class": "validation_record",
         "in_cross_validated_total": False,
+        "algovoi_role": (
+            "AlgoVoi maintains the L1 signing-base substrate and provides this independent "
+            "validation of the L2 receipt-evidence layer against the L1 anchor, recorded here "
+            "for change management. The L2 (key-source provenance) design belongs to the "
+            "adopting ecosystem effort; AlgoVoi does not claim authorship of the L2 layer."
+        ),
+        "l2_design_venue": "a2aproject/A2A#1829",
         "canonicalizer": "RFC 8785 (JCS); reproduced by the public `rfc8785` library, no AlgoVoi code",
         "canon_version": "jcs-rfc8785-v1",
         "license": "Apache-2.0",
@@ -163,7 +173,7 @@ def main() -> None:
         },
         "layer_boundary": {
             "L1": "RFC 9421 §2.5 signing base (rfc9421_proxy_chain_v1) — proves the message",
-            "L2": "this set — proves how the signing key became acceptable (key_source provenance)",
+            "L2": "the adopters' key-source provenance layer (validated here against L1) — proves how the signing key became acceptable",
             "invariant": "identical L1 signature, different verifier-evidence meaning by key_source",
         },
         "verification_recipe": [

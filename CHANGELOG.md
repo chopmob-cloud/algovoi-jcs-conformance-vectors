@@ -22,15 +22,20 @@ the root [README › Attribution](./README.md#attribution).
   JCS implementations (cumulative as of 2026-05-30). Latest L1 addition:
   `rfc9421_proxy_chain_v1` (RFC 9421 §2.5 signing base).
 
-## L2 layers (validated against L1)
+## L2 layers (validated against L1, recorded for change management)
 
-L2 sets are proposal sets — standalone, reproducible offline from `rfc8785`, **not** part of
-the cross-validated L1 total. Each imports the L1 result as a fixed anchor and attributes it.
+L2 designs belong to the adopting ecosystem efforts that specify them. AlgoVoi's role is to
+maintain the L1 substrate, **validate each L2 layer against the L1 anchor, and record it here**
+for change management. These records are standalone, reproducible offline from `rfc8785`,
+**not** part of the cross-validated L1 total. Each imports the L1 result as a fixed anchor and
+attributes it.
 
-- **`rfc9421_receipt_evidence_v0`** — L2 receipt-evidence (key-source provenance). Imports
-  `rfc9421_proxy_chain_v1` REQUEST as `signing_base_ref`. **5 cases / 6 vectors**, all
-  independently re-validated green (`runner_python.py`): `resolver_to_cache_valid`,
-  `cache_laundering_invalid` (`CACHE_WITHOUT_POPULATION_EVENT`), `inline_pinned_valid`,
-  `resolver_outside_allowlist_invalid` (`RESOLVER_OUTSIDE_ALLOWLIST`), `inline_unproven_invalid`
-  (`INLINE_WITHOUT_ORIGIN_PROOF`). Same L1 signature passes in every key-source profile; what
-  differs is whether the evidence explains why the key was acceptable.
+- **`rfc9421_receipt_evidence_v0`** — validation record of the L2 receipt-evidence (key-source
+  provenance) layer being specified at `a2aproject/A2A#1829` (the L2 design is that effort's;
+  AlgoVoi validates + records, does not author it). Imports `rfc9421_proxy_chain_v1` REQUEST as
+  `signing_base_ref`. **5 cases / 6 vectors**, all independently re-validated green
+  (`runner_python.py`): `resolver_to_cache_valid`, `cache_laundering_invalid`
+  (`CACHE_WITHOUT_POPULATION_EVENT`), `inline_pinned_valid`, `resolver_outside_allowlist_invalid`
+  (`RESOLVER_OUTSIDE_ALLOWLIST`), `inline_unproven_invalid` (`INLINE_WITHOUT_ORIGIN_PROOF`).
+  Same L1 signature passes in every key-source profile; what differs is whether the evidence
+  explains why the key was acceptable.

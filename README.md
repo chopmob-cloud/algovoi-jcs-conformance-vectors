@@ -324,8 +324,9 @@ The full invitation is at https://docs.algovoi.co.uk/canonicalisation-substrate#
 ### L2 contributions, attribution & stability
 
 We welcome layers built on top of this substrate (L2 sets — receipt-evidence, key-source
-provenance, settlement, and the like). We are glad to **validate well-formed L2 contributions
-against the L1 anchor and record each one in this corpus's [change log](./CHANGELOG.md)** —
+provenance, settlement, and the like). **The L2 design stays the contributor's** — our role is
+to maintain the L1 substrate, **validate the L2 against the L1 anchor, and record it in this
+corpus's [change log](./CHANGELOG.md)** for change management. We are glad to do that —
 on one condition, the same one the licence already makes: **the L1 substrate is attributed.**
 Attribution means keeping the NOTICE above and importing the L1 base by hash (the
 `signing_base_ref` / `signing_base_source_sha256` pattern the L2 sets here use), so the credit

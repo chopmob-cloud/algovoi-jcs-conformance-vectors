@@ -1,20 +1,26 @@
 # rfc9421_receipt_evidence_v0
 
-**L2 receipt-evidence (key-source provenance) proposal set**, layered on top of the L1
-signing-base reference [`rfc9421_proxy_chain_v1`](../rfc9421_proxy_chain_v1). The L1
-RFC 9421 §2.5 message-signature result is **imported as a fixed anchor** (`signing_base_ref`)
-and is never redefined here.
+**Validation & change-management record** of the L2 receipt-evidence (key-source provenance)
+layer, layered on top of the L1 signing-base reference
+[`rfc9421_proxy_chain_v1`](../rfc9421_proxy_chain_v1). The L1 RFC 9421 §2.5 message-signature
+result is **imported as a fixed anchor** (`signing_base_ref`) and is never redefined here.
 
-> Layer boundary (per [a2aproject/A2A#1829](https://github.com/a2aproject/A2A/issues/1829)):
-> **L1** proves the *message* (the RFC 9421 §2.5 signing base). **L2** — this set — proves
-> *how the signing key became acceptable* (key-source provenance). Same L1 signature,
-> different verifier-evidence meaning depending on the key's trust posture.
+> **Whose layer is this?** The L2 (key-source provenance) design belongs to the adopting
+> ecosystem effort — see [a2aproject/A2A#1829](https://github.com/a2aproject/A2A/issues/1829).
+> AlgoVoi maintains the L1 substrate; **AlgoVoi's role at L2 is to validate the layer against
+> the L1 anchor and record it here for change management** — not to author it.
+
+> Layer boundary: **L1** proves the *message* (the RFC 9421 §2.5 signing base, AlgoVoi-
+> maintained). **L2** — the adopters' layer, validated in this record — proves *how the signing
+> key became acceptable* (key-source provenance). Same L1 signature, different verifier-evidence
+> meaning depending on the key's trust posture.
 
 ## Status
 
-- **Proposal set** — standalone, **not** part of the cross-validated JCS total (the 8-impl
-  576). Reproducible offline from a single public library (`rfc8785`); no AlgoVoi code in the
-  trust base.
+- **Validation record** — AlgoVoi's independent reproduction of the L2 layer against the L1
+  anchor, kept for change management. Standalone, **not** part of the cross-validated JCS total
+  (the 8-impl 576). Reproducible offline from a single public library (`rfc8785`); no AlgoVoi
+  code in the trust base.
 - **License:** Apache-2.0 (same as the rest of this repository).
 - Anchored to `draft-hopley-x402-canonicalisation-jcs-v1` (JCS RFC 8785, `jcs-rfc8785-v1`).
 
