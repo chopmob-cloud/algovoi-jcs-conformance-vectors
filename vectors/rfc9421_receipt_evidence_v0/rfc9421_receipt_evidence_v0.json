@@ -1,0 +1,211 @@
+{
+  "schema_version": "rfc9421-receipt-evidence-v0",
+  "artefact_id": "rfc9421_receipt_evidence_v0",
+  "set_class": "proposal_set",
+  "in_cross_validated_total": false,
+  "canonicalizer": "RFC 8785 (JCS); reproduced by the public `rfc8785` library, no AlgoVoi code",
+  "canon_version": "jcs-rfc8785-v1",
+  "license": "Apache-2.0",
+  "imports": {
+    "signing_base_set": "rfc9421_proxy_chain_v1",
+    "signing_base_vector": "REQUEST",
+    "signing_base_source_sha256": "7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8",
+    "note": "L1 result is imported as a fixed anchor (signing_base_ref), not redefined here."
+  },
+  "anchored_to": {
+    "ietf_id": "draft-hopley-x402-canonicalisation-jcs-v1",
+    "ietf_id_url": "https://datatracker.ietf.org/doc/draft-hopley-x402-canonicalisation-jcs-v1/",
+    "rfc_9421_section": "2.5 (signing base, imported via L1)",
+    "spec_authorship": "AlgoVoi (Christopher Hopley)"
+  },
+  "layer_boundary": {
+    "L1": "RFC 9421 §2.5 signing base (rfc9421_proxy_chain_v1) — proves the message",
+    "L2": "this set — proves how the signing key became acceptable (key_source provenance)",
+    "invariant": "identical L1 signature, different verifier-evidence meaning by key_source"
+  },
+  "verification_recipe": [
+    "1. For each vector, JCS-canonicalise input with RFC 8785.",
+    "2. base64-encode the JCS bytes; MUST equal expected_jcs_bytes_b64.",
+    "3. SHA-256 the JCS bytes (prefixed 'sha256:'); MUST equal expected_content_hash.",
+    "4. cache rule: key_source=='cache' MUST carry key_provenance.population_ref; absence => non_conformant (CACHE_WITHOUT_POPULATION_EVENT).",
+    "5. resolver rule: key_source=='resolver' resolver_url MUST be in the verifier's policies[allowlist_policy_id].allowed_resolver_urls; absence => non_conformant (RESOLVER_OUTSIDE_ALLOWLIST). The allowlist is resolved verifier-side, never trusted from the receipt.",
+    "6. inline rule: key_source=='inline' MUST carry key_provenance.pinned_key_digest OR origin_attestation; absence => non_conformant (INLINE_WITHOUT_ORIGIN_PROOF).",
+    "7. Chain rule: case 'resolver_to_cache_valid' row 002 population_ref MUST equal row 001 expected_content_hash."
+  ],
+  "policies": {
+    "policy:jwks-allowlist:v1": {
+      "allowed_resolver_urls": [
+        "https://api.algovoi.co.uk/.well-known/jwks.json"
+      ]
+    }
+  },
+  "conformance_rules": [
+    {
+      "id": "cache_requires_population_ref",
+      "rule": "key_source=='cache' requires key_provenance.population_ref (sha256 pointer to a resolver population event).",
+      "violation_code": "CACHE_WITHOUT_POPULATION_EVENT"
+    },
+    {
+      "id": "resolver_requires_allowlist",
+      "rule": "key_source=='resolver' requires resolver_url to be in the verifier-resolved allowlist for allowlist_policy_id; the allowlist is never trusted from the receipt itself.",
+      "violation_code": "RESOLVER_OUTSIDE_ALLOWLIST"
+    },
+    {
+      "id": "inline_requires_origin_proof",
+      "rule": "key_source=='inline' requires key_provenance.pinned_key_digest or origin_attestation; a bare inline label is bypassable (a resolver-origin key relabeled inline).",
+      "violation_code": "INLINE_WITHOUT_ORIGIN_PROOF"
+    }
+  ],
+  "vectors": [
+    {
+      "vector_id": "001-resolver-population-event",
+      "case": "resolver_to_cache_valid",
+      "expectation": "conformant",
+      "non_conformance_code": null,
+      "input": {
+        "canon_version": "jcs-rfc8785-v1",
+        "evidence_layer": "receipt-key-source-v0",
+        "signing_base_ref": {
+          "vector_set": "rfc9421_proxy_chain_v1",
+          "vector": "REQUEST",
+          "alg": "ed25519",
+          "keyid": "did:web:api.algovoi.co.uk",
+          "signature": "sig=:qWRuNCsCUyKO/9MNtGApDxeznFm+07DyK4zN6eF/mnRcrQ3IaRpQOjQxY6xetCL+588L02Ajd3RjUR9jGi2jBw==:"
+        },
+        "key_source": "resolver",
+        "key_provenance": {
+          "resolver_url": "https://api.algovoi.co.uk/.well-known/jwks.json",
+          "allowlist_policy_id": "policy:jwks-allowlist:v1",
+          "resolved_key_digest": "sha256:21fe31dfa154a261626bf854046fd2271b7bed4b6abe45aa58877ef47f9721b9",
+          "population_timestamp_ms": 1778955520000
+        }
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJldmlkZW5jZV9sYXllciI6InJlY2VpcHQta2V5LXNvdXJjZS12MCIsImtleV9wcm92ZW5hbmNlIjp7ImFsbG93bGlzdF9wb2xpY3lfaWQiOiJwb2xpY3k6andrcy1hbGxvd2xpc3Q6djEiLCJwb3B1bGF0aW9uX3RpbWVzdGFtcF9tcyI6MTc3ODk1NTUyMDAwMCwicmVzb2x2ZWRfa2V5X2RpZ2VzdCI6InNoYTI1NjoyMWZlMzFkZmExNTRhMjYxNjI2YmY4NTQwNDZmZDIyNzFiN2JlZDRiNmFiZTQ1YWE1ODg3N2VmNDdmOTcyMWI5IiwicmVzb2x2ZXJfdXJsIjoiaHR0cHM6Ly9hcGkuYWxnb3ZvaS5jby51ay8ud2VsbC1rbm93bi9qd2tzLmpzb24ifSwia2V5X3NvdXJjZSI6InJlc29sdmVyIiwic2lnbmluZ19iYXNlX3JlZiI6eyJhbGciOiJlZDI1NTE5Iiwia2V5aWQiOiJkaWQ6d2ViOmFwaS5hbGdvdm9pLmNvLnVrIiwic2lnbmF0dXJlIjoic2lnPTpxV1J1TkNzQ1V5S08vOU1OdEdBcER4ZXpuRm0rMDdEeUs0ek42ZUYvbW5SY3JRM0lhUnBRT2pReFk2eGV0Q0wrNTg4TDAyQWpkM1JqVVI5akdpMmpCdz09OiIsInZlY3RvciI6IlJFUVVFU1QiLCJ2ZWN0b3Jfc2V0IjoicmZjOTQyMV9wcm94eV9jaGFpbl92MSJ9fQ==",
+      "expected_content_hash": "sha256:c2ad88e354bbb3c3ad0a925c3c900af696080c2e12e895008e76165ba8787b30"
+    },
+    {
+      "vector_id": "002-cache-with-population-ref",
+      "case": "resolver_to_cache_valid",
+      "expectation": "conformant",
+      "non_conformance_code": null,
+      "input": {
+        "canon_version": "jcs-rfc8785-v1",
+        "evidence_layer": "receipt-key-source-v0",
+        "signing_base_ref": {
+          "vector_set": "rfc9421_proxy_chain_v1",
+          "vector": "REQUEST",
+          "alg": "ed25519",
+          "keyid": "did:web:api.algovoi.co.uk",
+          "signature": "sig=:qWRuNCsCUyKO/9MNtGApDxeznFm+07DyK4zN6eF/mnRcrQ3IaRpQOjQxY6xetCL+588L02Ajd3RjUR9jGi2jBw==:"
+        },
+        "key_source": "cache",
+        "key_provenance": {
+          "population_ref": "sha256:c2ad88e354bbb3c3ad0a925c3c900af696080c2e12e895008e76165ba8787b30"
+        }
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJldmlkZW5jZV9sYXllciI6InJlY2VpcHQta2V5LXNvdXJjZS12MCIsImtleV9wcm92ZW5hbmNlIjp7InBvcHVsYXRpb25fcmVmIjoic2hhMjU2OmMyYWQ4OGUzNTRiYmIzYzNhZDBhOTI1YzNjOTAwYWY2OTYwODBjMmUxMmU4OTUwMDhlNzYxNjViYTg3ODdiMzAifSwia2V5X3NvdXJjZSI6ImNhY2hlIiwic2lnbmluZ19iYXNlX3JlZiI6eyJhbGciOiJlZDI1NTE5Iiwia2V5aWQiOiJkaWQ6d2ViOmFwaS5hbGdvdm9pLmNvLnVrIiwic2lnbmF0dXJlIjoic2lnPTpxV1J1TkNzQ1V5S08vOU1OdEdBcER4ZXpuRm0rMDdEeUs0ek42ZUYvbW5SY3JRM0lhUnBRT2pReFk2eGV0Q0wrNTg4TDAyQWpkM1JqVVI5akdpMmpCdz09OiIsInZlY3RvciI6IlJFUVVFU1QiLCJ2ZWN0b3Jfc2V0IjoicmZjOTQyMV9wcm94eV9jaGFpbl92MSJ9fQ==",
+      "expected_content_hash": "sha256:17c45af4c696882adedaa538a8693109bc141516eab629b76beee90ba850e5a6"
+    },
+    {
+      "vector_id": "003-cache-laundering",
+      "case": "cache_laundering_invalid",
+      "expectation": "non_conformant",
+      "non_conformance_code": "CACHE_WITHOUT_POPULATION_EVENT",
+      "input": {
+        "canon_version": "jcs-rfc8785-v1",
+        "evidence_layer": "receipt-key-source-v0",
+        "signing_base_ref": {
+          "vector_set": "rfc9421_proxy_chain_v1",
+          "vector": "REQUEST",
+          "alg": "ed25519",
+          "keyid": "did:web:api.algovoi.co.uk",
+          "signature": "sig=:qWRuNCsCUyKO/9MNtGApDxeznFm+07DyK4zN6eF/mnRcrQ3IaRpQOjQxY6xetCL+588L02Ajd3RjUR9jGi2jBw==:"
+        },
+        "key_source": "cache",
+        "key_provenance": {}
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJldmlkZW5jZV9sYXllciI6InJlY2VpcHQta2V5LXNvdXJjZS12MCIsImtleV9wcm92ZW5hbmNlIjp7fSwia2V5X3NvdXJjZSI6ImNhY2hlIiwic2lnbmluZ19iYXNlX3JlZiI6eyJhbGciOiJlZDI1NTE5Iiwia2V5aWQiOiJkaWQ6d2ViOmFwaS5hbGdvdm9pLmNvLnVrIiwic2lnbmF0dXJlIjoic2lnPTpxV1J1TkNzQ1V5S08vOU1OdEdBcER4ZXpuRm0rMDdEeUs0ek42ZUYvbW5SY3JRM0lhUnBRT2pReFk2eGV0Q0wrNTg4TDAyQWpkM1JqVVI5akdpMmpCdz09OiIsInZlY3RvciI6IlJFUVVFU1QiLCJ2ZWN0b3Jfc2V0IjoicmZjOTQyMV9wcm94eV9jaGFpbl92MSJ9fQ==",
+      "expected_content_hash": "sha256:e0151ebbca9df3abe05444a59015feeec6a8ac07c0654ed9a97b70347b1b334d"
+    },
+    {
+      "vector_id": "004-inline-pinned",
+      "case": "inline_pinned_valid",
+      "expectation": "conformant",
+      "non_conformance_code": null,
+      "input": {
+        "canon_version": "jcs-rfc8785-v1",
+        "evidence_layer": "receipt-key-source-v0",
+        "signing_base_ref": {
+          "vector_set": "rfc9421_proxy_chain_v1",
+          "vector": "REQUEST",
+          "alg": "ed25519",
+          "keyid": "did:web:api.algovoi.co.uk",
+          "signature": "sig=:qWRuNCsCUyKO/9MNtGApDxeznFm+07DyK4zN6eF/mnRcrQ3IaRpQOjQxY6xetCL+588L02Ajd3RjUR9jGi2jBw==:"
+        },
+        "key_source": "inline",
+        "key_provenance": {
+          "pinned_key_digest": "sha256:21fe31dfa154a261626bf854046fd2271b7bed4b6abe45aa58877ef47f9721b9"
+        }
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJldmlkZW5jZV9sYXllciI6InJlY2VpcHQta2V5LXNvdXJjZS12MCIsImtleV9wcm92ZW5hbmNlIjp7InBpbm5lZF9rZXlfZGlnZXN0Ijoic2hhMjU2OjIxZmUzMWRmYTE1NGEyNjE2MjZiZjg1NDA0NmZkMjI3MWI3YmVkNGI2YWJlNDVhYTU4ODc3ZWY0N2Y5NzIxYjkifSwia2V5X3NvdXJjZSI6ImlubGluZSIsInNpZ25pbmdfYmFzZV9yZWYiOnsiYWxnIjoiZWQyNTUxOSIsImtleWlkIjoiZGlkOndlYjphcGkuYWxnb3ZvaS5jby51ayIsInNpZ25hdHVyZSI6InNpZz06cVdSdU5Dc0NVeUtPLzlNTnRHQXBEeGV6bkZtKzA3RHlLNHpONmVGL21uUmNyUTNJYVJwUU9qUXhZNnhldENMKzU4OEwwMkFqZDNSalVSOWpHaTJqQnc9PToiLCJ2ZWN0b3IiOiJSRVFVRVNUIiwidmVjdG9yX3NldCI6InJmYzk0MjFfcHJveHlfY2hhaW5fdjEifX0=",
+      "expected_content_hash": "sha256:c6b5a06b37e62067391d2dc9c6de33f03126cba8550fef167c2c98d31ae29b30"
+    },
+    {
+      "vector_id": "005-resolver-outside-allowlist",
+      "case": "resolver_outside_allowlist_invalid",
+      "expectation": "non_conformant",
+      "non_conformance_code": "RESOLVER_OUTSIDE_ALLOWLIST",
+      "input": {
+        "canon_version": "jcs-rfc8785-v1",
+        "evidence_layer": "receipt-key-source-v0",
+        "signing_base_ref": {
+          "vector_set": "rfc9421_proxy_chain_v1",
+          "vector": "REQUEST",
+          "alg": "ed25519",
+          "keyid": "did:web:api.algovoi.co.uk",
+          "signature": "sig=:qWRuNCsCUyKO/9MNtGApDxeznFm+07DyK4zN6eF/mnRcrQ3IaRpQOjQxY6xetCL+588L02Ajd3RjUR9jGi2jBw==:"
+        },
+        "key_source": "resolver",
+        "key_provenance": {
+          "resolver_url": "https://keys.evil.example/.well-known/jwks.json",
+          "allowlist_policy_id": "policy:jwks-allowlist:v1",
+          "resolved_key_digest": "sha256:21fe31dfa154a261626bf854046fd2271b7bed4b6abe45aa58877ef47f9721b9",
+          "population_timestamp_ms": 1778955520000
+        }
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJldmlkZW5jZV9sYXllciI6InJlY2VpcHQta2V5LXNvdXJjZS12MCIsImtleV9wcm92ZW5hbmNlIjp7ImFsbG93bGlzdF9wb2xpY3lfaWQiOiJwb2xpY3k6andrcy1hbGxvd2xpc3Q6djEiLCJwb3B1bGF0aW9uX3RpbWVzdGFtcF9tcyI6MTc3ODk1NTUyMDAwMCwicmVzb2x2ZWRfa2V5X2RpZ2VzdCI6InNoYTI1NjoyMWZlMzFkZmExNTRhMjYxNjI2YmY4NTQwNDZmZDIyNzFiN2JlZDRiNmFiZTQ1YWE1ODg3N2VmNDdmOTcyMWI5IiwicmVzb2x2ZXJfdXJsIjoiaHR0cHM6Ly9rZXlzLmV2aWwuZXhhbXBsZS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifSwia2V5X3NvdXJjZSI6InJlc29sdmVyIiwic2lnbmluZ19iYXNlX3JlZiI6eyJhbGciOiJlZDI1NTE5Iiwia2V5aWQiOiJkaWQ6d2ViOmFwaS5hbGdvdm9pLmNvLnVrIiwic2lnbmF0dXJlIjoic2lnPTpxV1J1TkNzQ1V5S08vOU1OdEdBcER4ZXpuRm0rMDdEeUs0ek42ZUYvbW5SY3JRM0lhUnBRT2pReFk2eGV0Q0wrNTg4TDAyQWpkM1JqVVI5akdpMmpCdz09OiIsInZlY3RvciI6IlJFUVVFU1QiLCJ2ZWN0b3Jfc2V0IjoicmZjOTQyMV9wcm94eV9jaGFpbl92MSJ9fQ==",
+      "expected_content_hash": "sha256:157bc5a8244b98cce6067666fc6c77cf016384a32160dcbad4073f93550b2d24"
+    },
+    {
+      "vector_id": "006-inline-unproven",
+      "case": "inline_unproven_invalid",
+      "expectation": "non_conformant",
+      "non_conformance_code": "INLINE_WITHOUT_ORIGIN_PROOF",
+      "input": {
+        "canon_version": "jcs-rfc8785-v1",
+        "evidence_layer": "receipt-key-source-v0",
+        "signing_base_ref": {
+          "vector_set": "rfc9421_proxy_chain_v1",
+          "vector": "REQUEST",
+          "alg": "ed25519",
+          "keyid": "did:web:api.algovoi.co.uk",
+          "signature": "sig=:qWRuNCsCUyKO/9MNtGApDxeznFm+07DyK4zN6eF/mnRcrQ3IaRpQOjQxY6xetCL+588L02Ajd3RjUR9jGi2jBw==:"
+        },
+        "key_source": "inline",
+        "key_provenance": {}
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJldmlkZW5jZV9sYXllciI6InJlY2VpcHQta2V5LXNvdXJjZS12MCIsImtleV9wcm92ZW5hbmNlIjp7fSwia2V5X3NvdXJjZSI6ImlubGluZSIsInNpZ25pbmdfYmFzZV9yZWYiOnsiYWxnIjoiZWQyNTUxOSIsImtleWlkIjoiZGlkOndlYjphcGkuYWxnb3ZvaS5jby51ayIsInNpZ25hdHVyZSI6InNpZz06cVdSdU5Dc0NVeUtPLzlNTnRHQXBEeGV6bkZtKzA3RHlLNHpONmVGL21uUmNyUTNJYVJwUU9qUXhZNnhldENMKzU4OEwwMkFqZDNSalVSOWpHaTJqQnc9PToiLCJ2ZWN0b3IiOiJSRVFVRVNUIiwidmVjdG9yX3NldCI6InJmYzk0MjFfcHJveHlfY2hhaW5fdjEifX0=",
+      "expected_content_hash": "sha256:a945e7bc57597144ebcb8f55ae9aaa32731ae360a32d7a32694c65177379767a"
+    }
+  ],
+  "chain_invariants": [
+    {
+      "id": "resolver_to_cache_linkage",
+      "description": "002 cache row points back to 001 resolver population event by content hash.",
+      "from_vector": "002-cache-with-population-ref",
+      "field": "input.key_provenance.population_ref",
+      "must_equal_vector": "001-resolver-population-event",
+      "must_equal_field": "expected_content_hash"
+    }
+  ]
+}
