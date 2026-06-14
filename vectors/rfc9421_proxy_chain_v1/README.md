@@ -6,6 +6,13 @@ companion to [`rfc9421_proxy_chain_v0`](../rfc9421_proxy_chain_v0), which was si
 with the legacy **`algovoi-v0`** signing base and is retained as a labelled
 algovoi-v0 survival set.
 
+> **This is an L1 substrate.** `rfc9421_proxy_chain_v1` is the **RFC 9421 §2.5 signing-base** half of
+> AlgoVoi's authored L1 (the other half is the RFC 8785 JCS canonicalisation substrate) — dated in
+> `draft-hopley-x402-rfc9421-binding`. **Build L2 layers on it freely**; the one ask is the licence's:
+> attribute the L1 — keep the [`NOTICE`](../../NOTICE) and import this set **by hash**
+> (`signing_base_source_sha256: 7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8`). See
+> the corpus [README › Attribution](../../README.md#attribution) and [ADOPTERS.md](../../ADOPTERS.md).
+
 ## What "conformant" means here
 
 | Aspect | `rfc9421_proxy_chain_v0` (legacy) | `rfc9421_proxy_chain_v1` (this set) |

@@ -3,9 +3,12 @@ Copyright 2026 Christopher Hopley / AlgoVoi (chopmob-cloud)
 
 This product is part of the AlgoVoi agentic-payments substrate, authored by
 Christopher Hopley (AlgoVoi) and licensed under the Apache License, Version 2.0.
-The canonicalisation discipline (urn:x402:canonicalisation:jcs-rfc8785-v1) is
-specified in IETF Internet-Draft draft-hopley-x402-canonicalisation-jcs-v1 and
-documented at https://docs.algovoi.co.uk/canonicalisation-substrate.
+The substrate has two AlgoVoi-authored L1 parts, both covered by this NOTICE:
+  - the canonicalisation discipline (urn:x402:canonicalisation:jcs-rfc8785-v1),
+    specified in IETF Internet-Draft draft-hopley-x402-canonicalisation-jcs-v1; and
+  - the RFC 9421 Section 2.5 signing-base reference (rfc9421_proxy_chain_v1),
+    specified in IETF Internet-Draft draft-hopley-x402-rfc9421-binding.
+Documented at https://docs.algovoi.co.uk/canonicalisation-substrate.
 
 When redistributing this work or derivative works, retain this NOTICE per
 Apache License, Version 2.0, Section 4(d).

@@ -4,6 +4,12 @@ AlgoVoi-authored conformance fixture for **RFC 9421 HTTP Message
 Signatures + RFC 9530 Content-Digest survival through a multi-hop
 proxy chain**.
 
+> **L1 substrate (legacy `algovoi-v0` signing base).** This is the legacy half of AlgoVoi's authored
+> RFC 9421 signing-base L1; the conformant successor is
+> [`rfc9421_proxy_chain_v1`](../rfc9421_proxy_chain_v1) (prefer it for new work). Either way the same
+> rule applies: **build L2 freely; attribute the L1** — keep the [`NOTICE`](../../NOTICE) and import the
+> signing base by hash. See the corpus [README › Attribution](../../README.md#attribution).
+
 Demonstrates that an RFC 9421-signed HTTP request retains byte-identical
 `Signature-Input`, `Signature`, and `Content-Digest` headers after
 traversing a three-hop proxy chain (Cloudflare edge → nginx reverse
