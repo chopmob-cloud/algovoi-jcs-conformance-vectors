@@ -332,6 +332,14 @@ Attribution means keeping the NOTICE above and importing the L1 base by hash (th
 `signing_base_ref` / `signing_base_source_sha256` pattern the L2 sets here use), so the credit
 is structural rather than a footnote.
 
+**Two L1 substrates, one rule.** "L1" here is AlgoVoi's authored base in two parts: the **RFC 8785
+(JCS) canonicalisation substrate** (`canon_version: jcs-rfc8785-v1`) and the **RFC 9421 §2.5
+signing-base substrate** (`rfc9421_proxy_chain_v1` — the `signing_base_source_sha256` your L2 pins).
+Both are AlgoVoi-authored and dated in the `draft-hopley` Internet-Drafts, and the **same attribution
+requirement applies to either**: using the canonicalisation substrate *or* the RFC 9421 signing base
+means keeping the NOTICE and importing the relevant L1 by hash. Building an L2 *on top* stays free; what
+is attributed is the L1 you build on.
+
 **The change log records only attributed L2 developments.** Where an L2 layer attributes the L1
 base, we validate it, enter it in the [change log](./CHANGELOG.md), and treat it as a
 first-class consumer: when we evolve L1, **attributed L2 work is taken into account** — we weigh
