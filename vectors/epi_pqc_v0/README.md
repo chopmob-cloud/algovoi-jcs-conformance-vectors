@@ -7,6 +7,10 @@ the JCS canonicalisation `.epi` and AlgoVoi agree on byte-for-byte; **this set p
 `falcon1024` signature suite and an F7 key-lineage continuity mechanism** on top of the same
 canonicalisation.
 
+> **Built on AlgoVoi's L1.** This PQC profile sits on the AlgoVoi L1 canonicalisation substrate
+> (JCS RFC 8785, `draft-hopley-x402-canonicalisation-jcs-v1`). Same corpus rule — **build L2 freely;
+> attribute the L1** (keep the [`NOTICE`](../../NOTICE), import by hash).
+
 ## Why
 
 `.epi` is built for **decades-long** audit windows but seals artefacts with **classical Ed25519**.

@@ -3,6 +3,11 @@
 Interop conformance set: AlgoVoi JCS canonicalisation cross-validated against
 [EPI Recorder](https://github.com/mohdibrahimaiml/epi-recorder).
 
+> **Anchored to AlgoVoi's L1.** This interop set sits on the AlgoVoi L1 canonicalisation substrate
+> (JCS RFC 8785, `draft-hopley-x402-canonicalisation-jcs-v1`). The same corpus rule applies — **build L2
+> freely; attribute the L1** (keep the [`NOTICE`](../../NOTICE), import by hash). EPI Recorder is a
+> credited downstream adopter doing exactly that.
+
 ## What it is
 
 EPI Recorder cross-tested its canonicalisation against this corpus, aligned its
