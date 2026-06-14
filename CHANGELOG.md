@@ -6,13 +6,13 @@ sets and the L2 layers validated against them.
 
 ## L1 attribution & L2 stability (policy)
 
-We are glad to validate L2 work built on this substrate and record it here — on one condition:
-**the L1 base is attributed** (keep the NOTICE; import the L1 by hash via the
-`signing_base_ref` / `signing_base_source_sha256` pattern). Attributed L2 layers are first-class
-consumers — when we evolve L1, we take attributed L2 work into account and weigh
-backward-compatibility for it. L2 work that does **not** attribute the L1 base may **not** be
-taken into account in future L1 changes, and continued interoperation is not guaranteed. See
-the root [README › Attribution](./README.md#attribution).
+**This change log records only attributed L2 developments.** We validate an L2 layer and enter
+it here **only when the L1 base is attributed** (keep the NOTICE; import the L1 by hash via the
+`signing_base_ref` / `signing_base_source_sha256` pattern). L2 work that does **not** attribute
+the L1 base is **not recorded here and is not taken into account** when L1 evolves — its
+continued interoperation is not guaranteed. Attributed L2 layers are first-class consumers: when
+we evolve L1 we take them into account and weigh backward-compatibility for them. See the root
+[README › Attribution](./README.md#attribution).
 
 ---
 

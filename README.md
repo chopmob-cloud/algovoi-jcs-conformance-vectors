@@ -332,9 +332,11 @@ Attribution means keeping the NOTICE above and importing the L1 base by hash (th
 `signing_base_ref` / `signing_base_source_sha256` pattern the L2 sets here use), so the credit
 is structural rather than a footnote.
 
-Where an L2 layer attributes the L1 base, we treat it as a first-class consumer: when we
-evolve L1, **attributed L2 work is taken into account** — we weigh backward-compatibility for
-it. Where an L2 layer does **not** attribute the L1 base, future changes to L1 may **not** take
-that L2 work into account, and continued interoperation is not guaranteed. Attribution is what
-makes the credit structural and the compatibility mutual: cite the substrate, import it by
-hash, and your L2 is a stable, first-class layer on a base we keep stable for you.
+**The change log records only attributed L2 developments.** Where an L2 layer attributes the L1
+base, we validate it, enter it in the [change log](./CHANGELOG.md), and treat it as a
+first-class consumer: when we evolve L1, **attributed L2 work is taken into account** — we weigh
+backward-compatibility for it. Where an L2 layer does **not** attribute the L1 base, it is **not
+recorded in the change log** and is **not** taken into account when L1 evolves; continued
+interoperation is not guaranteed. Attribution is what makes the credit structural and the
+compatibility mutual: cite the substrate, import it by hash, and your L2 is a stable,
+first-class layer on a base we keep stable for you.
