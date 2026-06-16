@@ -164,15 +164,17 @@
     "implementations": 8,
     "languages": ["Python", "JavaScript", "Go", "Rust", "Java", "PHP", "C#/.NET", "Ruby"],
     "languages_note": "Eight independent, non-overlapping JCS RFC 8785 implementations, including the RFC 8785 author's own Java implementation (Anders Rundgren).",
-    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 576/576 as of 2026-05-30. zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity (primitive-only payload already covered by the 2026-05-25 320/320 run) and are deliberately NOT added to the directly-executed cumulative.",
+    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 672/672 as of 2026-06-16 (192+320+64+24+40+32). zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity and are deliberately NOT added to the directly-executed cumulative. epi_interop_v0 and epi_pqc_v0 JCS runs (2026-06-16) ARE included: they confirm the same RFC 8785 canonicalisation discipline holds over external EPI-format payloads.",
     "runs": [
       { "date": "2026-05-24", "sets": ["action_ref_namespace_v0", "action_ref_transactional_v0", "compliance_receipt_v1"], "vectors": 24, "implementations": 8, "agreements": "192/192", "executed": "direct", "attestation": "_attestations/2026-05-24-8-impl-cross-validation.md" },
       { "date": "2026-05-25", "sets": ["compliance_receipt_v1", "settlement_attestation_v1", "cancellation_receipt_v1", "refund_receipt_v1", "composite_trust_query_v1"], "vectors": 40, "implementations": 8, "agreements": "320/320", "executed": "direct", "attestation": "_attestations/2026-05-25-8-impl-5-format-cross-validation.md" },
       { "date": "2026-05-30", "sets": ["pef_v1"], "vectors": 8, "implementations": 8, "agreements": "64/64", "executed": "direct", "attestation": "_attestations/2026-05-30-8-impl-pef-v1.md" },
       { "date": "2026-06-04", "sets": ["zkp_receipt_v1"], "vectors": 8, "implementations": 8, "agreements": "40/40 direct (5 impls); remaining 3 by transitivity", "executed": "partial", "attestation": "_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md" },
-      { "date": "2026-06-16", "sets": ["retention_chain_v0"], "vectors": 3, "implementations": 8, "agreements": "24/24", "executed": "direct", "attestation": "_attestations/2026-06-16-retention-chain-v0-cross-validation.md" }
+      { "date": "2026-06-16", "sets": ["retention_chain_v0"], "vectors": 3, "implementations": 8, "agreements": "24/24", "executed": "direct", "attestation": "_attestations/2026-06-16-retention-chain-v0-cross-validation.md" },
+      { "date": "2026-06-16", "sets": ["epi_interop_v0"], "vectors": 5, "implementations": 8, "agreements": "40/40", "executed": "direct", "note": "interop set; JCS + SHA-256 check only; runners in vectors/epi_interop_v0/" },
+      { "date": "2026-06-16", "sets": ["epi_pqc_v0"], "vectors": 4, "implementations": 8, "agreements": "32/32", "executed": "direct", "note": "proposal set; JCS + SHA-256 check only; Falcon-1024 + key-lineage verified by Python only (7/7 full checks); runners in vectors/epi_pqc_v0/" }
     ],
-    "cumulative_direct_jcs": "600/600 byte-for-byte agreements (as of 2026-06-16)",
+    "cumulative_direct_jcs": "672/672 byte-for-byte agreements (as of 2026-06-16)",
     "signature_survival": {
       "set": "rfc9421_proxy_chain_v0",
       "signing_base_mode": "algovoi-v0",
@@ -195,7 +197,7 @@
       "primary_file": "epi_interop_v0.json",
       "vector_count": 5,
       "category": "interop",
-      "cross_validated": "2-impl interop (AlgoVoi rfc8785@0.1.4 + EPI Recorder), 2026-06-11",
+      "cross_validated": "8-impl direct JCS (2026-06-16); original 2-impl interop (AlgoVoi rfc8785@0.1.4 + EPI Recorder, 2026-06-11)",
       "source": {
         "repo": "https://github.com/mohdibrahimaiml/epi-recorder",
         "file": "tests/compatibility/golden/canonical_hash_vectors.json",
@@ -206,14 +208,14 @@
   ],
   "total_interop_sets": 1,
   "total_interop_vectors": 5,
-  "interop_note": "Interop sets cross-validate the JCS canonicalisation method against an external implementation (2-impl). They are NOT folded into the 8-implementation conformance totals (total_anchor_sets / total_vectors / cross_validation) above.",
+  "interop_note": "Interop sets cross-validate the JCS canonicalisation method against an external implementation. epi_interop_v0 was originally 2-impl (AlgoVoi + EPI Recorder, 2026-06-11) and upgraded to 8-impl direct JCS (2026-06-16). The 8-impl JCS run IS included in cumulative_direct_jcs. Interop sets are NOT counted in total_anchor_sets / total_vectors.",
   "proposal_sets": [
     {
       "name": "epi_pqc_v0",
       "primary_file": "epi_pqc_v0.json",
       "vector_count": 4,
       "category": "proposal",
-      "status": "PROPOSED optional post-quantum signature suite (falcon1024) + F7 key-lineage for the .epi format; 1-impl AlgoVoi (rfc8785 + pqcrypto); NOT externally cross-validated",
+      "status": "PROPOSED optional post-quantum signature suite (falcon1024) + F7 key-lineage for the .epi format; JCS canonicalisation 8-impl direct (2026-06-16); Falcon-1024 + key-lineage 1-impl AlgoVoi (rfc8785 + pqcrypto)",
       "source": {
         "discussion": "https://github.com/microsoft/agent-governance-toolkit/discussions/806",
         "spec": "https://epilabs.org"
