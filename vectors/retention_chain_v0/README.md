@@ -1,12 +1,16 @@
 # `retention_chain_v0`
 
+> **License: AlgoVoi Commercial Software License**
+> The conformance vectors, runner scripts, and all files in this directory are proprietary.
+> Use requires a signed commercial licence from AlgoVoi.
+> The Retention Chain Substrate is included as standard in every Substrate 2 licence.
+> Contact: chopmob@gmail.com
+
 AlgoVoi-authored conformance vector set for the **Retention Chain Substrate** — a self-verifiable audit chain linking payment receipts without external infrastructure.
 
 Specified in IETF Internet-Draft [`draft-hopley-x402-retention-chain-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/) (AlgoVoi, sole authorship, 16 June 2026).
 
-## What this vector set proves
-
-The retention chain reference primitive is:
+## Algorithm
 
 ```
 retention_chain_ref = "sha256:" + SHA-256(JCS(preimage))
@@ -30,20 +34,20 @@ The three vectors cover:
 
 ## Cross-validation
 
-Cross-validated across **8 implementations in 8 programming languages**:
+Cross-validated across **8 implementations in 8 programming languages** — all live-run 2026-06-16, 3/3 PASS each:
 
-| Language | Implementation | Result |
+| Language | Library | Result |
 |---|---|---|
 | Python | `rfc8785@0.1.4` + `hashlib.sha256` | 3/3 |
-| TypeScript | `canonicalize@2.0.0` + Node.js `crypto` | 3/3 |
-| Go | stdlib `crypto/sha256` + direct JCS construction | 3/3 |
-| Ruby | `Digest::SHA256` + direct JCS construction | 3/3 |
-| Rust | `sha2@0.10` + direct JCS construction | 3/3 |
-| C# (.NET 9) | `System.Security.Cryptography.SHA256` + direct JCS | 3/3 |
-| Java 17 | `java.security.MessageDigest` + direct JCS | 3/3 |
-| Kotlin | JVM `MessageDigest` + direct JCS (spec written; JVM-runnable) | 3/3 |
+| Node.js | `canonicalize@1.0.8` + Node.js `crypto` | 3/3 |
+| Go | `gowebpki/jcs v1.0.1` + stdlib `crypto/sha256` | 3/3 |
+| Ruby | `json-canonicalization 1.0.0` + stdlib `Digest::SHA256` | 3/3 |
+| PHP | inline RFC 8785 + stdlib `hash("sha256")` | 3/3 |
+| Rust | `serde_jcs@0.2.0` + `sha2@0.10` | 3/3 |
+| Java 17 | `java-json-canonicalization 1.1` + `MessageDigest("SHA-256")` | 3/3 |
+| .NET 9 | `Baqhub.Packages.JsonCanonicalization 1.0.1` + `SHA256.HashData` | 3/3 |
 
-"Direct JCS construction" means the canonical form is produced by explicit key ordering for this fixed four-field schema — functionally equivalent to a full RFC 8785 library for this specific preimage shape, verified against the Python `rfc8785` reference output.
+Kotlin runner (`runner_kotlin/`) written against the same JVM library as Java; requires Gradle + Kotlin/JVM to run.
 
 ## Chain invariants
 

@@ -1,5 +1,8 @@
 <?php
 /**
+ * Copyright 2026 AlgoVoi. All rights reserved.
+ * AlgoVoi Commercial Software License -- see LICENSE in this directory.
+ *
  * Retention Chain v0 vector runner -- PHP 8.1+ / inline JCS RFC 8785
  *
  * Validates sha256(JCS(preimage)) == expected_chain_ref
