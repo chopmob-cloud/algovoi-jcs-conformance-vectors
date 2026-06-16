@@ -1,0 +1,10 @@
+[package]
+name = "runner_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde_jcs = "0.2.0"
+serde_json = "1"
+sha2 = "0.10"
+base64 = "0.22"

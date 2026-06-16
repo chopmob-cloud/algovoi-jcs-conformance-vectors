@@ -1,0 +1,8 @@
+{
+  "name": "epi-pqc-v0-runner",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "canonicalize": "^1.0.8"
+  }
+}
