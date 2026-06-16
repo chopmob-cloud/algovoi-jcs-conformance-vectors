@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-06-13",
+  "updated_at": "2026-06-16",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -146,11 +146,20 @@
       "primary_file": "service_trust_v0.json",
       "vector_count": 5,
       "sha256": "sha256:c3767c6f700bc062b1dbc55a6a1ccf354c960531caa12f63ca4c0ace5437bca1"
+    },
+    {
+      "name": "retention_chain_v0",
+      "primary_file": "retention_chain_v0.json",
+      "vector_count": 3,
+      "chain_invariants": 3,
+      "anchors_to": "draft-hopley-x402-retention-chain-00",
+      "cross_validated": "8-impl direct (2026-06-16)",
+      "sha256": "sha256:a1c8a3a591980917f2a5706097094a988715b5b674bd8a0837b5a5db74269da8"
     }
   ],
-  "total_anchor_sets": 17,
-  "total_vectors": 131,
-  "total_vectors_note": "17 sets / 131 entries = 126 JCS canonicalisation vectors across 14 sets, plus 5 entries across 3 adjacent cryptographic fixtures (rfc9421_proxy_chain_v0: 1 algovoi-v0 signing-base survival fixture; rfc9421_proxy_chain_v1: 1 RFC 9421 §2.5-conformant signing-base survival fixture; multichain_ed25519_substrate_v0: 3 Ed25519 signatures over a shared canonical payload). ctef_aps_v1 carries 4 further CTEF top-level cases in ctef_vectors.json beyond its 10 primary vectors.",
+  "total_anchor_sets": 18,
+  "total_vectors": 134,
+  "total_vectors_note": "18 sets / 134 entries = 129 JCS canonicalisation vectors across 15 sets, plus 5 entries across 3 adjacent cryptographic fixtures (rfc9421_proxy_chain_v0: 1 algovoi-v0 signing-base survival fixture; rfc9421_proxy_chain_v1: 1 RFC 9421 §2.5-conformant signing-base survival fixture; multichain_ed25519_substrate_v0: 3 Ed25519 signatures over a shared canonical payload). ctef_aps_v1 carries 4 further CTEF top-level cases in ctef_vectors.json beyond its 10 primary vectors.",
   "cross_validation": {
     "implementations": 8,
     "languages": ["Python", "JavaScript", "Go", "Rust", "Java", "PHP", "C#/.NET", "Ruby"],
@@ -160,9 +169,10 @@
       { "date": "2026-05-24", "sets": ["action_ref_namespace_v0", "action_ref_transactional_v0", "compliance_receipt_v1"], "vectors": 24, "implementations": 8, "agreements": "192/192", "executed": "direct", "attestation": "_attestations/2026-05-24-8-impl-cross-validation.md" },
       { "date": "2026-05-25", "sets": ["compliance_receipt_v1", "settlement_attestation_v1", "cancellation_receipt_v1", "refund_receipt_v1", "composite_trust_query_v1"], "vectors": 40, "implementations": 8, "agreements": "320/320", "executed": "direct", "attestation": "_attestations/2026-05-25-8-impl-5-format-cross-validation.md" },
       { "date": "2026-05-30", "sets": ["pef_v1"], "vectors": 8, "implementations": 8, "agreements": "64/64", "executed": "direct", "attestation": "_attestations/2026-05-30-8-impl-pef-v1.md" },
-      { "date": "2026-06-04", "sets": ["zkp_receipt_v1"], "vectors": 8, "implementations": 8, "agreements": "40/40 direct (5 impls); remaining 3 by transitivity", "executed": "partial", "attestation": "_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md" }
+      { "date": "2026-06-04", "sets": ["zkp_receipt_v1"], "vectors": 8, "implementations": 8, "agreements": "40/40 direct (5 impls); remaining 3 by transitivity", "executed": "partial", "attestation": "_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md" },
+      { "date": "2026-06-16", "sets": ["retention_chain_v0"], "vectors": 3, "implementations": 8, "agreements": "24/24", "executed": "direct", "attestation": "_attestations/2026-06-16-retention-chain-v0-cross-validation.md" }
     ],
-    "cumulative_direct_jcs": "576/576 byte-for-byte agreements (as of 2026-05-30)",
+    "cumulative_direct_jcs": "600/600 byte-for-byte agreements (as of 2026-06-16)",
     "signature_survival": {
       "set": "rfc9421_proxy_chain_v0",
       "signing_base_mode": "algovoi-v0",

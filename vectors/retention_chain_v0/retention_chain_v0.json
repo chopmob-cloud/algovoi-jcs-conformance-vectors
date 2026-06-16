@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "retention-chain-conformance-v0",
+  "published_at": "2026-06-16T00:00:00Z",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@2.0.0 (TypeScript) / stdlib SHA-256 + direct JCS construction (Go, Ruby, Rust, C#/.NET, Java, Kotlin)",
+  "hash": "SHA-256, lowercase hex, prefixed sha256:",
+  "anchored_to": {
+    "primitive": "retention_chain_ref = \"sha256:\" + SHA-256(JCS({chain_seq, issuer_id, prev_receipt_hash, receipt_hash}))",
+    "preimage_key_order": "JCS RFC 8785 lexicographic: chain_seq, issuer_id, prev_receipt_hash, receipt_hash",
+    "genesis_condition": "chain_seq = 0 AND prev_receipt_hash = \"\"",
+    "link_condition": "chain_seq > 0 AND prev_receipt_hash = receipt_hash of the immediately preceding receipt",
+    "output_format": "\"sha256:\" + 64-character lowercase hex (71 chars total)",
+    "spec_authorship": "AlgoVoi-authored; specified in IETF Internet-Draft draft-hopley-x402-retention-chain-00 (16 June 2026)",
+    "spec_url": "https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/"
+  },
+  "derivation": "Three consecutive chain records for issuer_id 'algovoi:test'. receipt_hash values are SHA-256 of the UTF-8 encoding of the literal string shown in receipt_preimage. Vector 0 is the genesis record (chain_seq=0, prev_receipt_hash empty). Vectors 1 and 2 are subsequent chain links, each referencing the receipt_hash of the immediately preceding record. Each retention_chain_ref is SHA-256 of the RFC 8785 JCS canonical bytes of the four-field preimage.",
+  "context": {
+    "substrate_docs": "https://docs.algovoi.co.uk/retention-chain-substrate",
+    "ietf_id": "draft-hopley-x402-retention-chain-00",
+    "purpose": "Pin the three canonical retention_chain_ref values for the genesis and first two chain links of an algovoi:test issuer sequence. Any implementation claiming to implement the Retention Chain Substrate algorithm MUST reproduce these values verbatim for the given preimage inputs.",
+    "verification_recipe": [
+      "1. Compute receipt_hash_N = 'sha256:' + SHA-256(UTF-8(receipt_preimage_N)) for each vector.",
+      "2. Construct preimage object with the four fields in the order shown.",
+      "3. Canonicalise the preimage using RFC 8785 JCS. Verify expected_jcs_bytes_b64 matches.",
+      "4. Compute SHA-256 of the canonical bytes. Prefix with 'sha256:'. MUST equal expected_chain_ref.",
+      "5. Verify chain linkage: vector N's prev_receipt_hash MUST equal vector N-1's receipt_hash."
+    ],
+    "chain_invariants": {
+      "genesis": "Vector 0: chain_seq=0, prev_receipt_hash='' (empty string)",
+      "link_1": "Vector 1: prev_receipt_hash MUST equal vector 0's receipt_hash",
+      "link_2": "Vector 2: prev_receipt_hash MUST equal vector 1's receipt_hash",
+      "seq_increment": "Each chain_seq increments by exactly 1"
+    }
+  },
+  "vectors": [
+    {
+      "vector_id": "retention-chain-v0-000",
+      "description": "Genesis record. chain_seq=0, prev_receipt_hash empty.",
+      "chain_seq": 0,
+      "issuer_id": "algovoi:test",
+      "prev_receipt_hash": "",
+      "receipt_preimage": "receipt_0",
+      "receipt_hash": "sha256:24c3e22bc6ece631e4524e3beeb904553fbb1cd6fd124e1cb3c68a9a277ba23a",
+      "preimage": {
+        "chain_seq": 0,
+        "issuer_id": "algovoi:test",
+        "prev_receipt_hash": "",
+        "receipt_hash": "sha256:24c3e22bc6ece631e4524e3beeb904553fbb1cd6fd124e1cb3c68a9a277ba23a"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjAsImlzc3Vlcl9pZCI6ImFsZ292b2k6dGVzdCIsInByZXZfcmVjZWlwdF9oYXNoIjoiIiwicmVjZWlwdF9oYXNoIjoic2hhMjU2OjI0YzNlMjJiYzZlY2U2MzFlNDUyNGUzYmVlYjkwNDU1M2ZiYjFjZDZmZDEyNGUxY2IzYzY4YTlhMjc3YmEyM2EifQ==",
+      "expected_chain_ref": "sha256:f15a1dcd03cc039204dff24619ff4815ad041ad8796b94f59d52252043d0d08f"
+    },
+    {
+      "vector_id": "retention-chain-v0-001",
+      "description": "Chain link. chain_seq=1, prev_receipt_hash = vector 0's receipt_hash.",
+      "chain_seq": 1,
+      "issuer_id": "algovoi:test",
+      "prev_receipt_hash": "sha256:24c3e22bc6ece631e4524e3beeb904553fbb1cd6fd124e1cb3c68a9a277ba23a",
+      "receipt_preimage": "receipt_1",
+      "receipt_hash": "sha256:55d4a60cbf6928423fd1cd0e06f7cccd98011e9064240a3fd24f7c6bbae8266a",
+      "preimage": {
+        "chain_seq": 1,
+        "issuer_id": "algovoi:test",
+        "prev_receipt_hash": "sha256:24c3e22bc6ece631e4524e3beeb904553fbb1cd6fd124e1cb3c68a9a277ba23a",
+        "receipt_hash": "sha256:55d4a60cbf6928423fd1cd0e06f7cccd98011e9064240a3fd24f7c6bbae8266a"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjEsImlzc3Vlcl9pZCI6ImFsZ292b2k6dGVzdCIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OjI0YzNlMjJiYzZlY2U2MzFlNDUyNGUzYmVlYjkwNDU1M2ZiYjFjZDZmZDEyNGUxY2IzYzY4YTlhMjc3YmEyM2EiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6NTVkNGE2MGNiZjY5Mjg0MjNmZDFjZDBlMDZmN2NjY2Q5ODAxMWU5MDY0MjQwYTNmZDI0ZjdjNmJiYWU4MjY2YSJ9",
+      "expected_chain_ref": "sha256:7114dc39543710bf26d0a5825acddd915ffd51fb5b14503024f70fda403053d9"
+    },
+    {
+      "vector_id": "retention-chain-v0-002",
+      "description": "Chain link. chain_seq=2, prev_receipt_hash = vector 1's receipt_hash.",
+      "chain_seq": 2,
+      "issuer_id": "algovoi:test",
+      "prev_receipt_hash": "sha256:55d4a60cbf6928423fd1cd0e06f7cccd98011e9064240a3fd24f7c6bbae8266a",
+      "receipt_preimage": "receipt_2",
+      "receipt_hash": "sha256:08a132f9262230f24640a591c60a08e756d313dbf15ff578b4c10fdd30120a4a",
+      "preimage": {
+        "chain_seq": 2,
+        "issuer_id": "algovoi:test",
+        "prev_receipt_hash": "sha256:55d4a60cbf6928423fd1cd0e06f7cccd98011e9064240a3fd24f7c6bbae8266a",
+        "receipt_hash": "sha256:08a132f9262230f24640a591c60a08e756d313dbf15ff578b4c10fdd30120a4a"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjIsImlzc3Vlcl9pZCI6ImFsZ292b2k6dGVzdCIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OjU1ZDRhNjBjYmY2OTI4NDIzZmQxY2QwZTA2ZjdjY2NkOTgwMTFlOTA2NDI0MGEzZmQyNGY3YzZiYmFlODI2NmEiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6MDhhMTMyZjkyNjIyMzBmMjQ2NDBhNTkxYzYwYTA4ZTc1NmQzMTNkYmYxNWZmNTc4YjRjMTBmZGQzMDEyMGE0YSJ9",
+      "expected_chain_ref": "sha256:d3bddca79477e6003cb6ef199897bffed185f5d785b4e7333f9b0585b2b81144"
+    }
+  ]
+}
