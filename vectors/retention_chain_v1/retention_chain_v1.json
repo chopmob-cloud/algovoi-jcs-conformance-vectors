@@ -1,0 +1,305 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "retention-chain-conformance-v1",
+  "published_at": "2026-06-17T00:00:00Z",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@2.0.0 (TypeScript) / stdlib SHA-256 + direct JCS construction (Go, Ruby, Rust, C#/.NET, Java, Kotlin)",
+  "hash": "SHA-256, lowercase hex, prefixed sha256:",
+  "anchored_to": {
+    "primitive": "retention_chain_ref = \"sha256:\" + SHA-256(JCS({chain_seq, issuer_id, prev_receipt_hash, receipt_hash}))",
+    "preimage_key_order": "JCS RFC 8785 lexicographic: chain_seq, issuer_id, prev_receipt_hash, receipt_hash",
+    "genesis_condition": "chain_seq = 0 AND prev_receipt_hash = \"\"",
+    "link_condition": "chain_seq > 0 AND prev_receipt_hash = receipt_hash of the immediately preceding receipt",
+    "output_format": "\"sha256:\" + 64-character lowercase hex (71 chars total)",
+    "spec_authorship": "AlgoVoi-authored; specified in IETF Internet-Draft draft-hopley-x402-retention-chain-00 (16 June 2026)",
+    "spec_url": "https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/"
+  },
+  "derivation": "Three vector groups exercising extended chain length, multi-issuer isolation, and seq-gap adversarial invariants. Part A: six consecutive records for issuer_id 'algovoi:compliance' (seq 0-5). Part B: four records demonstrating per-issuer chain independence -- issuer_a and issuer_b each process the same two receipts; their chain_refs diverge from seq 0. Part C: four records demonstrating seq-gap detection -- a proper 3-link chain (seq 0, 1, 2) paired with an adversarial gap vector at seq 2 (same receipt_hash, wrong prev_receipt_hash referencing seq 0 instead of seq 1). All receipt_hash values are SHA-256 of the UTF-8 encoding of the literal string shown in receipt_preimage.",
+  "context": {
+    "substrate_docs": "https://docs.algovoi.co.uk/retention-chain-substrate",
+    "ietf_id": "draft-hopley-x402-retention-chain-00",
+    "purpose": "Extended conformance corpus for the Retention Chain Substrate. Complements retention_chain_v0 (genesis + 2 links, single issuer). V1 adds: (A) 6-link extended chain to verify seq accumulation across deeper sequences; (B) multi-issuer isolation to verify issuer_id partitions chains; (C) seq-gap adversarial pair to verify implementations reject out-of-order prev_receipt_hash linkages. Any implementation claiming to implement the Retention Chain Substrate algorithm MUST reproduce all expected_chain_ref values verbatim for the given preimage inputs.",
+    "verification_recipe": [
+      "1. Compute receipt_hash_N = 'sha256:' + SHA-256(UTF-8(receipt_preimage)) for each vector.",
+      "2. Construct preimage object with the four fields in the order shown.",
+      "3. Canonicalise the preimage using RFC 8785 JCS. Verify expected_jcs_bytes_b64 matches.",
+      "4. Compute SHA-256 of the canonical bytes. Prefix with 'sha256:'. MUST equal expected_chain_ref.",
+      "5. For Part A: verify prev_receipt_hash of seq N equals receipt_hash of seq N-1.",
+      "6. For Part B: verify issuer_a chain_refs != issuer_b chain_refs at every seq position.",
+      "7. For Part C: verify proper_seq2 chain_ref != gap_seq2 chain_ref (pair_invariant_holds)."
+    ],
+    "part_a_invariants": {
+      "genesis": "Vector 000: chain_seq=0, prev_receipt_hash='' (empty string)",
+      "link_1": "Vector 001: prev_receipt_hash MUST equal vector 000's receipt_hash",
+      "link_2": "Vector 002: prev_receipt_hash MUST equal vector 001's receipt_hash",
+      "link_3": "Vector 003: prev_receipt_hash MUST equal vector 002's receipt_hash",
+      "link_4": "Vector 004: prev_receipt_hash MUST equal vector 003's receipt_hash",
+      "link_5": "Vector 005: prev_receipt_hash MUST equal vector 004's receipt_hash",
+      "seq_increment": "Each chain_seq increments by exactly 1"
+    },
+    "part_b_invariants": {
+      "issuer_isolation": "issuer_a and issuer_b chain_refs MUST differ at every shared seq position despite identical receipt_hash values",
+      "issuer_a_seq0_ne_issuer_b_seq0": "sha256:52ef8da2c45178c5f2aef027d6c1e838d1f044dabb41596a639624cea5b57f83 != sha256:ced0cd4cc8d9446b17fca7ff57ed9508a9d5b50fce45a93d4a7e83779012810e",
+      "issuer_a_seq1_ne_issuer_b_seq1": "sha256:683eb369f960cdea868414ebf8fb4d692af09afa9e5b94c91dc093448117a042 != sha256:7aa77a429f476fee8d09e6e2044b7f4c40277cbc250d9676110fb6fb68441b90"
+    },
+    "part_c_invariants": {
+      "seq_gap_detection": "proper_seq2 and gap_seq2 share the same chain_seq (2) and receipt_hash but differ in prev_receipt_hash; their chain_refs MUST differ",
+      "pair_invariant_holds": "sha256:9c589d9657146e062d4a91cf3a4bf92c98cbb6fcde0d509a84e020675ad8c7ea != sha256:2277ec545e5540a60b54c706b533c8962df61fb9a9c92de417d3808bd7be3cef"
+    }
+  },
+  "vectors": [
+    {
+      "vector_id": "retention-chain-v1-000",
+      "part": "A",
+      "description": "Part A genesis. chain_seq=0, prev_receipt_hash empty. issuer_id=algovoi:compliance.",
+      "chain_seq": 0,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "",
+      "receipt_preimage": "compliance_receipt_00",
+      "receipt_hash": "sha256:ecd9c903e3bf3936e18b30006bcb3dbc15fff6323fa33d9fd63e2c91a1a47c7f",
+      "preimage": {
+        "chain_seq": 0,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "",
+        "receipt_hash": "sha256:ecd9c903e3bf3936e18b30006bcb3dbc15fff6323fa33d9fd63e2c91a1a47c7f"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjAsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoiIiwicmVjZWlwdF9oYXNoIjoic2hhMjU2OmVjZDljOTAzZTNiZjM5MzZlMThiMzAwMDZiY2IzZGJjMTVmZmY2MzIzZmEzM2Q5ZmQ2M2UyYzkxYTFhNDdjN2YifQ==",
+      "expected_chain_ref": "sha256:60081d57e585e6a7ee0b79e1204aae2be3739a539c6524074003408b3de1951e"
+    },
+    {
+      "vector_id": "retention-chain-v1-001",
+      "part": "A",
+      "description": "Part A link 1. chain_seq=1, prev_receipt_hash = v1-000 receipt_hash.",
+      "chain_seq": 1,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "sha256:ecd9c903e3bf3936e18b30006bcb3dbc15fff6323fa33d9fd63e2c91a1a47c7f",
+      "receipt_preimage": "compliance_receipt_01",
+      "receipt_hash": "sha256:bfc2abd0588c0b5e3c36950286ca1fd4e937067a0cd8d309b3bee06a12da1823",
+      "preimage": {
+        "chain_seq": 1,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "sha256:ecd9c903e3bf3936e18b30006bcb3dbc15fff6323fa33d9fd63e2c91a1a47c7f",
+        "receipt_hash": "sha256:bfc2abd0588c0b5e3c36950286ca1fd4e937067a0cd8d309b3bee06a12da1823"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjEsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OmVjZDljOTAzZTNiZjM5MzZlMThiMzAwMDZiY2IzZGJjMTVmZmY2MzIzZmEzM2Q5ZmQ2M2UyYzkxYTFhNDdjN2YiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6YmZjMmFiZDA1ODhjMGI1ZTNjMzY5NTAyODZjYTFmZDRlOTM3MDY3YTBjZDhkMzA5YjNiZWUwNmExMmRhMTgyMyJ9",
+      "expected_chain_ref": "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f"
+    },
+    {
+      "vector_id": "retention-chain-v1-002",
+      "part": "A",
+      "description": "Part A link 2. chain_seq=2, prev_receipt_hash = v1-001 receipt_hash.",
+      "chain_seq": 2,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "sha256:bfc2abd0588c0b5e3c36950286ca1fd4e937067a0cd8d309b3bee06a12da1823",
+      "receipt_preimage": "compliance_receipt_02",
+      "receipt_hash": "sha256:683ed176c88a7bee781c884fe6918588930f6e8e95353c45c474af47e5c59268",
+      "preimage": {
+        "chain_seq": 2,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "sha256:bfc2abd0588c0b5e3c36950286ca1fd4e937067a0cd8d309b3bee06a12da1823",
+        "receipt_hash": "sha256:683ed176c88a7bee781c884fe6918588930f6e8e95353c45c474af47e5c59268"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjIsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OmJmYzJhYmQwNTg4YzBiNWUzYzM2OTUwMjg2Y2ExZmQ0ZTkzNzA2N2EwY2Q4ZDMwOWIzYmVlMDZhMTJkYTE4MjMiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6NjgzZWQxNzZjODhhN2JlZTc4MWM4ODRmZTY5MTg1ODg5MzBmNmU4ZTk1MzUzYzQ1YzQ3NGFmNDdlNWM1OTI2OCJ9",
+      "expected_chain_ref": "sha256:43f888f00ea70e38fb8e38c205219b3fff51a90c62197d890b9f270f0f81fe42"
+    },
+    {
+      "vector_id": "retention-chain-v1-003",
+      "part": "A",
+      "description": "Part A link 3. chain_seq=3, prev_receipt_hash = v1-002 receipt_hash.",
+      "chain_seq": 3,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "sha256:683ed176c88a7bee781c884fe6918588930f6e8e95353c45c474af47e5c59268",
+      "receipt_preimage": "compliance_receipt_03",
+      "receipt_hash": "sha256:4123d080c4624ed068f1c4d6d52cc5d35048c9c5b82e710b02a7ea8d4351696b",
+      "preimage": {
+        "chain_seq": 3,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "sha256:683ed176c88a7bee781c884fe6918588930f6e8e95353c45c474af47e5c59268",
+        "receipt_hash": "sha256:4123d080c4624ed068f1c4d6d52cc5d35048c9c5b82e710b02a7ea8d4351696b"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjMsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OjY4M2VkMTc2Yzg4YTdiZWU3ODFjODg0ZmU2OTE4NTg4OTMwZjZlOGU5NTM1M2M0NWM0NzRhZjQ3ZTVjNTkyNjgiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6NDEyM2QwODBjNDYyNGVkMDY4ZjFjNGQ2ZDUyY2M1ZDM1MDQ4YzljNWI4MmU3MTBiMDJhN2VhOGQ0MzUxNjk2YiJ9",
+      "expected_chain_ref": "sha256:deeb8fb8d1e59de0493c26c461bf015d1461320cb54d172d36a4a0384147ae5b"
+    },
+    {
+      "vector_id": "retention-chain-v1-004",
+      "part": "A",
+      "description": "Part A link 4. chain_seq=4, prev_receipt_hash = v1-003 receipt_hash.",
+      "chain_seq": 4,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "sha256:4123d080c4624ed068f1c4d6d52cc5d35048c9c5b82e710b02a7ea8d4351696b",
+      "receipt_preimage": "compliance_receipt_04",
+      "receipt_hash": "sha256:596f9f39ac414bf3ddfe8beba0726f3277f8080595ad6a5d428feacb60c4f09d",
+      "preimage": {
+        "chain_seq": 4,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "sha256:4123d080c4624ed068f1c4d6d52cc5d35048c9c5b82e710b02a7ea8d4351696b",
+        "receipt_hash": "sha256:596f9f39ac414bf3ddfe8beba0726f3277f8080595ad6a5d428feacb60c4f09d"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjQsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OjQxMjNkMDgwYzQ2MjRlZDA2OGYxYzRkNmQ1MmNjNWQzNTA0OGM5YzViODJlNzEwYjAyYTdlYThkNDM1MTY5NmIiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6NTk2ZjlmMzlhYzQxNGJmM2RkZmU4YmViYTA3MjZmMzI3N2Y4MDgwNTk1YWQ2YTVkNDI4ZmVhY2I2MGM0ZjA5ZCJ9",
+      "expected_chain_ref": "sha256:6c76bc81c6ed4101ab15d7c2ac1c0cac255cd774665c8807586e8407b832dad5"
+    },
+    {
+      "vector_id": "retention-chain-v1-005",
+      "part": "A",
+      "description": "Part A link 5. chain_seq=5, prev_receipt_hash = v1-004 receipt_hash.",
+      "chain_seq": 5,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "sha256:596f9f39ac414bf3ddfe8beba0726f3277f8080595ad6a5d428feacb60c4f09d",
+      "receipt_preimage": "compliance_receipt_05",
+      "receipt_hash": "sha256:03f91f46f4377b65dcc3148cb801d1f62c18fc95cfd3ce86c691c8208275bee2",
+      "preimage": {
+        "chain_seq": 5,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "sha256:596f9f39ac414bf3ddfe8beba0726f3277f8080595ad6a5d428feacb60c4f09d",
+        "receipt_hash": "sha256:03f91f46f4377b65dcc3148cb801d1f62c18fc95cfd3ce86c691c8208275bee2"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjUsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OjU5NmY5ZjM5YWM0MTRiZjNkZGZlOGJlYmEwNzI2ZjMyNzdmODA4MDU5NWFkNmE1ZDQyOGZlYWNiNjBjNGYwOWQiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6MDNmOTFmNDZmNDM3N2I2NWRjYzMxNDhjYjgwMWQxZjYyYzE4ZmM5NWNmZDNjZTg2YzY5MWM4MjA4Mjc1YmVlMiJ9",
+      "expected_chain_ref": "sha256:e91e6f680c8c92ca2b751d8d0dcb801f4eadcfd5e590e100f4591ea3031d0d57"
+    },
+    {
+      "vector_id": "retention-chain-v1-006",
+      "part": "B",
+      "description": "Part B issuer_a genesis. Same receipt as v1-007; chain_ref MUST differ from v1-007.",
+      "chain_seq": 0,
+      "issuer_id": "algovoi:issuer_a",
+      "prev_receipt_hash": "",
+      "receipt_preimage": "shared_receipt_00",
+      "receipt_hash": "sha256:8953f31479208e232922fa49444bf20d896f256e80ce47dbcfec0cb2d3b8b1d3",
+      "preimage": {
+        "chain_seq": 0,
+        "issuer_id": "algovoi:issuer_a",
+        "prev_receipt_hash": "",
+        "receipt_hash": "sha256:8953f31479208e232922fa49444bf20d896f256e80ce47dbcfec0cb2d3b8b1d3"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjAsImlzc3Vlcl9pZCI6ImFsZ292b2k6aXNzdWVyX2EiLCJwcmV2X3JlY2VpcHRfaGFzaCI6IiIsInJlY2VpcHRfaGFzaCI6InNoYTI1Njo4OTUzZjMxNDc5MjA4ZTIzMjkyMmZhNDk0NDRiZjIwZDg5NmYyNTZlODBjZTQ3ZGJjZmVjMGNiMmQzYjhiMWQzIn0=",
+      "expected_chain_ref": "sha256:52ef8da2c45178c5f2aef027d6c1e838d1f044dabb41596a639624cea5b57f83"
+    },
+    {
+      "vector_id": "retention-chain-v1-007",
+      "part": "B",
+      "description": "Part B issuer_b genesis. Same receipt as v1-006; chain_ref MUST differ from v1-006.",
+      "chain_seq": 0,
+      "issuer_id": "algovoi:issuer_b",
+      "prev_receipt_hash": "",
+      "receipt_preimage": "shared_receipt_00",
+      "receipt_hash": "sha256:8953f31479208e232922fa49444bf20d896f256e80ce47dbcfec0cb2d3b8b1d3",
+      "preimage": {
+        "chain_seq": 0,
+        "issuer_id": "algovoi:issuer_b",
+        "prev_receipt_hash": "",
+        "receipt_hash": "sha256:8953f31479208e232922fa49444bf20d896f256e80ce47dbcfec0cb2d3b8b1d3"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjAsImlzc3Vlcl9pZCI6ImFsZ292b2k6aXNzdWVyX2IiLCJwcmV2X3JlY2VpcHRfaGFzaCI6IiIsInJlY2VpcHRfaGFzaCI6InNoYTI1Njo4OTUzZjMxNDc5MjA4ZTIzMjkyMmZhNDk0NDRiZjIwZDg5NmYyNTZlODBjZTQ3ZGJjZmVjMGNiMmQzYjhiMWQzIn0=",
+      "expected_chain_ref": "sha256:ced0cd4cc8d9446b17fca7ff57ed9508a9d5b50fce45a93d4a7e83779012810e"
+    },
+    {
+      "vector_id": "retention-chain-v1-008",
+      "part": "B",
+      "description": "Part B issuer_a link 1. prev = v1-006 receipt_hash. chain_ref MUST differ from v1-009.",
+      "chain_seq": 1,
+      "issuer_id": "algovoi:issuer_a",
+      "prev_receipt_hash": "sha256:8953f31479208e232922fa49444bf20d896f256e80ce47dbcfec0cb2d3b8b1d3",
+      "receipt_preimage": "shared_receipt_01",
+      "receipt_hash": "sha256:9a68f85f40f14efb92b33bd88abb3605e36c7ea94d8671c0fd0a6e679aeb72ed",
+      "preimage": {
+        "chain_seq": 1,
+        "issuer_id": "algovoi:issuer_a",
+        "prev_receipt_hash": "sha256:8953f31479208e232922fa49444bf20d896f256e80ce47dbcfec0cb2d3b8b1d3",
+        "receipt_hash": "sha256:9a68f85f40f14efb92b33bd88abb3605e36c7ea94d8671c0fd0a6e679aeb72ed"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjEsImlzc3Vlcl9pZCI6ImFsZ292b2k6aXNzdWVyX2EiLCJwcmV2X3JlY2VpcHRfaGFzaCI6InNoYTI1Njo4OTUzZjMxNDc5MjA4ZTIzMjkyMmZhNDk0NDRiZjIwZDg5NmYyNTZlODBjZTQ3ZGJjZmVjMGNiMmQzYjhiMWQzIiwicmVjZWlwdF9oYXNoIjoic2hhMjU2OjlhNjhmODVmNDBmMTRlZmI5MmIzM2JkODhhYmIzNjA1ZTM2YzdlYTk0ZDg2NzFjMGZkMGE2ZTY3OWFlYjcyZWQifQ==",
+      "expected_chain_ref": "sha256:683eb369f960cdea868414ebf8fb4d692af09afa9e5b94c91dc093448117a042"
+    },
+    {
+      "vector_id": "retention-chain-v1-009",
+      "part": "B",
+      "description": "Part B issuer_b link 1. prev = v1-007 receipt_hash. chain_ref MUST differ from v1-008.",
+      "chain_seq": 1,
+      "issuer_id": "algovoi:issuer_b",
+      "prev_receipt_hash": "sha256:8953f31479208e232922fa49444bf20d896f256e80ce47dbcfec0cb2d3b8b1d3",
+      "receipt_preimage": "shared_receipt_01",
+      "receipt_hash": "sha256:9a68f85f40f14efb92b33bd88abb3605e36c7ea94d8671c0fd0a6e679aeb72ed",
+      "preimage": {
+        "chain_seq": 1,
+        "issuer_id": "algovoi:issuer_b",
+        "prev_receipt_hash": "sha256:8953f31479208e232922fa49444bf20d896f256e80ce47dbcfec0cb2d3b8b1d3",
+        "receipt_hash": "sha256:9a68f85f40f14efb92b33bd88abb3605e36c7ea94d8671c0fd0a6e679aeb72ed"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjEsImlzc3Vlcl9pZCI6ImFsZ292b2k6aXNzdWVyX2IiLCJwcmV2X3JlY2VpcHRfaGFzaCI6InNoYTI1Njo4OTUzZjMxNDc5MjA4ZTIzMjkyMmZhNDk0NDRiZjIwZDg5NmYyNTZlODBjZTQ3ZGJjZmVjMGNiMmQzYjhiMWQzIiwicmVjZWlwdF9oYXNoIjoic2hhMjU2OjlhNjhmODVmNDBmMTRlZmI5MmIzM2JkODhhYmIzNjA1ZTM2YzdlYTk0ZDg2NzFjMGZkMGE2ZTY3OWFlYjcyZWQifQ==",
+      "expected_chain_ref": "sha256:7aa77a429f476fee8d09e6e2044b7f4c40277cbc250d9676110fb6fb68441b90"
+    },
+    {
+      "vector_id": "retention-chain-v1-010",
+      "part": "C",
+      "description": "Part C seq-gap genesis. chain_seq=0, prev_receipt_hash empty.",
+      "chain_seq": 0,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "",
+      "receipt_preimage": "gap_receipt_00",
+      "receipt_hash": "sha256:c270b5c24f0ef0a3170fd03bfb7602ef994e9e47ee7d509962627edd22009f03",
+      "preimage": {
+        "chain_seq": 0,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "",
+        "receipt_hash": "sha256:c270b5c24f0ef0a3170fd03bfb7602ef994e9e47ee7d509962627edd22009f03"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjAsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoiIiwicmVjZWlwdF9oYXNoIjoic2hhMjU2OmMyNzBiNWMyNGYwZWYwYTMxNzBmZDAzYmZiNzYwMmVmOTk0ZTllNDdlZTdkNTA5OTYyNjI3ZWRkMjIwMDlmMDMifQ==",
+      "expected_chain_ref": "sha256:073252f595f2c593a93b001a3d40325108ae697ca3e47a222414b29c5defaca2"
+    },
+    {
+      "vector_id": "retention-chain-v1-011",
+      "part": "C",
+      "description": "Part C seq-gap link 1. chain_seq=1, prev_receipt_hash = v1-010 receipt_hash.",
+      "chain_seq": 1,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "sha256:c270b5c24f0ef0a3170fd03bfb7602ef994e9e47ee7d509962627edd22009f03",
+      "receipt_preimage": "gap_receipt_01",
+      "receipt_hash": "sha256:492c1d19250585d5d587d5ef5a4f71718636df05ed772bcb6b527fb30d4d404a",
+      "preimage": {
+        "chain_seq": 1,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "sha256:c270b5c24f0ef0a3170fd03bfb7602ef994e9e47ee7d509962627edd22009f03",
+        "receipt_hash": "sha256:492c1d19250585d5d587d5ef5a4f71718636df05ed772bcb6b527fb30d4d404a"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjEsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OmMyNzBiNWMyNGYwZWYwYTMxNzBmZDAzYmZiNzYwMmVmOTk0ZTllNDdlZTdkNTA5OTYyNjI3ZWRkMjIwMDlmMDMiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6NDkyYzFkMTkyNTA1ODVkNWQ1ODdkNWVmNWE0ZjcxNzE4NjM2ZGYwNWVkNzcyYmNiNmI1MjdmYjMwZDRkNDA0YSJ9",
+      "expected_chain_ref": "sha256:7ed5deb4a4451181c255c0d3aaf963ecf0ee750d3f425211c725c9afc53e99ef"
+    },
+    {
+      "vector_id": "retention-chain-v1-012",
+      "part": "C",
+      "description": "Part C proper seq 2. chain_seq=2, prev_receipt_hash = v1-011 receipt_hash (correct linkage). chain_ref MUST differ from v1-013.",
+      "chain_seq": 2,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "sha256:492c1d19250585d5d587d5ef5a4f71718636df05ed772bcb6b527fb30d4d404a",
+      "receipt_preimage": "gap_receipt_02",
+      "receipt_hash": "sha256:8fc111ab7b8573884fb4f2fd003d47832d7f1b2088173af9be5940530456bf1c",
+      "preimage": {
+        "chain_seq": 2,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "sha256:492c1d19250585d5d587d5ef5a4f71718636df05ed772bcb6b527fb30d4d404a",
+        "receipt_hash": "sha256:8fc111ab7b8573884fb4f2fd003d47832d7f1b2088173af9be5940530456bf1c"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjIsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OjQ5MmMxZDE5MjUwNTg1ZDVkNTg3ZDVlZjVhNGY3MTcxODYzNmRmMDVlZDc3MmJjYjZiNTI3ZmIzMGQ0ZDQwNGEiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6OGZjMTExYWI3Yjg1NzM4ODRmYjRmMmZkMDAzZDQ3ODMyZDdmMWIyMDg4MTczYWY5YmU1OTQwNTMwNDU2YmYxYyJ9",
+      "expected_chain_ref": "sha256:9c589d9657146e062d4a91cf3a4bf92c98cbb6fcde0d509a84e020675ad8c7ea",
+      "pair_invariant": "proper_seq2; expected_chain_ref MUST differ from retention-chain-v1-013 gap_seq2"
+    },
+    {
+      "vector_id": "retention-chain-v1-013",
+      "part": "C",
+      "description": "Part C gap seq 2 (adversarial). chain_seq=2, prev_receipt_hash = v1-010 receipt_hash (skipped seq 1). Same receipt_hash as v1-012. chain_ref MUST differ from v1-012.",
+      "chain_seq": 2,
+      "issuer_id": "algovoi:compliance",
+      "prev_receipt_hash": "sha256:c270b5c24f0ef0a3170fd03bfb7602ef994e9e47ee7d509962627edd22009f03",
+      "receipt_preimage": "gap_receipt_02",
+      "receipt_hash": "sha256:8fc111ab7b8573884fb4f2fd003d47832d7f1b2088173af9be5940530456bf1c",
+      "preimage": {
+        "chain_seq": 2,
+        "issuer_id": "algovoi:compliance",
+        "prev_receipt_hash": "sha256:c270b5c24f0ef0a3170fd03bfb7602ef994e9e47ee7d509962627edd22009f03",
+        "receipt_hash": "sha256:8fc111ab7b8573884fb4f2fd003d47832d7f1b2088173af9be5940530456bf1c"
+      },
+      "expected_jcs_bytes_b64": "eyJjaGFpbl9zZXEiOjIsImlzc3Vlcl9pZCI6ImFsZ292b2k6Y29tcGxpYW5jZSIsInByZXZfcmVjZWlwdF9oYXNoIjoic2hhMjU2OmMyNzBiNWMyNGYwZWYwYTMxNzBmZDAzYmZiNzYwMmVmOTk0ZTllNDdlZTdkNTA5OTYyNjI3ZWRkMjIwMDlmMDMiLCJyZWNlaXB0X2hhc2giOiJzaGEyNTY6OGZjMTExYWI3Yjg1NzM4ODRmYjRmMmZkMDAzZDQ3ODMyZDdmMWIyMDg4MTczYWY5YmU1OTQwNTMwNDU2YmYxYyJ9",
+      "expected_chain_ref": "sha256:2277ec545e5540a60b54c706b533c8962df61fb9a9c92de417d3808bd7be3cef",
+      "pair_invariant": "gap_seq2; expected_chain_ref MUST differ from retention-chain-v1-012 proper_seq2"
+    }
+  ]
+}

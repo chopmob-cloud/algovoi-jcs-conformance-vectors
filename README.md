@@ -5,15 +5,15 @@
 # algovoi-jcs-conformance-vectors
 
 [![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
-[![Vectors](https://img.shields.io/badge/vectors-134-brightgreen)](#anchor-sets)
-[![Cross-validated](https://img.shields.io/badge/cross--validated-672%2F672-brightgreen)](#cross-implementation-validation-matrix)
+[![Vectors](https://img.shields.io/badge/vectors-148-brightgreen)](#anchor-sets)
+[![Cross-validated](https://img.shields.io/badge/cross--validated-784%2F784-brightgreen)](#cross-implementation-validation-matrix)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts. 134 vectors across
-18 anchor sets, with **672/672 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts. 148 vectors across
+19 anchor sets, with **784/784 byte-for-byte agreements directly executed**
 across eight independent JCS implementations in eight programming languages
-(cumulative as of 2026-06-16; see the cross-implementation validation matrix).
+(cumulative as of 2026-06-17; see the cross-implementation validation matrix).
 
 This repository is the AlgoVoi-authored reference test corpus that downstream
 implementations of x402, AP2, A2A and MPP receipts can validate against. The
@@ -43,7 +43,8 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | [`vectors/zkp_receipt_v1/`](./vectors/zkp_receipt_v1/) | 8 | **ZKP receipt v1**. Canonical-bytes / `frame_id` vectors for the zero-knowledge settlement receipt across seven chains (Algorand, Base, Solana, VOI, Stellar, Hedera, Tempo). Companion to IACR ePrint 2026/109852. |
 | [`vectors/service_trust_v0/`](./vectors/service_trust_v0/) | 5 | Service-trust check envelope (`urn:crest:trust-check-v1`) vectors. |
 | [`vectors/retention_chain_v0/`](./vectors/retention_chain_v0/) | 3 | **Retention Chain Substrate**. Pins `retention_chain_ref = "sha256:" + SHA-256(JCS({chain_seq, issuer_id, prev_receipt_hash, receipt_hash}))` across genesis + 2 chain-link vectors. Normative spec: `draft-hopley-x402-retention-chain-00`. Regulatory applicability: MiCA Art. 80, DORA Art. 14, AMLR Art. 56. Commercial add-on to Substrate 2; included standard in every Substrate 2 licence. |
-| **Total (JCS vectors, 15 sets)** | **129** | + 5 entries across the 3 cryptographic fixtures below = **134 vectors / 18 sets** |
+| [`vectors/retention_chain_v1/`](./vectors/retention_chain_v1/) | 14 | **Retention Chain Substrate v1 -- extended conformance**. Part A: 6-link extended chain (`algovoi:compliance`, seq 0-5). Part B: 4 multi-issuer isolation vectors (`issuer_a` + `issuer_b`, seq 0-1 each -- same receipt, different chain_ref). Part C: 4 seq-gap adversarial pair (proper `seq2` vs gap `seq2` -- same `receipt_hash`, wrong `prev_receipt_hash`, different `chain_ref`). Commercial licence. |
+| **Total (JCS vectors, 16 sets)** | **143** | + 5 entries across the 3 cryptographic fixtures below = **148 vectors / 19 sets** |
 
 ## Cryptographic-property fixtures (complementary to JCS canonicalisation)
 
@@ -60,10 +61,10 @@ support the substrate authorship claim:
 
 The vector sets below were directly validated to produce byte-identical canonical
 bytes across **eight independent JCS implementations in eight programming languages**
-(672/672 agreements, cumulative as of 2026-06-16), all from non-overlapping
+(784/784 agreements, cumulative as of 2026-06-17), all from non-overlapping
 authoring entities including the RFC 8785 author himself (Anders Rundgren, via the
 Java implementation). `zkp_receipt_v1` (2026-06-04) was directly executed across
-five implementations and is reported separately below, not folded into the 672:
+five implementations and is reported separately below, not folded into the 784:
 
 | # | Language | Runtime | Package | Version | Author / entity |
 |---|---|---|---|---|---|
@@ -86,7 +87,8 @@ five implementations and is reported separately below, not folded into the 672:
 | 2026-06-16 | `retention_chain_v0` (Retention Chain Substrate -- `chain_seq`, `issuer_id`, `prev_receipt_hash`, `receipt_hash`) | 3 × 8 | **24/24** | [`_attestations/2026-06-16-retention-chain-v0-cross-validation.md`](./_attestations/2026-06-16-retention-chain-v0-cross-validation.md) |
 | 2026-06-16 | `epi_interop_v0` (EPI Recorder interop -- JCS + SHA-256 over EPI manifest payloads) | 5 × 8 | **40/40** | [`vectors/epi_interop_v0/`](./vectors/epi_interop_v0/) |
 | 2026-06-16 | `epi_pqc_v0` (EPI PQC profile -- JCS + SHA-256; Falcon-1024 + key-lineage: Python only) | 4 × 8 | **32/32** | [`vectors/epi_pqc_v0/`](./vectors/epi_pqc_v0/) |
-| **Cumulative (directly executed)** | **11 distinct vector sets** | **84 × 8** | **672/672** | |
+| 2026-06-17 | `retention_chain_v1` (Retention Chain Substrate v1 -- extended chain, multi-issuer isolation, seq-gap adversarial pair) | 14 × 8 | **112/112** | [`_attestations/2026-06-17-retention-chain-v1-cross-validation.md`](./_attestations/2026-06-17-retention-chain-v1-cross-validation.md) |
+| **Cumulative (directly executed)** | **12 distinct vector sets** | **98 × 8** | **784/784** | |
 | 2026-06-04 | `zkp_receipt_v1` (5 impls directly executed; remaining 3 asserted by transitivity -- primitive-only payload covered by the 2026-05-25 run) | 8 × 5 direct | **40/40 direct** (+24 by transitivity, *not* added to the 672) | [`_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md`](./_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md) |
 
 Two separate signature-survival fixtures are tracked apart from the JCS byte-agreement total:
@@ -107,6 +109,7 @@ Two separate signature-survival fixtures are tracked apart from the JCS byte-agr
 | `composite_trust_query_v1` | `composite-trust-query-v1` (composite_verdict) | `sha256(JCS(receipt))` |
 | `pef_v1` | PEF v1 frame_id -- all 5 claim types | `sha256(JCS(receipt))` **+** `sha256(JCS(preimage))` |
 | `retention_chain_v0` | Retention Chain Substrate -- chain linking across genesis + 2 links | `sha256(JCS({chain_seq, issuer_id, prev_receipt_hash, receipt_hash}))` |
+| `retention_chain_v1` | Retention Chain Substrate v1 -- extended chain, multi-issuer isolation, seq-gap adversarial pair | `sha256(JCS({chain_seq, issuer_id, prev_receipt_hash, receipt_hash}))` |
 | `epi_interop_v0` | EPI Recorder interop -- 5 EPI manifest payloads | `sha256(JCS(input))` |
 | `epi_pqc_v0` | EPI PQC profile -- 4 Falcon-1024 manifest payloads | `sha256(JCS(input))` (+ Falcon-1024 sig + key-lineage: Python only) |
 
@@ -144,7 +147,7 @@ agentic-payment receipts and that synthetic conformance suites typically miss:
 - Unicode NFC vs NFD normalisation in mandate identifiers.
 - Optional-fields presence vs absence in conformance pairs.
 
-A JCS implementation that passes all 129 JCS vectors is exercised against the
+A JCS implementation that passes all 143 JCS vectors is exercised against the
 substrate's actual production failure modes, not only against synthetic
 fixtures.
 
@@ -274,7 +277,7 @@ To request listing as an adopter, follow the [submission process](https://docs.a
 
 This corpus and the AlgoVoi canonicalisation discipline it anchors are AlgoVoi-authored under sole authorship. The byte-for-byte cross-validation matrix is empirically possible only because of the independent JCS implementations maintained by other parties. AlgoVoi acknowledges with thanks:
 
-**Reference JCS implementations cross-validated in the matrix** (672/672 byte-for-byte agreements across six attestation runs):
+**Reference JCS implementations cross-validated in the matrix** (784/784 byte-for-byte agreements across seven attestation runs):
 
 - Python [`rfc8785`](https://pypi.org/project/rfc8785/) 0.1.4 -- Trail of Bits
 - JavaScript [`canonicalize`](https://www.npmjs.com/package/canonicalize) 1.0.8 -- Samuel Erdtman
@@ -303,7 +306,7 @@ These roles describe validation, mirror, and discussion work relative to the Alg
 
 When citing in a spec PR, paper, or implementation README, please use:
 
-> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-16. 134 vectors across 18 anchor sets, 672/672 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-06-16.
+> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-17. 148 vectors across 19 anchor sets, 784/784 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-06-17.
 
 ## Licence
 

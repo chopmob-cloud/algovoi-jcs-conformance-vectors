@@ -1,0 +1,8 @@
+{
+  "name": "retention-chain-v1-runner",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "canonicalize": "^1.0.8"
+  }
+}
