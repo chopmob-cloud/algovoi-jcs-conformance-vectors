@@ -144,7 +144,7 @@ agentic-payment receipts and that synthetic conformance suites typically miss:
 - Unicode NFC vs NFD normalisation in mandate identifiers.
 - Optional-fields presence vs absence in conformance pairs.
 
-A JCS implementation that passes all 126 JCS vectors is exercised against the
+A JCS implementation that passes all 129 JCS vectors is exercised against the
 substrate's actual production failure modes, not only against synthetic
 fixtures.
 
