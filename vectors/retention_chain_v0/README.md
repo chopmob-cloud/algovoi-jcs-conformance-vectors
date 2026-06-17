@@ -2,6 +2,13 @@
 
 Apache-2.0. Copyright 2026 AlgoVoi (chopmob@gmail.com).
 
+> **This is an L1 substrate.** `retention_chain_v0` is the genesis conformance set for AlgoVoi's
+> Retention Chain Substrate, specified in `draft-hopley-x402-retention-chain-01` (sole authorship).
+> **Build L2 layers on it freely**; the one ask is the licence's: attribute the L1 — keep the
+> [`NOTICE`](../../NOTICE) and import this set **by hash**
+> (`sha256: a1c8a3a591980917f2a5706097094a988715b5b674bd8a0837b5a5db74269da8`).
+> See the corpus [README › Attribution](../../README.md#attribution) and [ADOPTERS.md](../../ADOPTERS.md).
+
 AlgoVoi-authored conformance vector set for the **Retention Chain Substrate** — a self-verifiable audit chain linking payment receipts without external infrastructure.
 
 Specified in IETF Internet-Draft [`draft-hopley-x402-retention-chain-01`](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/) (AlgoVoi, sole authorship, 16 June 2026).
@@ -44,6 +51,17 @@ Cross-validated across **8 implementations in 8 programming languages** — all 
 | .NET 9 | `Baqhub.Packages.JsonCanonicalization 1.0.1` + `SHA256.HashData` | 3/3 |
 
 Kotlin runner (`runner_kotlin/`) written against the same JVM library as Java; requires Gradle + Kotlin/JVM to run.
+
+## Run
+
+```bash
+bash run_all.sh                          # all 8 runners
+python runner_python.py retention_chain_v0.json   # pip install rfc8785
+node   runner_node.js  retention_chain_v0.json    # npm install (canonicalize)
+go run runner_go.go    retention_chain_v0.json
+ruby   runner_ruby.rb  retention_chain_v0.json    # gem install json-canonicalization
+php    runner_php.php  retention_chain_v0.json    # requires ext-sodium
+```
 
 ## Chain invariants
 

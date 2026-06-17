@@ -1,5 +1,4 @@
-// Copyright 2026 AlgoVoi. All rights reserved.
-// AlgoVoi Commercial Software License -- see LICENSE in this directory.
+﻿// Copyright 2026 AlgoVoi (chopmob@gmail.com). Apache-2.0. See LICENSE in this directory.
 // Retention Chain v0 vector runner -- Go / gowebpki/jcs v1.0.1
 //
 // Usage:  go run runner_go.go <vector_set_json>

@@ -1,6 +1,5 @@
-#!/usr/bin/env ruby
-# Copyright 2026 AlgoVoi. All rights reserved.
-# AlgoVoi Commercial Software License -- see LICENSE in this directory.
+﻿#!/usr/bin/env ruby
+# Copyright 2026 AlgoVoi (chopmob@gmail.com). Apache-2.0. See LICENSE in this directory.
 # Retention Chain v0 vector runner -- Ruby / json-canonicalization 1.0.0
 #
 # Usage: ruby runner_ruby.rb <vector_set_json>
