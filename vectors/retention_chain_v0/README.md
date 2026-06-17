@@ -1,14 +1,10 @@
 # `retention_chain_v0`
 
-> **License: AlgoVoi Commercial Software License**
-> The conformance vectors, runner scripts, and all files in this directory are proprietary.
-> Use requires a signed commercial licence from AlgoVoi.
-> The Retention Chain Substrate is included as standard in every Substrate 2 licence.
-> Contact: chopmob@gmail.com
+Apache-2.0. Copyright 2026 AlgoVoi (chopmob@gmail.com).
 
 AlgoVoi-authored conformance vector set for the **Retention Chain Substrate** — a self-verifiable audit chain linking payment receipts without external infrastructure.
 
-Specified in IETF Internet-Draft [`draft-hopley-x402-retention-chain-00`](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/) (AlgoVoi, sole authorship, 16 June 2026).
+Specified in IETF Internet-Draft [`draft-hopley-x402-retention-chain-01`](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/) (AlgoVoi, sole authorship, 16 June 2026).
 
 ## Algorithm
 
