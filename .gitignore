@@ -11,3 +11,4 @@ obj/
 Thumbs.db
 .vscode/
 .idea/
+.cargo/
