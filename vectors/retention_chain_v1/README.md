@@ -3,7 +3,7 @@
 Apache-2.0. Copyright 2026 AlgoVoi (chopmob@gmail.com).
 
 > **This is an L1 substrate.** `retention_chain_v1` is the extended conformance set for AlgoVoi's
-> Retention Chain Substrate, specified in `draft-hopley-x402-retention-chain-01` (sole authorship).
+> Retention Chain Substrate, specified in `draft-hopley-x402-retention-chain-02` (sole authorship).
 > **Build L2 layers on it freely**; the one ask is the licence's: attribute the L1 — keep the
 > [`NOTICE`](../../NOTICE) and import this set **by hash**
 > (`sha256: 7db074ad0737468c29fcfad71d5d7e70354d3710a377603585e1a899d195602a`).
@@ -11,7 +11,7 @@ Apache-2.0. Copyright 2026 AlgoVoi (chopmob@gmail.com).
 
 AlgoVoi-authored conformance vector set for the **Retention Chain Substrate** — a self-verifiable audit chain linking payment receipts without external infrastructure.
 
-Specified in IETF Internet-Draft [`draft-hopley-x402-retention-chain-01`](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/) (AlgoVoi, sole authorship, 16 June 2026).
+Specified in IETF Internet-Draft [`draft-hopley-x402-retention-chain-02`](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/) (AlgoVoi, sole authorship, 17 June 2026).
 
 ## Algorithm
 

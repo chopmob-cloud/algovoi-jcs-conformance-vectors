@@ -110,6 +110,9 @@ Ruby, PHP, Go, Rust, Java, .NET. See
 
 - **Authorship**: AlgoVoi (chopmob-cloud). Supersets the transactional
   `action_ref` lifecycle (`action_ref_transactional_v0`).
+- **Normative anchor**: IETF Internet-Draft
+  [`draft-hopley-x402-retention-chain-02`](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/)
+  Section 7 (Payment Action Lifecycle), 17 June 2026.
 - **Reference implementations**: Python `algovoi-substrate>=0.3.0` (PyPI);
   TypeScript `@algovoi/substrate>=0.3.0` (npm).
 

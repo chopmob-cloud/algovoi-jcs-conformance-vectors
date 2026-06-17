@@ -195,7 +195,7 @@
       "primary_file": "retention_chain_v0.json",
       "vector_count": 3,
       "chain_invariants": 3,
-      "anchors_to": "draft-hopley-x402-retention-chain-01",
+      "anchors_to": "draft-hopley-x402-retention-chain-02",
       "cross_validated": "8-impl direct (2026-06-16)",
       "sha256": "sha256:a1c8a3a591980917f2a5706097094a988715b5b674bd8a0837b5a5db74269da8"
     },
@@ -207,7 +207,7 @@
       "part_a": "6-link extended chain (seq 0-5, issuer_id=algovoi:compliance)",
       "part_b": "4 multi-issuer isolation vectors (issuer_a + issuer_b, seq 0-1 each)",
       "part_c": "4 seq-gap adversarial pair (proper seq2 vs gap seq2 -- chain_ref differs)",
-      "anchors_to": "draft-hopley-x402-retention-chain-01",
+      "anchors_to": "draft-hopley-x402-retention-chain-02",
       "cross_validated": "8-impl direct (2026-06-17)",
       "sha256": "sha256:7db074ad0737468c29fcfad71d5d7e70354d3710a377603585e1a899d195602a"
     }

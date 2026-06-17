@@ -85,6 +85,10 @@ See [`_attestations/2026-06-09-adversarial-isolation-v1.md`](../../_attestations
 ## Provenance
 
 - **Authorship**: AlgoVoi (chopmob-cloud).
+- **Normative anchor**: IETF Internet-Draft
+  [`draft-hopley-x402-retention-chain-02`](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/)
+  Sections 7.5 (Input Validation Rules) + 8.8 (Adversarial Boundary Vectors),
+  17 June 2026.
 - **Reference implementation**: Python `algovoi-substrate>=0.3.0` (PyPI). The
   reject enforcement is also wired into the substrate2 conformance gate
   (Section 1, `expectation: "reject"`): a reject vector that the check *accepts*,
