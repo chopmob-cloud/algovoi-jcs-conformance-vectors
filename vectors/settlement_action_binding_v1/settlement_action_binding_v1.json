@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0",
+  "artefact_id": "settlement-action-binding-conformance-v1",
+  "published_at": "2026-06-18T00:00:00Z",
+  "canon_version": "jcs-rfc8785-v1",
+  "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust)",
+  "hash": "SHA-256, lowercase hex; binding_ref carries the 'sha256:' algorithm prefix",
+  "composes_with": "action_ref_exactly_once_v1 (action_ref + transition_hash); settlement_attestation_v1 (settlement_ref = content_hash); retention_chain_v1 (retention_chain_ref)",
+  "anchored_to": {
+    "primitive_binding": "binding_ref = 'sha256:' + SHA-256(JCS({action_ref, transition_hash, settlement_ref, retention_chain_ref}))",
+    "load_bearing_invariants": [
+      "Binding stability: identical (action_ref, transition_hash, settlement_ref, retention_chain_ref) reproduces the same binding_ref byte-for-byte.",
+      "Settlement-binding: changing settlement_ref changes binding_ref (a settlement cannot be re-pointed to another action's record).",
+      "Action-binding: changing action_ref changes binding_ref (an action cannot claim another identity's settlement).",
+      "State-binding: changing transition_hash changes binding_ref -- only the exact COMMITTED transition binds; a PENDING/REVERSED transition_hash produces a distinct binding.",
+      "Chain-binding: changing retention_chain_ref changes binding_ref (the tamper-evident chain position recording the record is load-bearing).",
+      "Lineage-binding: action_ref and transition_hash derive from epoch-millisecond-integer preimages (Substrate Rule 2); an RFC 3339 string timestamp upstream yields a different action_ref, hence a different binding -- a non-conformant lineage cannot reproduce the binding bytes."
+    ],
+    "spec_authorship": "AlgoVoi-authored. Composes the action_ref lifecycle (action_ref_exactly_once_v1), settlement attestation (settlement_attestation_v1), and retention chain (retention_chain_v1) into a single post-settlement accountability binding. No new hashing primitive is introduced."
+  },
+  "vectors": [
+    {
+      "vector_id": "sab-v1-001",
+      "description": "Reference binding: action_ref + COMMITTED transition_hash + settlement_ref + retention_chain_ref bound into one binding_ref. The canonical post-settlement record.",
+      "pair_group": "reference",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "transition_hash": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+        "settlement_ref": "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3",
+        "retention_chain_ref": "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f"
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsInJldGVudGlvbl9jaGFpbl9yZWYiOiJzaGEyNTY6ZDIzYWViMDA2YzVmM2RiOWRkOTYzMTU5MTY0MTAzOTM5MDRmNTZjNGM4NzE1OTMwNjVlYjczYjc4M2ZmZjM1ZiIsInNldHRsZW1lbnRfcmVmIjoiMGVhZDc1YmZlN2ZjNzRjYzA0MjExMjQ5MDNlNTZjYjVjNTAwNmQwMmMzOTMyMzFhMWQ1ZjI2MGZhODdlOTZkMyIsInRyYW5zaXRpb25faGFzaCI6ImY0OWZhYTdjNGY4MmJkODQyNzA1Mzc0MzExZjVmNmFmMDczODI2NTM5ZDUxOWQwYjY1ZGUzMjYzMjU4ZWFjNWYifQ==",
+      "expected_content_sha256": "7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca",
+      "expected_binding_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca"
+    },
+    {
+      "vector_id": "sab-v1-002",
+      "description": "Binding stability: the same (action_ref, transition_hash, settlement_ref, retention_chain_ref) re-presented reproduces 001's binding_ref byte-for-byte (re-derivation is idempotent, never a second binding).",
+      "pair_group": "stability",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "transition_hash": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+        "settlement_ref": "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3",
+        "retention_chain_ref": "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f"
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsInJldGVudGlvbl9jaGFpbl9yZWYiOiJzaGEyNTY6ZDIzYWViMDA2YzVmM2RiOWRkOTYzMTU5MTY0MTAzOTM5MDRmNTZjNGM4NzE1OTMwNjVlYjczYjc4M2ZmZjM1ZiIsInNldHRsZW1lbnRfcmVmIjoiMGVhZDc1YmZlN2ZjNzRjYzA0MjExMjQ5MDNlNTZjYjVjNTAwNmQwMmMzOTMyMzFhMWQ1ZjI2MGZhODdlOTZkMyIsInRyYW5zaXRpb25faGFzaCI6ImY0OWZhYTdjNGY4MmJkODQyNzA1Mzc0MzExZjVmNmFmMDczODI2NTM5ZDUxOWQwYjY1ZGUzMjYzMjU4ZWFjNWYifQ==",
+      "expected_content_sha256": "7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca",
+      "expected_binding_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca",
+      "same_hash_as": [
+        "sab-v1-001"
+      ]
+    },
+    {
+      "vector_id": "sab-v1-003",
+      "description": "Settlement-binding: identical action/transition/chain but a DIFFERENT settlement_ref produces a different binding_ref -- a settlement cannot be re-pointed to another action's record.",
+      "pair_group": "settlement",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "transition_hash": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+        "settlement_ref": "e7777a9a77a9c3f02339594395bfb2620e07edc62d3dcb48c4f2e82a8c37a1c4",
+        "retention_chain_ref": "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f"
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsInJldGVudGlvbl9jaGFpbl9yZWYiOiJzaGEyNTY6ZDIzYWViMDA2YzVmM2RiOWRkOTYzMTU5MTY0MTAzOTM5MDRmNTZjNGM4NzE1OTMwNjVlYjczYjc4M2ZmZjM1ZiIsInNldHRsZW1lbnRfcmVmIjoiZTc3NzdhOWE3N2E5YzNmMDIzMzk1OTQzOTViZmIyNjIwZTA3ZWRjNjJkM2RjYjQ4YzRmMmU4MmE4YzM3YTFjNCIsInRyYW5zaXRpb25faGFzaCI6ImY0OWZhYTdjNGY4MmJkODQyNzA1Mzc0MzExZjVmNmFmMDczODI2NTM5ZDUxOWQwYjY1ZGUzMjYzMjU4ZWFjNWYifQ==",
+      "expected_content_sha256": "cf6eb49236702195b0a8b960929ffa993d38d3ddbbb302a1f68f32e54bab23ca",
+      "expected_binding_ref": "sha256:cf6eb49236702195b0a8b960929ffa993d38d3ddbbb302a1f68f32e54bab23ca",
+      "different_hash_from": [
+        "sab-v1-001"
+      ]
+    },
+    {
+      "vector_id": "sab-v1-004",
+      "description": "Action-binding: identical transition/settlement/chain but a DIFFERENT action_ref produces a different binding_ref -- an action cannot claim another identity's settlement. (Also: an RFC 3339 timestamp upstream changes action_ref, so a non-conformant lineage cannot reproduce 001.)",
+      "pair_group": "action",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "57e861cb0929fe602823a15e2bc5a5587f0b9c3bd39147baa49819dd014c56a6",
+        "transition_hash": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+        "settlement_ref": "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3",
+        "retention_chain_ref": "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f"
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNTdlODYxY2IwOTI5ZmU2MDI4MjNhMTVlMmJjNWE1NTg3ZjBiOWMzYmQzOTE0N2JhYTQ5ODE5ZGQwMTRjNTZhNiIsInJldGVudGlvbl9jaGFpbl9yZWYiOiJzaGEyNTY6ZDIzYWViMDA2YzVmM2RiOWRkOTYzMTU5MTY0MTAzOTM5MDRmNTZjNGM4NzE1OTMwNjVlYjczYjc4M2ZmZjM1ZiIsInNldHRsZW1lbnRfcmVmIjoiMGVhZDc1YmZlN2ZjNzRjYzA0MjExMjQ5MDNlNTZjYjVjNTAwNmQwMmMzOTMyMzFhMWQ1ZjI2MGZhODdlOTZkMyIsInRyYW5zaXRpb25faGFzaCI6ImY0OWZhYTdjNGY4MmJkODQyNzA1Mzc0MzExZjVmNmFmMDczODI2NTM5ZDUxOWQwYjY1ZGUzMjYzMjU4ZWFjNWYifQ==",
+      "expected_content_sha256": "0bae722c5489179921d8cb3e747f9457d42036f50642fab0e8617ec89d41d5c2",
+      "expected_binding_ref": "sha256:0bae722c5489179921d8cb3e747f9457d42036f50642fab0e8617ec89d41d5c2",
+      "different_hash_from": [
+        "sab-v1-001"
+      ]
+    },
+    {
+      "vector_id": "sab-v1-005",
+      "description": "State-binding: identical action/settlement/chain but the PENDING transition_hash (not COMMITTED) produces a different binding_ref -- only the exact COMMITTED transition binds; a non-committed state cannot masquerade as settled-bound.",
+      "pair_group": "state",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "transition_hash": "0957638b64c790292c11d90e9ae15576a6454f37f23a0aade222acf9e2ea18b0",
+        "settlement_ref": "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3",
+        "retention_chain_ref": "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f"
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsInJldGVudGlvbl9jaGFpbl9yZWYiOiJzaGEyNTY6ZDIzYWViMDA2YzVmM2RiOWRkOTYzMTU5MTY0MTAzOTM5MDRmNTZjNGM4NzE1OTMwNjVlYjczYjc4M2ZmZjM1ZiIsInNldHRsZW1lbnRfcmVmIjoiMGVhZDc1YmZlN2ZjNzRjYzA0MjExMjQ5MDNlNTZjYjVjNTAwNmQwMmMzOTMyMzFhMWQ1ZjI2MGZhODdlOTZkMyIsInRyYW5zaXRpb25faGFzaCI6IjA5NTc2MzhiNjRjNzkwMjkyYzExZDkwZTlhZTE1NTc2YTY0NTRmMzdmMjNhMGFhZGUyMjJhY2Y5ZTJlYTE4YjAifQ==",
+      "expected_content_sha256": "d1d3b29e5d081f091376f886bfd11f0bb85034df7e6104a1726ed3929dfa2af3",
+      "expected_binding_ref": "sha256:d1d3b29e5d081f091376f886bfd11f0bb85034df7e6104a1726ed3929dfa2af3",
+      "different_hash_from": [
+        "sab-v1-001"
+      ]
+    },
+    {
+      "vector_id": "sab-v1-006",
+      "description": "Chain-binding: identical action/transition/settlement but a DIFFERENT retention_chain_ref produces a different binding_ref -- the tamper-evident chain position recording the record is load-bearing.",
+      "pair_group": "chain",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "transition_hash": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+        "settlement_ref": "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3",
+        "retention_chain_ref": "sha256:43f888f00ea70e38fb8e38c205219b3fff51a90c62197d890b9f270f0f81fe42"
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsInJldGVudGlvbl9jaGFpbl9yZWYiOiJzaGEyNTY6NDNmODg4ZjAwZWE3MGUzOGZiOGUzOGMyMDUyMTliM2ZmZjUxYTkwYzYyMTk3ZDg5MGI5ZjI3MGYwZjgxZmU0MiIsInNldHRsZW1lbnRfcmVmIjoiMGVhZDc1YmZlN2ZjNzRjYzA0MjExMjQ5MDNlNTZjYjVjNTAwNmQwMmMzOTMyMzFhMWQ1ZjI2MGZhODdlOTZkMyIsInRyYW5zaXRpb25faGFzaCI6ImY0OWZhYTdjNGY4MmJkODQyNzA1Mzc0MzExZjVmNmFmMDczODI2NTM5ZDUxOWQwYjY1ZGUzMjYzMjU4ZWFjNWYifQ==",
+      "expected_content_sha256": "c9cb63c77330d7a3bd9f6252ffe7f3b5d967d4594984cf2120f80b146dc43d76",
+      "expected_binding_ref": "sha256:c9cb63c77330d7a3bd9f6252ffe7f3b5d967d4594984cf2120f80b146dc43d76",
+      "different_hash_from": [
+        "sab-v1-001"
+      ]
+    }
+  ],
+  "pair_invariants": [
+    {
+      "id": "pair-sab-001",
+      "type": "same_hash_as",
+      "description": "binding stability: re-derivation with identical inputs reproduces the binding_ref byte-for-byte",
+      "left": "sab-v1-001",
+      "right": "sab-v1-002"
+    },
+    {
+      "id": "pair-sab-002",
+      "type": "different_hash_from",
+      "description": "settlement-binding: a different settlement_ref diverges",
+      "left": "sab-v1-001",
+      "right": "sab-v1-003"
+    },
+    {
+      "id": "pair-sab-003",
+      "type": "different_hash_from",
+      "description": "action-binding: a different action_ref diverges",
+      "left": "sab-v1-001",
+      "right": "sab-v1-004"
+    },
+    {
+      "id": "pair-sab-004",
+      "type": "different_hash_from",
+      "description": "state-binding: a non-COMMITTED transition_hash diverges",
+      "left": "sab-v1-001",
+      "right": "sab-v1-005"
+    },
+    {
+      "id": "pair-sab-005",
+      "type": "different_hash_from",
+      "description": "chain-binding: a different retention_chain_ref diverges",
+      "left": "sab-v1-001",
+      "right": "sab-v1-006"
+    }
+  ]
+}

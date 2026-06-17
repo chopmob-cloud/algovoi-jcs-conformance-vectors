@@ -46,7 +46,8 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | [`vectors/retention_chain_v1/`](./vectors/retention_chain_v1/) | 14 | **Retention Chain Substrate v1 -- extended conformance**. Part A: 6-link extended chain (`algovoi:compliance`, seq 0-5). Part B: 4 multi-issuer isolation vectors (`issuer_a` + `issuer_b`, seq 0-1 each -- same receipt, different chain_ref). Part C: 4 seq-gap adversarial pair (proper `seq2` vs gap `seq2` -- same `receipt_hash`, wrong `prev_receipt_hash`, different `chain_ref`). Normative spec: `draft-hopley-x402-retention-chain-02`. |
 | [`vectors/action_ref_exactly_once_v1/`](./vectors/action_ref_exactly_once_v1/) | 6 | **action_ref exactly-once lifecycle**. Superset of `action_ref_transactional_v0`. Pins the full `PENDING → COMMITTED → REVERSED` vocabulary, the SKIP-on-retry idempotency invariant (vector 005 == 003 byte-for-byte), and the `action_ref` replay-binding invariant (vector 006 ≠ 003). 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7. |
 | [`vectors/adversarial_isolation_v1/`](./vectors/adversarial_isolation_v1/) | 12 | **Failure-isolation adversarial set**. 1 control + 11 isolated rejection vectors — each mutates exactly one field to confirm a named substrate check rejects it. Claim 1 (input bytes): 8-lang byte-identical. Claim 2 (rejection): reference-impl PoR only (not a JCS byte claim). Normative spec: `draft-hopley-x402-retention-chain-02` §7.5 + §8.8. |
-| **Total (JCS vectors, 18 sets)** | **161** | + 5 entries across the 3 cryptographic fixtures below = **166 vectors / 21 sets** |
+| [`vectors/settlement_action_binding_v1/`](./vectors/settlement_action_binding_v1/) | 6 | **Post-settlement accountability binding**. Binds `action_ref` + COMMITTED `transition_hash` (`action_ref_exactly_once_v1`) + `settlement_ref` (`settlement_attestation_v1`) + `retention_chain_ref` (`retention_chain_v1`) into one `binding_ref = "sha256:" + SHA-256(JCS({...}))`. Pins settlement-, action-, state- and chain-binding distinctness + stability. 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7 + `draft-hopley-x402-settlement-attestation-00`. |
+| **Total (JCS vectors, 19 sets)** | **167** | + 5 entries across the 3 cryptographic fixtures below = **172 vectors / 22 sets** |
 
 ## Cryptographic-property fixtures (complementary to JCS canonicalisation)
 
@@ -92,7 +93,8 @@ five implementations and is reported separately below, not folded into the 784:
 | 2026-06-16 | `epi_interop_v0` (EPI Recorder interop -- JCS + SHA-256 over EPI manifest payloads) | 5 × 8 | **40/40** | [`vectors/epi_interop_v0/`](./vectors/epi_interop_v0/) |
 | 2026-06-16 | `epi_pqc_v0` (EPI PQC profile -- JCS + SHA-256; Falcon-1024 + key-lineage: Python only) | 4 × 8 | **32/32** | [`vectors/epi_pqc_v0/`](./vectors/epi_pqc_v0/) |
 | 2026-06-17 | `retention_chain_v1` (Retention Chain Substrate v1 -- extended chain, multi-issuer isolation, seq-gap adversarial pair) | 14 × 8 | **112/112** | [`_attestations/2026-06-17-retention-chain-v1-cross-validation.md`](./_attestations/2026-06-17-retention-chain-v1-cross-validation.md) |
-| **Cumulative (directly executed)** | **13 distinct vector sets** | **104 × 8** | **832/832** | |
+| 2026-06-18 | `settlement_action_binding_v1` (post-settlement accountability binding: `action_ref` + `transition_hash` + `settlement_ref` + `retention_chain_ref` → `binding_ref`) | 6 × 8 | **48/48** | [`_attestations/2026-06-18-settlement-action-binding-v1.md`](./_attestations/2026-06-18-settlement-action-binding-v1.md) |
+| **Cumulative (directly executed)** | **14 distinct vector sets** | **110 × 8** | **880/880** | |
 | 2026-06-04 | `zkp_receipt_v1` (5 impls directly executed; remaining 3 asserted by transitivity -- primitive-only payload covered by the 2026-05-25 run) | 8 × 5 direct | **40/40 direct** (+24 by transitivity, *not* added to cumulative) | [`_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md`](./_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md) |
 
 Two separate signature-survival fixtures are tracked apart from the JCS byte-agreement total:
@@ -108,6 +110,7 @@ Two separate signature-survival fixtures are tracked apart from the JCS byte-agr
 | `action_ref_transactional_v0` | `action_ref` transactional lifecycle | `sha256(JCS(action_ref))` + `transition_hash` |
 | `action_ref_exactly_once_v1` | `action_ref` exactly-once lifecycle (PENDING / COMMITTED / REVERSED, SKIP-on-retry, replay-binding) | `sha256(JCS(action_ref))` + `transition_hash` |
 | `adversarial_isolation_v1` | Adversarial input bytes — 1 control + 11 isolated mutations (Claim 1: input byte agreement; Claim 2: rejection, reference-impl PoR) | `sha256(JCS(input))` |
+| `settlement_action_binding_v1` | Post-settlement accountability binding (settlement ↔ action ↔ chain) | `"sha256:" + sha256(JCS({action_ref, transition_hash, settlement_ref, retention_chain_ref}))` |
 | `compliance_receipt_v1` | `compliance-receipt-v1` (payment_admission) | `sha256(JCS(receipt))` |
 | `settlement_attestation_v1` | `settlement-attestation-v1` (payment_settlement) | `sha256(JCS(receipt))` |
 | `cancellation_receipt_v1` | `cancellation-receipt-v1` (payment_cancellation) | `sha256(JCS(receipt))` |

@@ -21,6 +21,14 @@ we evolve L1 we take them into account and weigh backward-compatibility for them
 - **17 anchor sets / 131 vectors**, 576/576 byte-for-byte agreements across eight independent
   JCS implementations (cumulative as of 2026-05-30). Latest L1 addition:
   `rfc9421_proxy_chain_v1` (RFC 9421 §2.5 signing base).
+- **2026-06-18 — `settlement_action_binding_v1`** (6 vectors, 5 pair invariants). Post-settlement
+  accountability binding: `binding_ref = "sha256:" + SHA-256(JCS({action_ref, transition_hash,
+  settlement_ref, retention_chain_ref}))`. Composes `action_ref_exactly_once_v1`,
+  `settlement_attestation_v1`, and `retention_chain_v1` — no new hashing primitive. Pins
+  settlement-/action-/state-/chain-binding distinctness + stability. 8-lang cross-validated
+  **48/48** (`_attestations/2026-06-18-settlement-action-binding-v1.md`). Reference impls:
+  `algovoi-substrate` 0.4.0 / `@algovoi/substrate` 0.4.0 (`settlement_action_binding(...)`).
+  Anchor: `draft-hopley-x402-retention-chain-02` §7 + `draft-hopley-x402-settlement-attestation-00`.
 
 ## L2 layers (validated against L1, recorded for change management)
 
