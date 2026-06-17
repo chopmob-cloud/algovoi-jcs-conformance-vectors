@@ -128,7 +128,7 @@
         "RFC 8032"
       ],
       "signing_base_mode": "algovoi-v0",
-      "note": "Legacy algovoi-v0 signing base (pre-RFC-9421-default): lowercased @method, 'created' carried as a covered component, no @signature-params line. Verified with mode='algovoi-v0'. The genuinely RFC 9421 §2.5-conformant companion is rfc9421_proxy_chain_v1.",
+      "note": "Legacy algovoi-v0 signing base (pre-RFC-9421-default): lowercased @method, 'created' carried as a covered component, no @signature-params line. Verified with mode='algovoi-v0'. The genuinely RFC 9421 \u00c2\u00a72.5-conformant companion is rfc9421_proxy_chain_v1.",
       "cross_validated": "8-impl algovoi-v0 signing-base survival, 24/24 (2026-05-24)",
       "sha256": "sha256:5224a7b088732b01beea6c4027e13a5929714170aa4e9eb57911d54284f0dfbf"
     },
@@ -143,7 +143,7 @@
         "RFC 8032"
       ],
       "signing_base_mode": "rfc9421",
-      "note": "RFC 9421 §2.5-conformant signing base: @method case-preserved (GET), 'created' as a signature parameter (not a covered component), trailing @signature-params line. Conformant companion to the legacy rfc9421_proxy_chain_v0.",
+      "note": "RFC 9421 \u00c2\u00a72.5-conformant signing base: @method case-preserved (GET), 'created' as a signature parameter (not a covered component), trailing @signature-params line. Conformant companion to the legacy rfc9421_proxy_chain_v0.",
       "cross_validated": "8-impl 8/8 Ed25519-verified (Python algovoi-rfc9421-verifier mode=rfc9421, Node, Go, Rust, Java, PHP/libsodium, .NET, Ruby), 2026-06-13",
       "sha256": "sha256:7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8"
     },
@@ -175,7 +175,7 @@
       "vector_count": 6,
       "pair_invariants": 5,
       "supersets": "action_ref_transactional_v0",
-      "anchors_to": "exactly-once lifecycle (PENDING/COMMITTED/REVERSED) + SKIP-on-retry idempotency",
+      "anchors_to": "draft-hopley-x402-retention-chain-02 Section 7 (Payment Action Lifecycle)",
       "cross_validated": "8-impl direct (2026-06-09, 48/48)",
       "sha256": "sha256:e0872c9fedb12cc4e704880d3dc37edcf90d76abbc7eed7b4b4d37ea39e9e8ee"
     },
@@ -185,7 +185,7 @@
       "vector_count": 12,
       "reject_count": 11,
       "control_count": 1,
-      "anchors_to": "failure-isolation: one rejection per vector across transition_preimage / action_ref / audit_chain",
+      "anchors_to": "draft-hopley-x402-retention-chain-02 Sections 7.5 + 8.8 (Input Validation + Adversarial Boundary)",
       "claims_note": "Claim 1 (input bytes) is 8-lang; Claim 2 (rejection) is reference-impl PoR, NOT an 8-lang byte claim.",
       "cross_validated": "Claim 1: 8-impl direct (2026-06-09, 96/96 input bytes). Claim 2: reference-impl rejection PoR (12/12), not an 8-lang byte claim.",
       "sha256": "sha256:4bbfce38d358cb6c5bebe8614af82244cacceba740cbf966c00f590d5348b64c"
@@ -353,7 +353,7 @@
       "signing_base_mode": "algovoi-v0",
       "date": "2026-05-24",
       "agreements": "24/24",
-      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain, over the legacy algovoi-v0 signing base (lowercased @method, no @signature-params line). The RFC 9421 §2.5-conformant companion is signature_survival_rfc9421 below.",
+      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain, over the legacy algovoi-v0 signing base (lowercased @method, no @signature-params line). The RFC 9421 \u00c2\u00a72.5-conformant companion is signature_survival_rfc9421 below.",
       "attestation": "_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md"
     },
     "signature_survival_rfc9421": {
@@ -361,7 +361,7 @@
       "signing_base_mode": "rfc9421",
       "date": "2026-06-13",
       "agreements": "8/8",
-      "note": "RFC 9421 §2.5-conformant signing base (@method case-preserved, created as a parameter, trailing @signature-params line). All 8 independent implementations verify the full chain (signing-base reconstruction + RFC 9530 content-digest + Ed25519): Python (algovoi-rfc9421-verifier mode=rfc9421), Node, Go, Rust (ed25519-dalek), Java (JDK 17 stdlib), PHP (libsodium), .NET (NSec.Cryptography), Ruby. Verified 2026-06-13, matching the v0 set's 8/8 on the same host."
+      "note": "RFC 9421 \u00c2\u00a72.5-conformant signing base (@method case-preserved, created as a parameter, trailing @signature-params line). All 8 independent implementations verify the full chain (signing-base reconstruction + RFC 9530 content-digest + Ed25519): Python (algovoi-rfc9421-verifier mode=rfc9421), Node, Go, Rust (ed25519-dalek), Java (JDK 17 stdlib), PHP (libsodium), .NET (NSec.Cryptography), Ruby. Verified 2026-06-13, matching the v0 set's 8/8 on the same host."
     }
   },
   "interop_sets": [
