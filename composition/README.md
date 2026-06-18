@@ -115,6 +115,16 @@ one file an auditor can read top to bottom and re-derive by hand.
 
 ---
 
+## The full audit trail
+
+[`regulatory_audit_trail_v1`](./regulatory_audit_trail_v1/) is the apex
+composition: the complete record a single regulated payment produces -
+admission (compliance receipt), action identity, exactly-once commit,
+settlement, retention chain entry, and the settlement-action binding - assembled
+from published vectors, verified offline, and mapped stage by stage to the IETF
+I-D that specifies it and the EU obligation (MiCA Art 80, DORA Art 14, AMLR Art
+56) it satisfies. Run `python regulatory_audit_trail_v1/verify_audit_trail.py`.
+
 ## How verification works
 
 Every offline check is the same two operations, and only these two:

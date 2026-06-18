@@ -151,6 +151,15 @@ def main() -> int:
     print(f"{'PASS  ' if comp_ok else 'FAIL  '} regulated_lifecycle_v1 (composition keystone)"
           f"   {'5/5 links byte-for-byte' if comp_ok else 'BROKEN'}")
 
+    audit = subprocess.run(
+        [sys.executable, str(HERE / "regulatory_audit_trail_v1" / "verify_audit_trail.py")],
+        capture_output=True, text=True,
+    )
+    audit_ok = audit.returncode == 0
+    print(f"{'PASS  ' if audit_ok else 'FAIL  '} regulatory_audit_trail_v1 (audit trail composition)"
+          f"   {'6/6 stages byte-for-byte' if audit_ok else 'BROKEN'}")
+    comp_ok = comp_ok and audit_ok
+
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "
           f"needs-deps={ndeps}   external={nexternal}   "
