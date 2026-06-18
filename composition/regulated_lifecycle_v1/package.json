@@ -1,0 +1,14 @@
+{
+  "name": "algovoi-regulated-lifecycle-proof",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Offline end-to-end composition proof of the regulated agentic-payment lifecycle, from published AlgoVoi conformance vectors.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "verify": "node verify_lifecycle.mjs"
+  },
+  "dependencies": {
+    "@algovoi/substrate": "^0.4.0"
+  }
+}

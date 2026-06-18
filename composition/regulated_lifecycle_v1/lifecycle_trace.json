@@ -1,0 +1,53 @@
+{
+  "artifact": "regulated_agentic_payment_lifecycle_trace_v1",
+  "description": "Deterministic end-to-end golden trace composed from published AlgoVoi conformance vectors only. Every link is the published expected-output of an upstream set; the final binding_ref is recomputed from the composed chain. Verifiable offline with SHA-256 + JCS (RFC 8785).",
+  "canon": "jcs-rfc8785-v1",
+  "spec": "draft-hopley-x402-retention-chain (Section 7)",
+  "license": "Apache-2.0",
+  "attribution_required": "Retain NOTICE per Apache-2.0 Section 4(d).",
+  "chain": [
+    {
+      "step": 1,
+      "primitive": "action_ref",
+      "source_set": "action_ref_exactly_once_v1",
+      "source_field": "expected_action_ref",
+      "value": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+      "obligation": "MiCA Art 80 (stable transaction identity)"
+    },
+    {
+      "step": 2,
+      "primitive": "transition_hash",
+      "state": "COMMITTED",
+      "source_set": "action_ref_exactly_once_v1",
+      "source_field": "expected_transition_hash",
+      "value": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+      "obligation": "DORA Art 14 (exactly-once operational integrity)"
+    },
+    {
+      "step": 3,
+      "primitive": "settlement_ref",
+      "source_set": "settlement_attestation_v1",
+      "source_field": "expected_content_hash",
+      "value": "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3",
+      "obligation": "AMLR Art 56 (settled payment attested + retained)"
+    },
+    {
+      "step": 4,
+      "primitive": "retention_chain_ref",
+      "source_set": "retention_chain_v1",
+      "source_field": "expected_chain_ref",
+      "value": "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f",
+      "obligation": "MiCA Art 80 / DORA Art 14 (tamper-evident audit position)"
+    },
+    {
+      "step": 5,
+      "primitive": "binding_ref",
+      "source_set": "settlement_action_binding_v1",
+      "source_field": "expected_binding_ref",
+      "value": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca",
+      "obligation": "MiCA 80 + DORA 14 + AMLR 56 (one auditable bound record)"
+    }
+  ],
+  "binding_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca",
+  "recompute_recipe": "binding_ref = \"sha256:\" + SHA-256(JCS({action_ref, transition_hash, settlement_ref, retention_chain_ref}))"
+}

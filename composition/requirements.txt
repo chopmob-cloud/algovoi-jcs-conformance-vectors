@@ -1,0 +1,11 @@
+# Full coverage for the AlgoVoi conformance corpus (24/24) + composition keystone.
+#
+# The core JCS + SHA-256 sets and the lifecycle composition keystone need ONLY
+# algovoi-substrate. The remaining packages are for the four signature-bearing
+# sets (Ed25519, Falcon-1024 PQC, and RFC 9421 signing bases). Install all of
+# this for the full 24/24; install just algovoi-substrate for the core.
+algovoi-substrate==0.4.0
+PyNaCl>=1.5.0
+pqcrypto>=0.3.4
+algovoi-rfc9421-verifier
+algovoi-rfc9421-signer
