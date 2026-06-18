@@ -1,39 +1,20 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-06-17",
+  "updated_at": "2026-06-18",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
     {
-      "name": "ap2_omh_v0",
-      "primary_file": "ap2-omh-v0.json",
-      "vector_count": 7,
-      "cross_validated": "5-impl (original gist generation, 2026-05)",
-      "sha256": "sha256:0b5770e7a6470c6db085c4c017583ff27cf3c083f843c7af07ceb01983440020"
-    },
-    {
-      "name": "ctef_aps_v1",
-      "primary_file": "aps_vectors.json",
-      "vector_count": 10,
-      "additional_cases_note": "4 further CTEF top-level cases (envelope_vector, verdict_vector, scope_violation_vector, composition_failure_vector) live in ctef_vectors.json under the corresponding keys.",
-      "cross_validated": "5-impl (original gist generation, 2026-05)",
-      "sha256": "sha256:353c71a82d7be79d7cdb52c46787e4ea52e5cf94c6cff408e2bc0e60fa782603"
-    },
-    {
-      "name": "privacy_class_v0_1",
-      "primary_file": "privacy_class_v0.1.json",
-      "vector_count": 13,
-      "cross_validated": "5-impl (original gist generation, 2026-05)",
-      "sha256": "sha256:f62267d1b48348db06ea03fc9b150872d7a694576565a0efab3a1ff9fb2de4df"
-    },
-    {
-      "name": "per_chain_envelope_v0",
-      "primary_file": "per_chain_envelope_v0.json",
-      "vector_count": 19,
-      "cross_validated": "5-impl (original gist generation, 2026-05)",
-      "sha256": "sha256:3a39af34e74c8ae0ac5e1a6e7e6a1c55155cc3c238217e0e44d68d325498f57e"
+      "name": "action_ref_exactly_once_v1",
+      "primary_file": "action_ref_exactly_once_v1.json",
+      "vector_count": 6,
+      "pair_invariants": 5,
+      "supersets": "action_ref_transactional_v0",
+      "anchors_to": "draft-hopley-x402-retention-chain-02 Section 7 (Payment Action Lifecycle)",
+      "cross_validated": "8-impl direct (2026-06-09, 48/48)",
+      "sha256": "sha256:e0872c9fedb12cc4e704880d3dc37edcf90d76abbc7eed7b4b4d37ea39e9e8ee"
     },
     {
       "name": "action_ref_namespace_v0",
@@ -52,22 +33,22 @@
       "sha256": "sha256:2ee0c52f39dbfd1726fe95236a2500a505859d8a2737252991e5549ea9f57fea"
     },
     {
-      "name": "compliance_receipt_v1",
-      "primary_file": "compliance_receipt_v1.json",
-      "vector_count": 8,
-      "pair_invariants": 5,
-      "chain_invariants": 3,
-      "anchors_to": "draft-hopley-x402-compliance-receipt",
-      "cross_validated": "8-impl direct (2026-05-24, 2026-05-25)",
-      "sha256": "sha256:33af2ea0ab1d358f90b38a63c4778af93836b677466fb16ab7b90fb8196c922d"
+      "name": "adversarial_isolation_v1",
+      "primary_file": "adversarial_isolation_v1.json",
+      "vector_count": 12,
+      "reject_count": 11,
+      "control_count": 1,
+      "anchors_to": "draft-hopley-x402-retention-chain-02 Sections 7.5 + 8.8 (Input Validation + Adversarial Boundary)",
+      "claims_note": "Claim 1 (input bytes) is 8-lang; Claim 2 (rejection) is reference-impl PoR, NOT an 8-lang byte claim.",
+      "cross_validated": "Claim 1: 8-impl direct (2026-06-09, 96/96 input bytes). Claim 2: reference-impl rejection PoR (12/12), not an 8-lang byte claim.",
+      "sha256": "sha256:4bbfce38d358cb6c5bebe8614af82244cacceba740cbf966c00f590d5348b64c"
     },
     {
-      "name": "settlement_attestation_v1",
-      "primary_file": "settlement_attestation_v1.json",
-      "vector_count": 8,
-      "anchors_to": "draft-hopley-x402-settlement-attestation",
-      "cross_validated": "8-impl direct (2026-05-25)",
-      "sha256": "sha256:bfd2838c9cdd5fd83cf1bd27e73e32a9bca2ac3de7464ccb89451bfd78bfdd08"
+      "name": "ap2_omh_v0",
+      "primary_file": "ap2-omh-v0.json",
+      "vector_count": 7,
+      "cross_validated": "5-impl (original gist generation, 2026-05)",
+      "sha256": "sha256:0b5770e7a6470c6db085c4c017583ff27cf3c083f843c7af07ceb01983440020"
     },
     {
       "name": "cancellation_receipt_v1",
@@ -78,12 +59,14 @@
       "sha256": "sha256:0d5c3f762c7933f216185228f2f0d5158a0e74c52ecfe9455510a98efa398127"
     },
     {
-      "name": "refund_receipt_v1",
-      "primary_file": "refund_receipt_v1.json",
+      "name": "compliance_receipt_v1",
+      "primary_file": "compliance_receipt_v1.json",
       "vector_count": 8,
-      "anchors_to": "draft-hopley-x402-refund-receipt",
-      "cross_validated": "8-impl direct (2026-05-25)",
-      "sha256": "sha256:a4329fb1775549544627566a98253732fc67f574c50957d5e6f23dcad16c49e6"
+      "pair_invariants": 5,
+      "chain_invariants": 3,
+      "anchors_to": "draft-hopley-x402-compliance-receipt",
+      "cross_validated": "8-impl direct (2026-05-24, 2026-05-25)",
+      "sha256": "sha256:33af2ea0ab1d358f90b38a63c4778af93836b677466fb16ab7b90fb8196c922d"
     },
     {
       "name": "composite_trust_query_v1",
@@ -94,58 +77,28 @@
       "sha256": "sha256:0180d2a8a1423145d4abe3ce8c37351fe409104e284c0fe8c5ce82a8ce243918"
     },
     {
-      "name": "pef_v1",
-      "primary_file": "pef_v1.json",
-      "vector_count": 8,
-      "anchors_to": "draft-hopley-x402-payment-evidence-frame",
-      "cross_validated": "8-impl direct (2026-05-30)",
-      "sha256": "sha256:7c797cf6695f7d03c9a8d74fed14842145c65c0fd1fc6eeb4e77b4ac322df0df"
+      "name": "ctef_aps_v1",
+      "primary_file": "aps_vectors.json",
+      "vector_count": 10,
+      "additional_cases_note": "4 further CTEF top-level cases (envelope_vector, verdict_vector, scope_violation_vector, composition_failure_vector) live in ctef_vectors.json under the corresponding keys.",
+      "cross_validated": "5-impl (original gist generation, 2026-05)",
+      "sha256": "sha256:353c71a82d7be79d7cdb52c46787e4ea52e5cf94c6cff408e2bc0e60fa782603"
     },
     {
-      "name": "zkp_receipt_v1",
-      "primary_file": "zkp_receipt_v1.json",
-      "vector_count": 8,
-      "chains": [
-        "algorand",
-        "base",
-        "solana",
-        "voi",
-        "stellar",
-        "hedera",
-        "tempo"
-      ],
-      "anchors_to": "eprint-2026/109852",
-      "cross_validated": "8-impl (5 directly executed = 40/40; remaining 3 by transitivity, primitive-only payload; 2026-06-04). NOT counted in the directly-executed cumulative.",
-      "sha256": "sha256:ea0add29a6e028e2d27bca9acafe950d9b7a4d41daff3eb1c41fab255b628811"
+      "name": "epi_interop_v0",
+      "primary_file": "epi_interop_v0.json",
+      "vector_count": 5,
+      "anchors_to": "draft-hopley-x402-canonicalisation-jcs-v1",
+      "cross_validated": "Python + Rust direct (2026-06-17)",
+      "sha256": "sha256:03717edfa0cca566132032f1c41c761c61bf3994a597c862d12e3646b3cf7cbd"
     },
     {
-      "name": "rfc9421_proxy_chain_v0",
-      "primary_file": "request.fixture.json",
-      "vector_count": 1,
-      "fixture_type": "algovoi_v0_signing_base_survival",
-      "rfc_anchors": [
-        "RFC 9530",
-        "RFC 8032"
-      ],
-      "signing_base_mode": "algovoi-v0",
-      "note": "Legacy algovoi-v0 signing base (pre-RFC-9421-default): lowercased @method, 'created' carried as a covered component, no @signature-params line. Verified with mode='algovoi-v0'. The genuinely RFC 9421 \u00c2\u00a72.5-conformant companion is rfc9421_proxy_chain_v1.",
-      "cross_validated": "8-impl algovoi-v0 signing-base survival, 24/24 (2026-05-24)",
-      "sha256": "sha256:5224a7b088732b01beea6c4027e13a5929714170aa4e9eb57911d54284f0dfbf"
-    },
-    {
-      "name": "rfc9421_proxy_chain_v1",
-      "primary_file": "request.fixture.json",
-      "vector_count": 1,
-      "fixture_type": "rfc9421_conformant_signature_survival",
-      "rfc_anchors": [
-        "RFC 9421",
-        "RFC 9530",
-        "RFC 8032"
-      ],
-      "signing_base_mode": "rfc9421",
-      "note": "RFC 9421 \u00c2\u00a72.5-conformant signing base: @method case-preserved (GET), 'created' as a signature parameter (not a covered component), trailing @signature-params line. Conformant companion to the legacy rfc9421_proxy_chain_v0.",
-      "cross_validated": "8-impl 8/8 Ed25519-verified (Python algovoi-rfc9421-verifier mode=rfc9421, Node, Go, Rust, Java, PHP/libsodium, .NET, Ruby), 2026-06-13",
-      "sha256": "sha256:7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8"
+      "name": "epi_pqc_v0",
+      "primary_file": "epi_pqc_v0.json",
+      "vector_count": 4,
+      "anchors_to": "draft-hopley-x402-canonicalisation-jcs-v1",
+      "cross_validated": "Python + Rust direct (2026-06-17)",
+      "sha256": "sha256:9d81c5117a95f13123a279e549a447969ebcccf445eda996fa806b53f1ccbc36"
     },
     {
       "name": "multichain_ed25519_substrate_v0",
@@ -164,31 +117,34 @@
       "sha256": "sha256:281477935167a6d9b9eb1da4cdf1437420902704a7f682484177bc6fcabdfc03"
     },
     {
-      "name": "service_trust_v0",
-      "primary_file": "service_trust_v0.json",
-      "vector_count": 5,
-      "sha256": "sha256:c3767c6f700bc062b1dbc55a6a1ccf354c960531caa12f63ca4c0ace5437bca1"
+      "name": "pef_v1",
+      "primary_file": "pef_v1.json",
+      "vector_count": 8,
+      "anchors_to": "draft-hopley-x402-payment-evidence-frame",
+      "cross_validated": "8-impl direct (2026-05-30)",
+      "sha256": "sha256:7c797cf6695f7d03c9a8d74fed14842145c65c0fd1fc6eeb4e77b4ac322df0df"
     },
     {
-      "name": "action_ref_exactly_once_v1",
-      "primary_file": "action_ref_exactly_once_v1.json",
-      "vector_count": 6,
-      "pair_invariants": 5,
-      "supersets": "action_ref_transactional_v0",
-      "anchors_to": "draft-hopley-x402-retention-chain-02 Section 7 (Payment Action Lifecycle)",
-      "cross_validated": "8-impl direct (2026-06-09, 48/48)",
-      "sha256": "sha256:e0872c9fedb12cc4e704880d3dc37edcf90d76abbc7eed7b4b4d37ea39e9e8ee"
+      "name": "per_chain_envelope_v0",
+      "primary_file": "per_chain_envelope_v0.json",
+      "vector_count": 19,
+      "cross_validated": "5-impl (original gist generation, 2026-05)",
+      "sha256": "sha256:3a39af34e74c8ae0ac5e1a6e7e6a1c55155cc3c238217e0e44d68d325498f57e"
     },
     {
-      "name": "adversarial_isolation_v1",
-      "primary_file": "adversarial_isolation_v1.json",
-      "vector_count": 12,
-      "reject_count": 11,
-      "control_count": 1,
-      "anchors_to": "draft-hopley-x402-retention-chain-02 Sections 7.5 + 8.8 (Input Validation + Adversarial Boundary)",
-      "claims_note": "Claim 1 (input bytes) is 8-lang; Claim 2 (rejection) is reference-impl PoR, NOT an 8-lang byte claim.",
-      "cross_validated": "Claim 1: 8-impl direct (2026-06-09, 96/96 input bytes). Claim 2: reference-impl rejection PoR (12/12), not an 8-lang byte claim.",
-      "sha256": "sha256:4bbfce38d358cb6c5bebe8614af82244cacceba740cbf966c00f590d5348b64c"
+      "name": "privacy_class_v0_1",
+      "primary_file": "privacy_class_v0.1.json",
+      "vector_count": 13,
+      "cross_validated": "5-impl (original gist generation, 2026-05)",
+      "sha256": "sha256:f62267d1b48348db06ea03fc9b150872d7a694576565a0efab3a1ff9fb2de4df"
+    },
+    {
+      "name": "refund_receipt_v1",
+      "primary_file": "refund_receipt_v1.json",
+      "vector_count": 8,
+      "anchors_to": "draft-hopley-x402-refund-receipt",
+      "cross_validated": "8-impl direct (2026-05-25)",
+      "sha256": "sha256:a4329fb1775549544627566a98253732fc67f574c50957d5e6f23dcad16c49e6"
     },
     {
       "name": "retention_chain_v0",
@@ -210,11 +166,87 @@
       "anchors_to": "draft-hopley-x402-retention-chain-02",
       "cross_validated": "8-impl direct (2026-06-17)",
       "sha256": "sha256:7db074ad0737468c29fcfad71d5d7e70354d3710a377603585e1a899d195602a"
+    },
+    {
+      "name": "rfc9421_proxy_chain_v0",
+      "primary_file": "request.fixture.json",
+      "vector_count": 1,
+      "fixture_type": "algovoi_v0_signing_base_survival",
+      "rfc_anchors": [
+        "RFC 9530",
+        "RFC 8032"
+      ],
+      "signing_base_mode": "algovoi-v0",
+      "note": "Legacy algovoi-v0 signing base (pre-RFC-9421-default): lowercased @method, 'created' carried as a covered component, no @signature-params line. Verified with mode='algovoi-v0'. The genuinely RFC 9421 Â§2.5-conformant companion is rfc9421_proxy_chain_v1.",
+      "cross_validated": "8-impl algovoi-v0 signing-base survival, 24/24 (2026-05-24)",
+      "sha256": "sha256:5224a7b088732b01beea6c4027e13a5929714170aa4e9eb57911d54284f0dfbf"
+    },
+    {
+      "name": "rfc9421_proxy_chain_v1",
+      "primary_file": "request.fixture.json",
+      "vector_count": 1,
+      "fixture_type": "rfc9421_conformant_signature_survival",
+      "rfc_anchors": [
+        "RFC 9421",
+        "RFC 9530",
+        "RFC 8032"
+      ],
+      "signing_base_mode": "rfc9421",
+      "note": "RFC 9421 Â§2.5-conformant signing base: @method case-preserved (GET), 'created' as a signature parameter (not a covered component), trailing @signature-params line. Conformant companion to the legacy rfc9421_proxy_chain_v0.",
+      "cross_validated": "8-impl 8/8 Ed25519-verified (Python algovoi-rfc9421-verifier mode=rfc9421, Node, Go, Rust, Java, PHP/libsodium, .NET, Ruby), 2026-06-13",
+      "sha256": "sha256:7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8"
+    },
+    {
+      "name": "rfc9421_receipt_evidence_v0",
+      "primary_file": "rfc9421_receipt_evidence_v0.json",
+      "vector_count": 6,
+      "anchors_to": "draft-hopley-x402-rfc9421-binding",
+      "cross_validated": "Python direct (2026-06-17)",
+      "sha256": "sha256:168ad5fedddb115c282efc7ee3a7f187f4979de13870d2e1c87f9b59b22ac280"
+    },
+    {
+      "name": "service_trust_v0",
+      "primary_file": "service_trust_v0.json",
+      "vector_count": 5,
+      "sha256": "sha256:c3767c6f700bc062b1dbc55a6a1ccf354c960531caa12f63ca4c0ace5437bca1"
+    },
+    {
+      "name": "settlement_action_binding_v1",
+      "primary_file": "settlement_action_binding_v1.json",
+      "vector_count": 6,
+      "anchors_to": "draft-hopley-x402-retention-chain",
+      "cross_validated": "8-impl direct (2026-06-18)",
+      "sha256": "sha256:9b3499dcd3ed4a64fb5d82e7a04b79aa827f7ac57eab3004fcd1e3044f12c4da"
+    },
+    {
+      "name": "settlement_attestation_v1",
+      "primary_file": "settlement_attestation_v1.json",
+      "vector_count": 8,
+      "anchors_to": "draft-hopley-x402-settlement-attestation",
+      "cross_validated": "8-impl direct (2026-05-25)",
+      "sha256": "sha256:bfd2838c9cdd5fd83cf1bd27e73e32a9bca2ac3de7464ccb89451bfd78bfdd08"
+    },
+    {
+      "name": "zkp_receipt_v1",
+      "primary_file": "zkp_receipt_v1.json",
+      "vector_count": 8,
+      "chains": [
+        "algorand",
+        "base",
+        "solana",
+        "voi",
+        "stellar",
+        "hedera",
+        "tempo"
+      ],
+      "anchors_to": "eprint-2026/109852",
+      "cross_validated": "8-impl (5 directly executed = 40/40; remaining 3 by transitivity, primitive-only payload; 2026-06-04). NOT counted in the directly-executed cumulative.",
+      "sha256": "sha256:ea0add29a6e028e2d27bca9acafe950d9b7a4d41daff3eb1c41fab255b628811"
     }
   ],
-  "total_anchor_sets": 21,
-  "total_vectors": 166,
-  "total_vectors_note": "21 sets / 166 entries = JCS canonicalisation vectors across core sets plus adjacent cryptographic and adversarial fixtures. Includes: action_ref_exactly_once_v1 (6 positive vectors, supersets action_ref_transactional_v0), adversarial_isolation_v1 (12 = 1 control + 11 failure-isolation reject vectors), retention_chain_v0 (3 genesis chain vectors), retention_chain_v1 (14 extended chain / multi-issuer / adversarial-gap vectors). rfc9421_proxy_chain_v0 and rfc9421_proxy_chain_v1 are signing-base survival fixtures (1 vector each). multichain_ed25519_substrate_v0 has 3 Ed25519 signatures. ctef_aps_v1 carries 4 further CTEF top-level cases in ctef_vectors.json beyond its 10 primary vectors.",
+  "total_anchor_sets": 25,
+  "total_vectors": 187,
+  "total_vectors_note": "25 sets / 187 entries = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
     "languages": [
@@ -353,7 +385,7 @@
       "signing_base_mode": "algovoi-v0",
       "date": "2026-05-24",
       "agreements": "24/24",
-      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain, over the legacy algovoi-v0 signing base (lowercased @method, no @signature-params line). The RFC 9421 \u00c2\u00a72.5-conformant companion is signature_survival_rfc9421 below.",
+      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain, over the legacy algovoi-v0 signing base (lowercased @method, no @signature-params line). The RFC 9421 Â§2.5-conformant companion is signature_survival_rfc9421 below.",
       "attestation": "_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md"
     },
     "signature_survival_rfc9421": {
@@ -361,7 +393,7 @@
       "signing_base_mode": "rfc9421",
       "date": "2026-06-13",
       "agreements": "8/8",
-      "note": "RFC 9421 \u00c2\u00a72.5-conformant signing base (@method case-preserved, created as a parameter, trailing @signature-params line). All 8 independent implementations verify the full chain (signing-base reconstruction + RFC 9530 content-digest + Ed25519): Python (algovoi-rfc9421-verifier mode=rfc9421), Node, Go, Rust (ed25519-dalek), Java (JDK 17 stdlib), PHP (libsodium), .NET (NSec.Cryptography), Ruby. Verified 2026-06-13, matching the v0 set's 8/8 on the same host."
+      "note": "RFC 9421 Â§2.5-conformant signing base (@method case-preserved, created as a parameter, trailing @signature-params line). All 8 independent implementations verify the full chain (signing-base reconstruction + RFC 9530 content-digest + Ed25519): Python (algovoi-rfc9421-verifier mode=rfc9421), Node, Go, Rust (ed25519-dalek), Java (JDK 17 stdlib), PHP (libsodium), .NET (NSec.Cryptography), Ruby. Verified 2026-06-13, matching the v0 set's 8/8 on the same host."
     }
   },
   "interop_sets": [

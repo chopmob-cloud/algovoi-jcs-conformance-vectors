@@ -1,19 +1,19 @@
-> **AlgoVoi is available for acquisition** — [docs.algovoi.co.uk/acquisition](https://docs.algovoi.co.uk/acquisition)
+> **AlgoVoi is available for acquisition** - [docs.algovoi.co.uk/acquisition](https://docs.algovoi.co.uk/acquisition)
 
 ---
 
 # algovoi-jcs-conformance-vectors
 
 [![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
-[![Vectors](https://img.shields.io/badge/vectors-166-brightgreen)](#anchor-sets)
-[![Cross-validated](https://img.shields.io/badge/cross--validated-832%2F832-brightgreen)](#cross-implementation-validation-matrix)
+[![Vectors](https://img.shields.io/badge/vectors-187-brightgreen)](#anchor-sets)
+[![Cross-validated](https://img.shields.io/badge/cross--validated-880%2F880-brightgreen)](#cross-implementation-validation-matrix)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts. 166 vectors across
-21 anchor sets, with **832/832 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts. 187 vectors across
+25 anchor sets, with **880/880 byte-for-byte agreements directly executed**
 across eight independent JCS implementations in eight programming languages
-(cumulative as of 2026-06-17; see the cross-implementation validation matrix).
+(cumulative as of 2026-06-18; see the cross-implementation validation matrix).
 
 This repository is the AlgoVoi-authored reference test corpus that downstream
 implementations of x402, AP2, A2A and MPP receipts can validate against. The
@@ -28,8 +28,8 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 
 | Anchor set | Vectors | What it exercises |
 |---|---|---|
-| [`vectors/ap2_omh_v0/`](./vectors/ap2_omh_v0/) | 7 | AP2 `open_mandate_hash` derivation — object-key-order, array-order, optional-fields, currency-minor-unit, Unicode NFC-vs-NFD pairs |
-| [`vectors/ctef_aps_v1/`](./vectors/ctef_aps_v1/) | 10 | CTEF v0.3.1 + APS v1 — the APS attestation vector set (`aps_vectors.json`). 4 further CTEF top-level cases (envelope / verdict / scope-violation / composition-failure) live in `ctef_vectors.json`. |
+| [`vectors/ap2_omh_v0/`](./vectors/ap2_omh_v0/) | 7 | AP2 `open_mandate_hash` derivation - object-key-order, array-order, optional-fields, currency-minor-unit, Unicode NFC-vs-NFD pairs |
+| [`vectors/ctef_aps_v1/`](./vectors/ctef_aps_v1/) | 10 | CTEF v0.3.1 + APS v1 - the APS attestation vector set (`aps_vectors.json`). 4 further CTEF top-level cases (envelope / verdict / scope-violation / composition-failure) live in `ctef_vectors.json`. |
 | [`vectors/privacy_class_v0_1/`](./vectors/privacy_class_v0_1/) | 13 | Settlement-plane visibility declarations across the six privacy invariants in PR #2334 (privacy_class v0.1 supersedes v0) |
 | [`vectors/per_chain_envelope_v0/`](./vectors/per_chain_envelope_v0/) | 19 | Per-chain receipt envelopes across seven chain families (Algorand, VOI, Hedera, Stellar, Base, Solana, Tempo) |
 | [`vectors/action_ref_namespace_v0/`](./vectors/action_ref_namespace_v0/) | 8 | `action_ref` namespace-prefixing convention. Pins the four production-anchor digests (algovoi:compliance_screen, vauban:stark_settlement, agent_os:committed_claim, aura:reputation_observe) plus four unprefixed equivalents; 4 pair invariants prove the namespace prefix is byte-load-bearing. Validates against `algovoi-substrate>=0.2.1` on PyPI / `@algovoi/substrate>=0.2.1` on npm. |
@@ -45,7 +45,7 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | [`vectors/retention_chain_v0/`](./vectors/retention_chain_v0/) | 3 | **Retention Chain Substrate**. Pins `retention_chain_ref = "sha256:" + SHA-256(JCS({chain_seq, issuer_id, prev_receipt_hash, receipt_hash}))` across genesis + 2 chain-link vectors. Normative spec: `draft-hopley-x402-retention-chain-02`. Regulatory applicability: MiCA Art. 80, DORA Art. 14, AMLR Art. 56. Commercial add-on to Substrate 2; included standard in every Substrate 2 licence. |
 | [`vectors/retention_chain_v1/`](./vectors/retention_chain_v1/) | 14 | **Retention Chain Substrate v1 -- extended conformance**. Part A: 6-link extended chain (`algovoi:compliance`, seq 0-5). Part B: 4 multi-issuer isolation vectors (`issuer_a` + `issuer_b`, seq 0-1 each -- same receipt, different chain_ref). Part C: 4 seq-gap adversarial pair (proper `seq2` vs gap `seq2` -- same `receipt_hash`, wrong `prev_receipt_hash`, different `chain_ref`). Normative spec: `draft-hopley-x402-retention-chain-02`. |
 | [`vectors/action_ref_exactly_once_v1/`](./vectors/action_ref_exactly_once_v1/) | 6 | **action_ref exactly-once lifecycle**. Superset of `action_ref_transactional_v0`. Pins the full `PENDING → COMMITTED → REVERSED` vocabulary, the SKIP-on-retry idempotency invariant (vector 005 == 003 byte-for-byte), and the `action_ref` replay-binding invariant (vector 006 ≠ 003). 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7. |
-| [`vectors/adversarial_isolation_v1/`](./vectors/adversarial_isolation_v1/) | 12 | **Failure-isolation adversarial set**. 1 control + 11 isolated rejection vectors — each mutates exactly one field to confirm a named substrate check rejects it. Claim 1 (input bytes): 8-lang byte-identical. Claim 2 (rejection): reference-impl PoR only (not a JCS byte claim). Normative spec: `draft-hopley-x402-retention-chain-02` §7.5 + §8.8. |
+| [`vectors/adversarial_isolation_v1/`](./vectors/adversarial_isolation_v1/) | 12 | **Failure-isolation adversarial set**. 1 control + 11 isolated rejection vectors - each mutates exactly one field to confirm a named substrate check rejects it. Claim 1 (input bytes): 8-lang byte-identical. Claim 2 (rejection): reference-impl PoR only (not a JCS byte claim). Normative spec: `draft-hopley-x402-retention-chain-02` §7.5 + §8.8. |
 | [`vectors/settlement_action_binding_v1/`](./vectors/settlement_action_binding_v1/) | 6 | **Post-settlement accountability binding**. Binds `action_ref` + COMMITTED `transition_hash` (`action_ref_exactly_once_v1`) + `settlement_ref` (`settlement_attestation_v1`) + `retention_chain_ref` (`retention_chain_v1`) into one `binding_ref = "sha256:" + SHA-256(JCS({...}))`. Pins settlement-, action-, state- and chain-binding distinctness + stability. 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7 + `draft-hopley-x402-settlement-attestation-00`. |
 | **Total (JCS vectors, 19 sets)** | **167** | + 5 entries across the 3 cryptographic fixtures below = **172 vectors / 22 sets** |
 
@@ -64,7 +64,7 @@ support the substrate authorship claim:
 
 The vector sets below were directly validated to produce byte-identical canonical
 bytes across **eight independent JCS implementations in eight programming languages**
-(784/784 agreements, cumulative as of 2026-06-17), all from non-overlapping
+(784/784 agreements, cumulative as of 2026-06-18), all from non-overlapping
 authoring entities including the RFC 8785 author himself (Anders Rundgren, via the
 Java implementation). `zkp_receipt_v1` (2026-06-04) was directly executed across
 five implementations and is reported separately below, not folded into the 784:
@@ -88,7 +88,7 @@ five implementations and is reported separately below, not folded into the 784:
 | 2026-05-25 | `compliance_receipt_v1`, `settlement_attestation_v1`, `cancellation_receipt_v1`, `refund_receipt_v1`, `composite_trust_query_v1` | 40 × 8 | **320/320** | [`_attestations/2026-05-25-8-impl-5-format-cross-validation.md`](./_attestations/2026-05-25-8-impl-5-format-cross-validation.md) |
 | 2026-05-30 | `pef_v1` (PEF frame_id -- both `receipt_hash` and `frame_id` layers) | 8 × 8 | **64/64** | [`_attestations/2026-05-30-8-impl-pef-v1.md`](./_attestations/2026-05-30-8-impl-pef-v1.md) |
 | 2026-06-09 | `action_ref_exactly_once_v1` (exactly-once lifecycle: `PENDING` / `COMMITTED` / `REVERSED`, SKIP-on-retry idempotency, `action_ref` replay-binding) | 6 × 8 | **48/48** | [`_attestations/2026-06-09-action-ref-exactly-once-v1.md`](./_attestations/2026-06-09-action-ref-exactly-once-v1.md) |
-| 2026-06-09 | `adversarial_isolation_v1` Claim 1 — adversarial inputs canonicalise byte-identically (Claim 2 rejection is reference-impl PoR, not an 8-lang byte claim) | 12 × 8 | **96/96 input bytes** (adversarial — NOT in positive-vector cumulative) | [`_attestations/2026-06-09-adversarial-isolation-v1.md`](./_attestations/2026-06-09-adversarial-isolation-v1.md) |
+| 2026-06-09 | `adversarial_isolation_v1` Claim 1 - adversarial inputs canonicalise byte-identically (Claim 2 rejection is reference-impl PoR, not an 8-lang byte claim) | 12 × 8 | **96/96 input bytes** (adversarial - NOT in positive-vector cumulative) | [`_attestations/2026-06-09-adversarial-isolation-v1.md`](./_attestations/2026-06-09-adversarial-isolation-v1.md) |
 | 2026-06-16 | `retention_chain_v0` (Retention Chain Substrate -- `chain_seq`, `issuer_id`, `prev_receipt_hash`, `receipt_hash`) | 3 × 8 | **24/24** | [`_attestations/2026-06-16-retention-chain-v0-cross-validation.md`](./_attestations/2026-06-16-retention-chain-v0-cross-validation.md) |
 | 2026-06-16 | `epi_interop_v0` (EPI Recorder interop -- JCS + SHA-256 over EPI manifest payloads) | 5 × 8 | **40/40** | [`vectors/epi_interop_v0/`](./vectors/epi_interop_v0/) |
 | 2026-06-16 | `epi_pqc_v0` (EPI PQC profile -- JCS + SHA-256; Falcon-1024 + key-lineage: Python only) | 4 × 8 | **32/32** | [`vectors/epi_pqc_v0/`](./vectors/epi_pqc_v0/) |
@@ -99,8 +99,8 @@ five implementations and is reported separately below, not folded into the 784:
 
 Two separate signature-survival fixtures are tracked apart from the JCS byte-agreement total:
 
-- **`rfc9421_proxy_chain_v0`** — the legacy **algovoi-v0** signing base (lowercased `@method`, `created` as a covered component, no `@signature-params` line). Validated **24/24** (8 implementations × 3 checks: signing-base + content-digest + Ed25519 verify) on 2026-05-24 ([attestation](./_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md)).
-- **`rfc9421_proxy_chain_v1`** — genuinely **RFC 9421 §2.5-conformant** (`@method` case-preserved, `created` as a parameter, trailing `@signature-params` line). Validated **8/8** across all eight implementations on 2026-06-13.
+- **`rfc9421_proxy_chain_v0`** - the legacy **algovoi-v0** signing base (lowercased `@method`, `created` as a covered component, no `@signature-params` line). Validated **24/24** (8 implementations × 3 checks: signing-base + content-digest + Ed25519 verify) on 2026-05-24 ([attestation](./_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md)).
+- **`rfc9421_proxy_chain_v1`** - genuinely **RFC 9421 §2.5-conformant** (`@method` case-preserved, `created` as a parameter, trailing `@signature-params` line). Validated **8/8** across all eight implementations on 2026-06-13.
 
 ### What the matrix covers
 
@@ -109,7 +109,7 @@ Two separate signature-survival fixtures are tracked apart from the JCS byte-agr
 | `action_ref_namespace_v0` | `action_ref` namespace discipline | `sha256(JCS(action_ref))` |
 | `action_ref_transactional_v0` | `action_ref` transactional lifecycle | `sha256(JCS(action_ref))` + `transition_hash` |
 | `action_ref_exactly_once_v1` | `action_ref` exactly-once lifecycle (PENDING / COMMITTED / REVERSED, SKIP-on-retry, replay-binding) | `sha256(JCS(action_ref))` + `transition_hash` |
-| `adversarial_isolation_v1` | Adversarial input bytes — 1 control + 11 isolated mutations (Claim 1: input byte agreement; Claim 2: rejection, reference-impl PoR) | `sha256(JCS(input))` |
+| `adversarial_isolation_v1` | Adversarial input bytes - 1 control + 11 isolated mutations (Claim 1: input byte agreement; Claim 2: rejection, reference-impl PoR) | `sha256(JCS(input))` |
 | `settlement_action_binding_v1` | Post-settlement accountability binding (settlement ↔ action ↔ chain) | `"sha256:" + sha256(JCS({action_ref, transition_hash, settlement_ref, retention_chain_ref}))` |
 | `compliance_receipt_v1` | `compliance-receipt-v1` (payment_admission) | `sha256(JCS(receipt))` |
 | `settlement_attestation_v1` | `settlement-attestation-v1` (payment_settlement) | `sha256(JCS(receipt))` |
@@ -167,7 +167,7 @@ The vectors are referenced in AEOESS Consilium Pass Candidate 5
 substrate matrix at
 <https://gist.github.com/chopmob-cloud/b327814c4e17ed9fc7b4f29c8bda523c>.
 
-### As a developer — instant verification
+### As a developer - instant verification
 
 Any of the `action_ref` vectors in this corpus can be verified against the
 AlgoVoi production reference endpoint without installing anything:
@@ -199,12 +199,12 @@ The substrate enforces these rules; the vectors exercise each:
 
 ## The platform behind this corpus
 
-This corpus is the public conformance proof for the **substrate-1 canonicalisation discipline** — the
+This corpus is the public conformance proof for the **substrate-1 canonicalisation discipline** - the
 foundation of a **live production payment platform** and a commercial post-quantum suite built on it:
 
-- **Production** — a multi-chain x402 payment gateway live across 8 settlement networks, with
+- **Production** - a multi-chain x402 payment gateway live across 8 settlement networks, with
   audit-chain evidence and compliance screening: [docs.algovoi.co.uk](https://docs.algovoi.co.uk).
-- **Substrate 2 (commercial)** — post-quantum receipts (ML-DSA / Falcon-1024), offline zero-knowledge
+- **Substrate 2 (commercial)** - post-quantum receipts (ML-DSA / Falcon-1024), offline zero-knowledge
   proofs, cross-issuer federation, and a regulatory refund / cancellation / compliance receipt family:
   [docs.algovoi.co.uk/substrate-2](https://docs.algovoi.co.uk/substrate-2).
 
@@ -276,9 +276,9 @@ assert verify_pef(frame)["valid"]
 
 Parties pinning `canon_version: jcs-rfc8785-v1` in publicly-citable artefacts are recorded in the [Substrate Adopters Registry](https://docs.algovoi.co.uk/adopters). Current adopters:
 
-- **AlgoVoi** — production gateway + reference implementations (this corpus + `algovoi-substrate` packages)
-- **Supership / Crest Deployment Systems** — `service_trust_v0` vectors + `urn:crest:trust-check-v1` envelope at `verify.crestsystems.ai`
-- **PEAC Protocol** — AP2 `open_mandate_hash` v0 fixture set ([peacprotocol/peac](https://github.com/peacprotocol/peac))
+- **AlgoVoi** - production gateway + reference implementations (this corpus + `algovoi-substrate` packages)
+- **Supership / Crest Deployment Systems** - `service_trust_v0` vectors + `urn:crest:trust-check-v1` envelope at `verify.crestsystems.ai`
+- **PEAC Protocol** - AP2 `open_mandate_hash` v0 fixture set ([peacprotocol/peac](https://github.com/peacprotocol/peac))
 
 To request listing as an adopter, follow the [submission process](https://docs.algovoi.co.uk/adopters#how-to-submit-an-adoption-entry). AlgoVoi validates submissions against the artefact's canonical bytes and adds qualifying entries.
 
@@ -286,7 +286,7 @@ To request listing as an adopter, follow the [submission process](https://docs.a
 
 This corpus and the AlgoVoi canonicalisation discipline it anchors are AlgoVoi-authored under sole authorship. The byte-for-byte cross-validation matrix is empirically possible only because of the independent JCS implementations maintained by other parties. AlgoVoi acknowledges with thanks:
 
-**Reference JCS implementations cross-validated in the matrix** (832/832 byte-for-byte agreements across eight attestation runs):
+**Reference JCS implementations cross-validated in the matrix** (880/880 byte-for-byte agreements across eight attestation runs):
 
 - Python [`rfc8785`](https://pypi.org/project/rfc8785/) 0.1.4 -- Trail of Bits
 - JavaScript [`canonicalize`](https://www.npmjs.com/package/canonicalize) 1.0.8 -- Samuel Erdtman
@@ -301,13 +301,13 @@ The discipline is validated by the editor of the canonicalisation standard it pi
 
 **Independent vector-set authors** (substrate-anchored vectors AlgoVoi cross-validated against the matrix):
 
-- [@andysalvo](https://github.com/andysalvo) — work-binding vectors ([x402#2398](https://github.com/x402-foundation/x402/pull/2398))
-- [feedoracle](https://github.com/feedoracle) (FeedOracle) — hybrid-PQC receipt-core vectors ([x402#2411](https://github.com/x402-foundation/x402/pull/2411))
-- [arian-gogani](https://github.com/arian-gogani) (Nobulex) — bilateral-receipt vectors using the AlgoVoi `action_ref` derivation ([discussed on x402#2322](https://github.com/x402-foundation/x402/pull/2322))
+- [@andysalvo](https://github.com/andysalvo) - work-binding vectors ([x402#2398](https://github.com/x402-foundation/x402/pull/2398))
+- [feedoracle](https://github.com/feedoracle) (FeedOracle) - hybrid-PQC receipt-core vectors ([x402#2411](https://github.com/x402-foundation/x402/pull/2411))
+- [arian-gogani](https://github.com/arian-gogani) (Nobulex) - bilateral-receipt vectors using the AlgoVoi `action_ref` derivation ([discussed on x402#2322](https://github.com/x402-foundation/x402/pull/2322))
 
 **Discussion contributor:**
 
-- [feedoracle](https://github.com/feedoracle) (FeedOracle) — proposed the retention-property scoping (MiCA Art. 80 / AMLR Art. 56 / DORA Art. 14) for the `canon_version` MUST clause; refined and incorporated into the discipline by AlgoVoi.
+- [feedoracle](https://github.com/feedoracle) (FeedOracle) - proposed the retention-property scoping (MiCA Art. 80 / AMLR Art. 56 / DORA Art. 14) for the `canon_version` MUST clause; refined and incorporated into the discipline by AlgoVoi.
 
 These roles describe validation, mirror, and discussion work relative to the AlgoVoi-authored discipline. They are not discipline co-authorship; see the [Version governance](https://docs.algovoi.co.uk/canonicalisation-substrate#version-governance) section. The substrate-author position rests on the byte-for-byte agreement these independent parties collectively confirm.
 
@@ -315,7 +315,7 @@ These roles describe validation, mirror, and discussion work relative to the Alg
 
 When citing in a spec PR, paper, or implementation README, please use:
 
-> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-17. 166 vectors across 21 anchor sets, 832/832 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-06-17.
+> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-17. 187 vectors across 25 anchor sets, 880/880 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-06-18.
 
 ## Licence
 
@@ -341,10 +341,10 @@ The full invitation is at https://docs.algovoi.co.uk/canonicalisation-substrate#
 
 ### L2 contributions, attribution & stability
 
-We welcome layers built on top of this substrate (L2 sets — receipt-evidence, key-source
-provenance, settlement, and the like). **The L2 design stays the contributor's** — our role is
+We welcome layers built on top of this substrate (L2 sets - receipt-evidence, key-source
+provenance, settlement, and the like). **The L2 design stays the contributor's** - our role is
 to maintain the L1 substrate, **validate the L2 against the L1 anchor, and record it in this
-corpus's [change log](./CHANGELOG.md)** for change management. We are glad to do that —
+corpus's [change log](./CHANGELOG.md)** for change management. We are glad to do that -
 on one condition, the same one the licence already makes: **the L1 substrate is attributed.**
 Attribution means keeping the NOTICE above and importing the L1 base by hash (the
 `signing_base_ref` / `signing_base_source_sha256` pattern the L2 sets here use), so the credit
@@ -352,7 +352,7 @@ is structural rather than a footnote.
 
 **Two L1 substrates, one rule.** "L1" here is AlgoVoi's authored base in two parts: the **RFC 8785
 (JCS) canonicalisation substrate** (`canon_version: jcs-rfc8785-v1`) and the **RFC 9421 §2.5
-signing-base substrate** (`rfc9421_proxy_chain_v1` — the `signing_base_source_sha256` your L2 pins).
+signing-base substrate** (`rfc9421_proxy_chain_v1` - the `signing_base_source_sha256` your L2 pins).
 Both are AlgoVoi-authored and dated in the `draft-hopley` Internet-Drafts, and the **same attribution
 requirement applies to either**: using the canonicalisation substrate *or* the RFC 9421 signing base
 means keeping the NOTICE and importing the relevant L1 by hash. Building an L2 *on top* stays free; what
@@ -360,7 +360,7 @@ is attributed is the L1 you build on.
 
 **The change log records only attributed L2 developments.** Where an L2 layer attributes the L1
 base, we validate it, enter it in the [change log](./CHANGELOG.md), and treat it as a
-first-class consumer: when we evolve L1, **attributed L2 work is taken into account** — we weigh
+first-class consumer: when we evolve L1, **attributed L2 work is taken into account** - we weigh
 backward-compatibility for it. Where an L2 layer does **not** attribute the L1 base, it is **not
 recorded in the change log** and is **not** taken into account when L1 evolves; continued
 interoperation is not guaranteed. Attribution is what makes the credit structural and the
