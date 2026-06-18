@@ -129,14 +129,14 @@
       "primary_file": "per_chain_envelope_v0.json",
       "vector_count": 19,
       "cross_validated": "5-impl (original gist generation, 2026-05)",
-      "sha256": "sha256:3a39af34e74c8ae0ac5e1a6e7e6a1c55155cc3c238217e0e44d68d325498f57e"
+      "sha256": "sha256:720404b634bd3bd19e0c7371a90f01fa99d39cf59b4bb0109ad14e9a1cf15fca"
     },
     {
       "name": "privacy_class_v0_1",
       "primary_file": "privacy_class_v0.1.json",
       "vector_count": 13,
       "cross_validated": "5-impl (original gist generation, 2026-05)",
-      "sha256": "sha256:f62267d1b48348db06ea03fc9b150872d7a694576565a0efab3a1ff9fb2de4df"
+      "sha256": "sha256:0feab689ed1519e04ef57c3349fb97ad9deb59017a4d21d87b23207781b2a2ec"
     },
     {
       "name": "refund_receipt_v1",
