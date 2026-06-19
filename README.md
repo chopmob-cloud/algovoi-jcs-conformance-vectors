@@ -5,13 +5,13 @@
 # algovoi-jcs-conformance-vectors
 
 [![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
-[![Vectors](https://img.shields.io/badge/vectors-187-brightgreen)](#anchor-sets)
+[![Vectors](https://img.shields.io/badge/vectors-213-brightgreen)](#anchor-sets)
 [![Cross-validated](https://img.shields.io/badge/cross--validated-880%2F880-brightgreen)](#cross-implementation-validation-matrix)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts. 187 vectors across
-25 anchor sets, with **880/880 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts. 213 vectors across
+27 anchor sets, with **880/880 byte-for-byte agreements directly executed**
 across eight independent JCS implementations in eight programming languages
 (cumulative as of 2026-06-18; see the cross-implementation validation matrix).
 
@@ -47,7 +47,10 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | [`vectors/action_ref_exactly_once_v1/`](./vectors/action_ref_exactly_once_v1/) | 6 | **action_ref exactly-once lifecycle**. Superset of `action_ref_transactional_v0`. Pins the full `PENDING → COMMITTED → REVERSED` vocabulary, the SKIP-on-retry idempotency invariant (vector 005 == 003 byte-for-byte), and the `action_ref` replay-binding invariant (vector 006 ≠ 003). 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7. |
 | [`vectors/adversarial_isolation_v1/`](./vectors/adversarial_isolation_v1/) | 12 | **Failure-isolation adversarial set**. 1 control + 11 isolated rejection vectors - each mutates exactly one field to confirm a named substrate check rejects it. Claim 1 (input bytes): 8-lang byte-identical. Claim 2 (rejection): reference-impl PoR only (not a JCS byte claim). Normative spec: `draft-hopley-x402-retention-chain-02` §7.5 + §8.8. |
 | [`vectors/settlement_action_binding_v1/`](./vectors/settlement_action_binding_v1/) | 6 | **Post-settlement accountability binding**. Binds `action_ref` + COMMITTED `transition_hash` (`action_ref_exactly_once_v1`) + `settlement_ref` (`settlement_attestation_v1`) + `retention_chain_ref` (`retention_chain_v1`) into one `binding_ref = "sha256:" + SHA-256(JCS({...}))`. Pins settlement-, action-, state- and chain-binding distinctness + stability. 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7 + `draft-hopley-x402-settlement-attestation-00`. |
-| **Total (JCS vectors, 19 sets)** | **167** | + 5 entries across the 3 cryptographic fixtures below = **172 vectors / 22 sets** |
+| [`vectors/policy_binding_v1/`](./vectors/policy_binding_v1/) | 14 | **Policy binding**. `policy_ref` + `policy_bound_ref` bind a content-addressed policy snapshot to a frozen subject ref (settlement-action `binding_ref` / `retention_chain` v0\|v1); version-provable, rotation-detectable. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain` §7.7 + §8.10. |
+| [`vectors/compliance_gate_lite_v1/`](./vectors/compliance_gate_lite_v1/) | 12 | **Compliance Gate (lite)**. `payer_ref` (no-PII) + `gate_ref` bind an ALLOW/REFER/DENY verdict to a pinned subject ref; the verdict is bound to the policy in force, rotation-detectable. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain` §7.8 + §8.11. |
+| [`vectors/rfc9421_receipt_evidence_v0/`](./vectors/rfc9421_receipt_evidence_v0/) | 6 | **RFC 9421 receipt evidence**. 6 vectors (1 chain). RFC 9421 HTTP message-signature evidence over receipt payloads. |
+| **Total (anchor sets)** | **213** | 27 anchor sets (incl. the cryptographic-property fixtures below); authoritative per-set counts in `manifest.json`. |
 
 ## Cryptographic-property fixtures (complementary to JCS canonicalisation)
 
@@ -58,6 +61,7 @@ support the substrate authorship claim:
 | Anchor set | Property | What it pins |
 |---|---|---|
 | [`vectors/rfc9421_proxy_chain_v0/`](./vectors/rfc9421_proxy_chain_v0/) | RFC 9421 HTTP message signature + RFC 9530 content-digest survive a 3-hop TLS-re-terminating proxy chain byte-identical | Single fixture using the RFC 8032 §7.1 Test 1 deterministic Ed25519 reference keypair. tcpdump wire-capture proof at `E2E_PROOF.md` |
+| [`vectors/rfc9421_proxy_chain_v1/`](./vectors/rfc9421_proxy_chain_v1/) | RFC 9421 §2.5-conformant HTTP message signature + RFC 9530 content-digest survive a re-terminating proxy chain byte-identical | Single fixture, RFC 9421 §2.5 signing base (Ed25519). |
 | [`vectors/multichain_ed25519_substrate_v0/`](./vectors/multichain_ed25519_substrate_v0/) | Ed25519 signing over a shared canonical payload across keys derived from independent chain BIP44 paths (Algorand, Solana, Stellar) | Three signatures of the same 221-byte canonical JSON payload (SHA-256 `4f867161…0b56267c`) under three different chain-derivation paths |
 
 ## Cross-implementation validation matrix
@@ -315,7 +319,7 @@ These roles describe validation, mirror, and discussion work relative to the Alg
 
 When citing in a spec PR, paper, or implementation README, please use:
 
-> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-17. 187 vectors across 25 anchor sets, 880/880 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-06-18.
+> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-19. 213 vectors across 27 anchor sets, 880/880 byte-for-byte agreements directly executed across eight independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`), cumulative as of 2026-06-18.
 
 ## Licence
 

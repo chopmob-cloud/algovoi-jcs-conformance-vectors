@@ -262,7 +262,7 @@
   ],
   "total_anchor_sets": 27,
   "total_vectors": 213,
-  "total_vectors_note": "25 sets / 187 entries = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
+  "total_vectors_note": "27 sets / 213 entries (incl. policy_binding_v1 + compliance_gate_lite_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
     "languages": [
@@ -276,7 +276,7 @@
       "Ruby"
     ],
     "languages_note": "Eight independent, non-overlapping JCS RFC 8785 implementations, including the RFC 8785 author's own Java implementation (Anders Rundgren).",
-    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 832/832 as of 2026-06-17 (192+320+64+48+24+40+32+112). zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity and are deliberately NOT added to the directly-executed cumulative. adversarial_isolation_v1 Claim 1 (96/96 input bytes) is counted separately and NOT folded into the positive-vector cumulative. epi_interop_v0 and epi_pqc_v0 JCS runs (2026-06-16) ARE included: they confirm the same RFC 8785 canonicalisation discipline holds over external EPI-format payloads.",
+    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 880/880 as of 2026-06-18 (192+320+64+48+24+40+32+112+48), the final +48 being settlement_action_binding_v1 (8-impl, 2026-06-18). policy_binding_v1 and compliance_gate_lite_v1 are Python+TypeScript byte-for-byte and are NOT folded into the 8-impl directly-executed cumulative. zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity and are deliberately NOT added to the directly-executed cumulative. adversarial_isolation_v1 Claim 1 (96/96 input bytes) is counted separately and NOT folded into the positive-vector cumulative. epi_interop_v0 and epi_pqc_v0 JCS runs (2026-06-16) ARE included: they confirm the same RFC 8785 canonicalisation discipline holds over external EPI-format payloads.",
     "runs": [
       {
         "date": "2026-05-24",
