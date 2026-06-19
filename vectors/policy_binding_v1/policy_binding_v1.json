@@ -1,0 +1,38 @@
+{
+  "set": "policy_binding",
+  "schema_version": "policy_binding/v1",
+  "description": "Additive policy-snapshot binding over a frozen subject ref (settlement-action binding_ref v1, or retention_chain ref v0/v1). policy_ref = sha256: + SHA-256(JCS(policy)); policy_bound_ref = sha256: + SHA-256(JCS({policy_ref, subject_ref})). Version-agnostic: subject_ref is imported by hash. The subjects are the published canonical references from chopmob-cloud/algovoi-jcs-conformance-vectors.",
+  "canonicalizer": "rfc8785-jcs",
+  "policies": {
+    "P": {"policy_id": "aml.transfer", "version": 1, "max_amount": 1000, "deny_jurisdictions": ["XX"]},
+    "P_prime": {"policy_id": "aml.transfer", "version": 2, "max_amount": 100000, "deny_jurisdictions": []},
+    "P_shuffled": {"deny_jurisdictions": ["XX"], "max_amount": 1000, "version": 1, "policy_id": "aml.transfer"}
+  },
+  "expected_policy_ref": {
+    "P": "sha256:acc943b05fa8e8096e5b313288bc4f919cc2661f167c833770509a53049afa1c",
+    "P_prime": "sha256:858fd6694716f503448ea89da802c0c2942e2619938f126d0088cb4ba9af5d35",
+    "P_shuffled": "sha256:acc943b05fa8e8096e5b313288bc4f919cc2661f167c833770509a53049afa1c"
+  },
+  "subjects": {
+    "retention_chain_v0": "sha256:f15a1dcd03cc039204dff24619ff4815ad041ad8796b94f59d52252043d0d08f",
+    "retention_chain_v1": "sha256:60081d57e585e6a7ee0b79e1204aae2be3739a539c6524074003408b3de1951e",
+    "settlement_action_binding_v1": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca"
+  },
+  "vectors": [
+    {"id": "pb-rc-v0-P",  "subject": "retention_chain_v0",           "subject_ref": "sha256:f15a1dcd03cc039204dff24619ff4815ad041ad8796b94f59d52252043d0d08f", "policy": "P",       "expected_policy_bound_ref": "sha256:65390e374d9a3ec4ffe08a078c66c088da3c8a2c993a21885531e7e371a7e8b0"},
+    {"id": "pb-rc-v0-Pp", "subject": "retention_chain_v0",           "subject_ref": "sha256:f15a1dcd03cc039204dff24619ff4815ad041ad8796b94f59d52252043d0d08f", "policy": "P_prime", "expected_policy_bound_ref": "sha256:7329a61c9b61e8d64cb8b141e15f7b1743c51d73a52c26404e18666ee241ea55"},
+    {"id": "pb-rc-v1-P",  "subject": "retention_chain_v1",           "subject_ref": "sha256:60081d57e585e6a7ee0b79e1204aae2be3739a539c6524074003408b3de1951e", "policy": "P",       "expected_policy_bound_ref": "sha256:7a2d7b0464edadcee38151524e2d458f4396df4b3daeede329fb5a16006c12e2"},
+    {"id": "pb-rc-v1-Pp", "subject": "retention_chain_v1",           "subject_ref": "sha256:60081d57e585e6a7ee0b79e1204aae2be3739a539c6524074003408b3de1951e", "policy": "P_prime", "expected_policy_bound_ref": "sha256:bf6bac1ce44f1dc8b0cfec04c1be3994ac70e6abad49634cb666019cf5218b90"},
+    {"id": "pb-sab-v1-P", "subject": "settlement_action_binding_v1", "subject_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca", "policy": "P",       "expected_policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21"},
+    {"id": "pb-sab-v1-Pp","subject": "settlement_action_binding_v1", "subject_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca", "policy": "P_prime", "expected_policy_bound_ref": "sha256:e6629ede721146e62ce148fc25c52b79a58103a7476784397b328809e0f027e2"}
+  ],
+  "negative_rotation": [
+    {"id": "neg-rotation-rc-v0",  "subject_ref": "sha256:f15a1dcd03cc039204dff24619ff4815ad041ad8796b94f59d52252043d0d08f", "sealed_under": "P", "verified_under": "P_prime", "must": "reject", "reason": "policy_bound_ref(P) != policy_bound_ref(P'); a record sealed under P fails recomputation under the rotated policy P'"},
+    {"id": "neg-rotation-rc-v1",  "subject_ref": "sha256:60081d57e585e6a7ee0b79e1204aae2be3739a539c6524074003408b3de1951e", "sealed_under": "P", "verified_under": "P_prime", "must": "reject", "reason": "same, retention_chain v1"},
+    {"id": "neg-rotation-sab-v1", "subject_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca", "sealed_under": "P", "verified_under": "P_prime", "must": "reject", "reason": "same, settlement_action binding_ref"}
+  ],
+  "invariants": [
+    {"id": "key-order-invariance", "assert": "policy_ref(P) == policy_ref(P_shuffled)", "reason": "JCS absorbs policy key order"},
+    {"id": "subject-binding",      "assert": "policy_bound_ref differs across the three subjects under the same policy P", "reason": "subject_ref is bound; substituting it changes the result"}
+  ]
+}

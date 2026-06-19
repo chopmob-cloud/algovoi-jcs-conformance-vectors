@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "published_at": "2026-05-23",
   "updated_at": "2026-06-19",
   "canon_version": "jcs-rfc8785-v1",
@@ -250,10 +250,18 @@
       "anchors_to": "draft-hopley-x402-retention-chain",
       "cross_validated": "Python + TypeScript byte-for-byte (2026-06-19)",
       "sha256": "sha256:8ff03e3fd707d848d5589fdedbcef290528adb97494b3e9533a33f81823e51eb"
+    },
+    {
+      "name": "policy_binding_v1",
+      "primary_file": "policy_binding_v1.json",
+      "vector_count": 14,
+      "anchors_to": "draft-hopley-x402-retention-chain",
+      "cross_validated": "Python + TypeScript byte-for-byte (2026-06-19)",
+      "sha256": "sha256:223d908cd1b1a0110cdefedcc725fd6c9900e35e0424cd3908e23d47fabe5b0d"
     }
   ],
-  "total_anchor_sets": 26,
-  "total_vectors": 199,
+  "total_anchor_sets": 27,
+  "total_vectors": 213,
   "total_vectors_note": "25 sets / 187 entries = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
