@@ -1,0 +1,69 @@
+{
+  "set": "compliance_gate_lite",
+  "schema_version": "compliance_gate_lite/v1",
+  "description": "Open, content-addressed compliance-gate decisions over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). payer_ref = \"sha256:\" + SHA-256(JCS({address, network})) (no PII out); gate_ref = \"sha256:\" + SHA-256(JCS({payer_ref, subject_ref, verdict})), binding a categorical ALLOW/REFER/DENY verdict to a no-PII payer ref and a pinned subject ref (here a policy_bound_ref from algovoi-policy-binding). A verdict made under policy P does not recompute under a rotated policy P'. Lite tier: no signature; the commercial Compliance Gate v2 adds Falcon-1024 signing + Proofs.",
+  "canonicalizer": "rfc8785-jcs",
+  "verdicts": ["ALLOW", "REFER", "DENY"],
+  "subjects": {
+    "policy_bound_ref_P": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+    "policy_bound_ref_Pprime": "sha256:e6629ede721146e62ce148fc25c52b79a58103a7476784397b328809e0f027e2"
+  },
+  "payers": {
+    "payer_A": {"network": "base", "address": "0x00000000000000000000000000000000DEADBEEF", "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765"},
+    "payer_B": {"network": "base", "address": "0x00000000000000000000000000000000C0FFEE11", "payer_ref": "sha256:a81b19ed318ca2810f326da4dd57fc5693111e3364c70e21428b09b5d63c532f"}
+  },
+  "expected_payer_ref": {
+    "payer_A": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765",
+    "payer_B": "sha256:a81b19ed318ca2810f326da4dd57fc5693111e3364c70e21428b09b5d63c532f"
+  },
+  "vectors": [
+    {"id": "cg-allow-P", "verdict": "ALLOW", "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765", "subject_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "expected_gate_ref": "sha256:43d8d8cb0ba6ccbd3c36167a28075a3fd5b8858ce0414f6871a22a96f86f96a5"},
+    {"id": "cg-refer-P", "verdict": "REFER", "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765", "subject_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "expected_gate_ref": "sha256:9a25b3d9d9c1ff4ba1c9c1da66668c59caf8164d4a081df30826c007d9b6b845"},
+    {"id": "cg-deny-P", "verdict": "DENY", "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765", "subject_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "expected_gate_ref": "sha256:bff6375120c2ea003a7ae18a05cb1468e91cd787cb910a4b593f7fb7be2e1c6c"}
+  ],
+  "negatives": [
+    {
+      "id": "cg-neg-verdict-swap",
+      "family": "verdict",
+      "claimed_gate_ref": "sha256:43d8d8cb0ba6ccbd3c36167a28075a3fd5b8858ce0414f6871a22a96f86f96a5",
+      "verdict": "DENY", "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765", "subject_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "recomputes_to": "sha256:bff6375120c2ea003a7ae18a05cb1468e91cd787cb910a4b593f7fb7be2e1c6c",
+      "must": "differ"
+    },
+    {
+      "id": "cg-neg-policy-rotation",
+      "family": "policy_rotation",
+      "claimed_gate_ref": "sha256:43d8d8cb0ba6ccbd3c36167a28075a3fd5b8858ce0414f6871a22a96f86f96a5",
+      "verdict": "ALLOW", "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765", "subject_ref": "sha256:e6629ede721146e62ce148fc25c52b79a58103a7476784397b328809e0f027e2",
+      "recomputes_to": "sha256:d4a1f0f4581dd078df2c1d0ed1ffb253ca8ecdd454179f02894fd5a1e9401247",
+      "must": "differ",
+      "note": "same verdict + payer, but the subject is the policy_bound_ref under the ROTATED policy P'; the gate_ref diverges -> the verdict is bound to the policy in force"
+    },
+    {
+      "id": "cg-neg-payer-swap",
+      "family": "payer",
+      "claimed_gate_ref": "sha256:43d8d8cb0ba6ccbd3c36167a28075a3fd5b8858ce0414f6871a22a96f86f96a5",
+      "verdict": "ALLOW", "payer_ref": "sha256:a81b19ed318ca2810f326da4dd57fc5693111e3364c70e21428b09b5d63c532f", "subject_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "recomputes_to": "sha256:8582ce014a696cf15eba1a8d389c1ec8ac2f087bcb1bf467b842aa936b2c9d1f",
+      "must": "differ"
+    },
+    {
+      "id": "cg-neg-invalid-verdict",
+      "family": "enum",
+      "verdict": "MAYBE", "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765", "subject_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "must": "reject",
+      "reason": "verdict is a closed enumeration {ALLOW, REFER, DENY}; an out-of-set value is rejected, not hashed"
+    },
+    {
+      "id": "cg-neg-malformed-subject",
+      "family": "ref_form",
+      "verdict": "ALLOW", "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765", "subject_ref": "not-a-sha256-ref",
+      "must": "reject",
+      "reason": "subject_ref must be a sha256: 64-hex reference; a malformed ref is rejected"
+    }
+  ],
+  "invariants": [
+    {"id": "verdict-distinctness", "assert": "gate_ref(ALLOW) != gate_ref(REFER) != gate_ref(DENY) for the same payer + subject", "reason": "the categorical verdict is bound; a REFER is byte-distinct from a DENY"},
+    {"id": "closed-enum", "assert": "any verdict outside {ALLOW, REFER, DENY} is rejected", "reason": "stateless, deterministic, closed-enumeration decision"}
+  ]
+}
