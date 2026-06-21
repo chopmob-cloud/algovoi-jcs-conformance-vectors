@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "published_at": "2026-05-23",
   "updated_at": "2026-06-21",
   "canon_version": "jcs-rfc8785-v1",
@@ -266,11 +266,19 @@
       "anchors_to": "draft-hopley-x402-retention-chain",
       "cross_validated": "Python + TypeScript byte-for-byte (2026-06-21)",
       "sha256": "sha256:661fa083ede45761a7fa6c2e2dd782e2a758885235c6e992d29422ee8d0fb31b"
+    },
+    {
+      "name": "spend_decision_v1",
+      "primary_file": "spend_decision_v1.json",
+      "vector_count": 7,
+      "anchors_to": "draft-hopley-x402-retention-chain",
+      "cross_validated": "Python + TypeScript byte-for-byte (2026-06-21)",
+      "sha256": "sha256:6a406adb07f540c83ac6e64806e6f484c085aaae57d948b9a1448de4fdeaff03"
     }
   ],
-  "total_anchor_sets": 28,
-  "total_vectors": 223,
-  "total_vectors_note": "28 sets / 223 entries (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
+  "total_anchor_sets": 29,
+  "total_vectors": 230,
+  "total_vectors_note": "29 sets / 230 entries (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
     "languages": [

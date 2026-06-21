@@ -1,0 +1,138 @@
+{
+  "set": "spend_decision_v1",
+  "schema_version": "1",
+  "description": "Commercial Spend Guardrail decision chain: decision_ref construction (the published guardrail_ref over agent_ref+mandate_ref+policy_bound_ref+verdict, now incl REFER) + the spend_decision chain prev_entry_hash linkage. ALLOW/DENY decision_ref are byte-identical to spend_guardrail_lite_v1 (the lite tier composes into the product).",
+  "canonicalizer": "rfc8785-jcs + sha256, prefixed 'sha256:'",
+  "verdicts": [
+    "ALLOW",
+    "DENY",
+    "REFER"
+  ],
+  "cross_set_invariant": {
+    "note": "sd-allow/sd-deny expected_decision_ref == spend_guardrail_lite_v1 sg-allow-P/sg-deny-P expected_guardrail_ref"
+  },
+  "vectors": [
+    {
+      "id": "sd-allow",
+      "verdict": "ALLOW",
+      "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "expected_decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+    },
+    {
+      "id": "sd-deny",
+      "verdict": "DENY",
+      "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "expected_decision_ref": "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf"
+    },
+    {
+      "id": "sd-refer",
+      "verdict": "REFER",
+      "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "expected_decision_ref": "sha256:914ea5fb17d6ee423d5724f18388af003aabf64d7fb162492bcadc0d93b2a872"
+    }
+  ],
+  "chain": [
+    {
+      "seq": 0,
+      "prev_entry_hash": null,
+      "entry_hash": "sha256:7420a618be50a3e23e983f9da4f01760d8ae53d93a76a8b2e5ed807713207cb6",
+      "payload": {
+        "canon_version": "jcs-rfc8785-v1",
+        "type": "spend_decision",
+        "seq": 0,
+        "prev_entry_hash": null,
+        "version": "1",
+        "decision_id": "00000000-0000-0000-0000-000000000000",
+        "decision": "ALLOW",
+        "reasons": [],
+        "agent_did": "did:web:agent",
+        "charge_id": "c0",
+        "amount": 1000000,
+        "asset": "USDC",
+        "payee": "merchant:acme",
+        "mandate_id": "m-1",
+        "remaining_this_period": null,
+        "passport_kid": "deadbeefdeadbeef",
+        "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+        "nonce": "00000000000000000000000000000000",
+        "guardrail_did": "did:web:guard",
+        "kid": "feedfacefeedface",
+        "evaluated_at": "2026-06-21T00:00:00Z",
+        "expires_at": "2026-06-21T00:05:00Z"
+      }
+    },
+    {
+      "seq": 1,
+      "prev_entry_hash": "sha256:7420a618be50a3e23e983f9da4f01760d8ae53d93a76a8b2e5ed807713207cb6",
+      "entry_hash": "sha256:e0901db3f5a696110f110037173a7f52bc0378b152723dcac73d95075df77f7a",
+      "payload": {
+        "canon_version": "jcs-rfc8785-v1",
+        "type": "spend_decision",
+        "seq": 1,
+        "prev_entry_hash": "sha256:7420a618be50a3e23e983f9da4f01760d8ae53d93a76a8b2e5ed807713207cb6",
+        "version": "1",
+        "decision_id": "00000000-0000-0000-0000-000000000001",
+        "decision": "DENY",
+        "reasons": [],
+        "agent_did": "did:web:agent",
+        "charge_id": "c1",
+        "amount": 1000000,
+        "asset": "USDC",
+        "payee": "merchant:acme",
+        "mandate_id": "m-1",
+        "remaining_this_period": null,
+        "passport_kid": "deadbeefdeadbeef",
+        "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "decision_ref": "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf",
+        "nonce": "00000000000000000000000000000000",
+        "guardrail_did": "did:web:guard",
+        "kid": "feedfacefeedface",
+        "evaluated_at": "2026-06-21T00:00:01Z",
+        "expires_at": "2026-06-21T00:05:01Z"
+      }
+    },
+    {
+      "seq": 2,
+      "prev_entry_hash": "sha256:e0901db3f5a696110f110037173a7f52bc0378b152723dcac73d95075df77f7a",
+      "entry_hash": "sha256:3a9531adf20b15f1d099f44780fb50680c200fef1a49c719c51a91bc380341bd",
+      "payload": {
+        "canon_version": "jcs-rfc8785-v1",
+        "type": "spend_decision",
+        "seq": 2,
+        "prev_entry_hash": "sha256:e0901db3f5a696110f110037173a7f52bc0378b152723dcac73d95075df77f7a",
+        "version": "1",
+        "decision_id": "00000000-0000-0000-0000-000000000002",
+        "decision": "REFER",
+        "reasons": [],
+        "agent_did": "did:web:agent",
+        "charge_id": "c2",
+        "amount": 1000000,
+        "asset": "USDC",
+        "payee": "merchant:acme",
+        "mandate_id": "m-1",
+        "remaining_this_period": null,
+        "passport_kid": "deadbeefdeadbeef",
+        "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "decision_ref": "sha256:914ea5fb17d6ee423d5724f18388af003aabf64d7fb162492bcadc0d93b2a872",
+        "nonce": "00000000000000000000000000000000",
+        "guardrail_did": "did:web:guard",
+        "kid": "feedfacefeedface",
+        "evaluated_at": "2026-06-21T00:00:02Z",
+        "expires_at": "2026-06-21T00:05:02Z"
+      }
+    }
+  ]
+}
