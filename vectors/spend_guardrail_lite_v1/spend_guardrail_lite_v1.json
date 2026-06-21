@@ -1,0 +1,80 @@
+{
+  "set": "spend_guardrail_lite",
+  "schema_version": "spend_guardrail_lite/v1",
+  "description": "Open, content-addressed pre-payment decisions over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). guardrail_ref = \"sha256:\" + SHA-256(JCS({agent_ref, mandate_ref, policy_bound_ref, verdict})), binding a categorical ALLOW/DENY decision to the agent it was made for (agent_ref), the spend authority it was checked against (mandate_ref), and the policy in force (policy_bound_ref from algovoi-policy-binding) -- each imported by hash. An ALLOW made under policy P does not recompute under a rotated policy P'; swapping the agent, the mandate, or the verdict diverges the guardrail_ref. Moves no funds. Lite tier: no signature; the commercial Spend Guardrail adds Falcon-1024 signing + the full Passport/Mandate enforcement stack.",
+  "canonicalizer": "rfc8785-jcs",
+  "verdicts": ["ALLOW", "DENY"],
+  "note_inputs": "agent_ref / mandate_ref / policy_bound_ref are imported by hash; the example agent_ref and mandate_ref values below are illustrative substrate-canonical references (the passport_ref / mandate_ref constructions are defined by their own packages). policy_bound_ref_P and _Pprime are the published values from the algovoi-policy-binding / compliance_gate_lite vector sets, reused here for cross-set continuity.",
+  "subjects": {
+    "policy_bound_ref_P": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+    "policy_bound_ref_Pprime": "sha256:e6629ede721146e62ce148fc25c52b79a58103a7476784397b328809e0f027e2"
+  },
+  "agents": {
+    "agent_1": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+    "agent_2": "sha256:57ff61574bfb48a62f636770ef6bfbe4c80f36d260a091ac4e6a7e865ec8daa0"
+  },
+  "mandates": {
+    "mandate_1": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+    "mandate_2": "sha256:fefcf604aa85994cd8058b960b0472122d54f81fc48efa394bb0c488599a7615"
+  },
+  "vectors": [
+    {"id": "sg-allow-P", "verdict": "ALLOW", "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "expected_guardrail_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"},
+    {"id": "sg-deny-P", "verdict": "DENY", "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "expected_guardrail_ref": "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf"}
+  ],
+  "negatives": [
+    {
+      "id": "sg-neg-verdict-swap",
+      "family": "verdict",
+      "claimed_guardrail_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "verdict": "DENY", "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "recomputes_to": "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf",
+      "must": "differ",
+      "note": "same agent + mandate + policy, but the verdict flipped ALLOW->DENY; the guardrail_ref diverges -> the decision is bound to the verdict"
+    },
+    {
+      "id": "sg-neg-policy-rotation",
+      "family": "policy_rotation",
+      "claimed_guardrail_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "verdict": "ALLOW", "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:e6629ede721146e62ce148fc25c52b79a58103a7476784397b328809e0f027e2",
+      "recomputes_to": "sha256:6d78a4a7557ba9f1deefc5adfb958c51142d58fb3d5e937d2616dc133ef691bc",
+      "must": "differ",
+      "note": "same ALLOW + agent + mandate, but the policy_bound_ref is the ROTATED policy P'; the guardrail_ref diverges -> the decision is bound to the policy in force"
+    },
+    {
+      "id": "sg-neg-agent-swap",
+      "family": "agent",
+      "claimed_guardrail_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "verdict": "ALLOW", "agent_ref": "sha256:57ff61574bfb48a62f636770ef6bfbe4c80f36d260a091ac4e6a7e865ec8daa0", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "recomputes_to": "sha256:805fb258ccc7c4bad913a485965158a7ad00b2e23f76337d4bb84ec9df9598eb",
+      "must": "differ",
+      "note": "same ALLOW + mandate + policy, but a different agent_ref; the guardrail_ref diverges -> the decision is bound to the agent"
+    },
+    {
+      "id": "sg-neg-mandate-swap",
+      "family": "mandate",
+      "claimed_guardrail_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "verdict": "ALLOW", "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:fefcf604aa85994cd8058b960b0472122d54f81fc48efa394bb0c488599a7615", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "recomputes_to": "sha256:fc4da65efa2fec5f2fd7045fea54b94a0fbc2020cc1ca4c8771967f9f00ba0e7",
+      "must": "differ",
+      "note": "same ALLOW + agent + policy, but a different mandate_ref (different spend authority); the guardrail_ref diverges -> the decision is bound to the authority"
+    },
+    {
+      "id": "sg-neg-invalid-verdict",
+      "family": "enum",
+      "verdict": "MAYBE", "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "must": "reject",
+      "reason": "verdict is a closed enumeration {ALLOW, DENY}; an out-of-set value is rejected, not hashed"
+    },
+    {
+      "id": "sg-neg-malformed-agent",
+      "family": "ref_form",
+      "verdict": "ALLOW", "agent_ref": "not-a-sha256-ref", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "must": "reject",
+      "reason": "agent_ref must be a sha256: 64-hex reference; a malformed ref is rejected"
+    }
+  ],
+  "invariants": [
+    {"id": "verdict-distinctness", "assert": "guardrail_ref(ALLOW) != guardrail_ref(DENY) for the same agent + mandate + policy", "reason": "the categorical decision is bound; an ALLOW is byte-distinct from a DENY"},
+    {"id": "closed-enum", "assert": "any verdict outside {ALLOW, DENY} is rejected", "reason": "stateless, deterministic, closed-enumeration decision"}
+  ]
+}

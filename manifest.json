@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-06-19",
+  "updated_at": "2026-06-21",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -258,11 +258,19 @@
       "anchors_to": "draft-hopley-x402-retention-chain",
       "cross_validated": "Python + TypeScript byte-for-byte (2026-06-19)",
       "sha256": "sha256:223d908cd1b1a0110cdefedcc725fd6c9900e35e0424cd3908e23d47fabe5b0d"
+    },
+    {
+      "name": "spend_guardrail_lite_v1",
+      "primary_file": "spend_guardrail_lite_v1.json",
+      "vector_count": 10,
+      "anchors_to": "draft-hopley-x402-retention-chain",
+      "cross_validated": "Python + TypeScript byte-for-byte (2026-06-21)",
+      "sha256": "sha256:661fa083ede45761a7fa6c2e2dd782e2a758885235c6e992d29422ee8d0fb31b"
     }
   ],
-  "total_anchor_sets": 27,
-  "total_vectors": 213,
-  "total_vectors_note": "27 sets / 213 entries (incl. policy_binding_v1 + compliance_gate_lite_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
+  "total_anchor_sets": 28,
+  "total_vectors": 223,
+  "total_vectors_note": "28 sets / 223 entries (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
     "languages": [
