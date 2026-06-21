@@ -1,0 +1,276 @@
+{
+  "set": "substrate_guard_v1",
+  "schema_version": "1",
+  "description": "Deterministic input-bounds gate (algovoi-substrate-guard): profile_ref = sha256:+SHA-256(JCS(profile)); guard(value,profile) accepts or rejects with a named code BEFORE canonicalization. Resource-bound fail-closed (the resource edition of adversarial_isolation): well-formed but hostile payloads. Every bound is a pure structural property -> identical across implementations.",
+  "canonicalizer": "rfc8785-jcs + sha256, prefixed 'sha256:'",
+  "default_profile": {
+    "name": "guard-receipt-v1",
+    "max_bytes": 65536,
+    "max_depth": 32,
+    "max_object_keys": 256,
+    "max_array_length": 1024,
+    "max_string_length": 8192,
+    "max_total_nodes": 4096,
+    "number_safety": true
+  },
+  "expected_default_profile_ref": "sha256:a4791b13c67a16109b85ef67fc65700ea902b6ad40dad44d8556632c3d5524a6",
+  "profile_ref_vectors": [
+    {
+      "id": "pr-default",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 1024,
+        "max_string_length": 8192,
+        "max_total_nodes": 4096,
+        "number_safety": true
+      },
+      "expected_profile_ref": "sha256:a4791b13c67a16109b85ef67fc65700ea902b6ad40dad44d8556632c3d5524a6"
+    },
+    {
+      "id": "pr-tight",
+      "profile": {
+        "name": "guard-tight-v1",
+        "max_bytes": 4096,
+        "max_depth": 8,
+        "max_object_keys": 16,
+        "max_array_length": 16,
+        "max_string_length": 64,
+        "max_total_nodes": 256,
+        "number_safety": true
+      },
+      "expected_profile_ref": "sha256:aafdb5b9fdd52cf0995878cbdb2c4a4e0f103ae79300d57ef31a599c5ac63f1e"
+    }
+  ],
+  "accept": [
+    {
+      "id": "ok-control",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 1024,
+        "max_string_length": 8192,
+        "max_total_nodes": 4096,
+        "number_safety": true
+      },
+      "value": {
+        "type": "spend_decision",
+        "amount": 1000000,
+        "items": [
+          "a",
+          "b",
+          "c"
+        ]
+      }
+    },
+    {
+      "id": "ok-at-limits",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 4,
+        "max_array_length": 4,
+        "max_string_length": 4,
+        "max_total_nodes": 64,
+        "number_safety": true
+      },
+      "value": {
+        "a": "wxyz",
+        "b": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "c": 1,
+        "d": 2
+      }
+    },
+    {
+      "id": "ok-safe-int-boundary",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 1024,
+        "max_string_length": 8192,
+        "max_total_nodes": 4096,
+        "number_safety": true
+      },
+      "value": 9007199254740991
+    }
+  ],
+  "reject": [
+    {
+      "id": "rj-over-string",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 1024,
+        "max_string_length": 8,
+        "max_total_nodes": 4096,
+        "number_safety": true
+      },
+      "value": "xxxxxxxxx",
+      "expected_code": "REJECT_OVER_STRING"
+    },
+    {
+      "id": "rj-over-string-key",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 1024,
+        "max_string_length": 4,
+        "max_total_nodes": 4096,
+        "number_safety": true
+      },
+      "value": {
+        "toolongkey": 1
+      },
+      "expected_code": "REJECT_OVER_STRING"
+    },
+    {
+      "id": "rj-too-many-keys",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 4,
+        "max_array_length": 1024,
+        "max_string_length": 8192,
+        "max_total_nodes": 1000,
+        "number_safety": true
+      },
+      "value": {
+        "0": 1,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1
+      },
+      "expected_code": "REJECT_TOO_MANY_KEYS"
+    },
+    {
+      "id": "rj-over-array",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 4,
+        "max_string_length": 8192,
+        "max_total_nodes": 1000,
+        "number_safety": true
+      },
+      "value": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "expected_code": "REJECT_OVER_ARRAY"
+    },
+    {
+      "id": "rj-over-depth",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 3,
+        "max_object_keys": 256,
+        "max_array_length": 1024,
+        "max_string_length": 8192,
+        "max_total_nodes": 1000,
+        "number_safety": true
+      },
+      "value": {
+        "a": {
+          "a": {
+            "a": {
+              "a": 1
+            }
+          }
+        }
+      },
+      "expected_code": "REJECT_OVER_DEPTH"
+    },
+    {
+      "id": "rj-over-nodes",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 1000,
+        "max_string_length": 8192,
+        "max_total_nodes": 5,
+        "number_safety": true
+      },
+      "value": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "expected_code": "REJECT_OVER_NODES"
+    },
+    {
+      "id": "rj-unsafe-int",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 65536,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 1024,
+        "max_string_length": 8192,
+        "max_total_nodes": 4096,
+        "number_safety": true
+      },
+      "value": 9007199254740992,
+      "expected_code": "REJECT_UNSAFE_NUMBER"
+    },
+    {
+      "id": "rj-over-size",
+      "profile": {
+        "name": "guard-receipt-v1",
+        "max_bytes": 200,
+        "max_depth": 32,
+        "max_object_keys": 256,
+        "max_array_length": 1000,
+        "max_string_length": 1000,
+        "max_total_nodes": 1000,
+        "number_safety": true
+      },
+      "value": [
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      ],
+      "expected_code": "REJECT_OVER_SIZE"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "inv-key-order",
+      "note": "reordered profile keys -> identical profile_ref (JCS sorts)"
+    }
+  ]
+}

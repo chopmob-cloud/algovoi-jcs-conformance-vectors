@@ -5,13 +5,13 @@
 # algovoi-jcs-conformance-vectors
 
 [![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
-[![Vectors](https://img.shields.io/badge/vectors-223-brightgreen)](#anchor-sets)
+[![Vectors](https://img.shields.io/badge/vectors-245-brightgreen)](#anchor-sets)
 [![Cross-validated](https://img.shields.io/badge/cross--validated-880%2F880-brightgreen)](#cross-implementation-validation-matrix)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts. 223 vectors across
-28 anchor sets, with **880/880 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts. 245 vectors across
+30 anchor sets, with **880/880 byte-for-byte agreements directly executed**
 across eight independent JCS implementations in eight programming languages
 (cumulative as of 2026-06-18; see the cross-implementation validation matrix).
 
@@ -49,9 +49,11 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | [`vectors/settlement_action_binding_v1/`](./vectors/settlement_action_binding_v1/) | 6 | **Post-settlement accountability binding**. Binds `action_ref` + COMMITTED `transition_hash` (`action_ref_exactly_once_v1`) + `settlement_ref` (`settlement_attestation_v1`) + `retention_chain_ref` (`retention_chain_v1`) into one `binding_ref = "sha256:" + SHA-256(JCS({...}))`. Pins settlement-, action-, state- and chain-binding distinctness + stability. 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7 + `draft-hopley-x402-settlement-attestation-00`. |
 | [`vectors/policy_binding_v1/`](./vectors/policy_binding_v1/) | 14 | **Policy binding**. `policy_ref` + `policy_bound_ref` bind a content-addressed policy snapshot to a frozen subject ref (settlement-action `binding_ref` / `retention_chain` v0\|v1); version-provable, rotation-detectable. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain` §7.7 + §8.10. |
 | [`vectors/compliance_gate_lite_v1/`](./vectors/compliance_gate_lite_v1/) | 12 | **Compliance Gate (lite)**. `payer_ref` (no-PII) + `gate_ref` bind an ALLOW/REFER/DENY verdict to a pinned subject ref; the verdict is bound to the policy in force, rotation-detectable. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain` §7.8 + §8.11. |
-| [`vectors/spend_guardrail_lite_v1/`](./vectors/spend_guardrail_lite_v1/) | 10 | **Spend Guardrail (lite)**. `guardrail_ref` binds an ALLOW/DENY pre-payment decision to the agent (`agent_ref`), the spend authority (`mandate_ref`), and the policy in force (`policy_bound_ref`), each imported by hash; agent/mandate/policy/verdict each byte-load-bearing, policy-rotation-detectable. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain` §7.9 (filing pending). |
+| [`vectors/spend_guardrail_lite_v1/`](./vectors/spend_guardrail_lite_v1/) | 10 | **Spend Guardrail (lite)**. `guardrail_ref` binds an ALLOW/DENY pre-payment decision to the agent (`agent_ref`), the spend authority (`mandate_ref`), and the policy in force (`policy_bound_ref`), each imported by hash; agent/mandate/policy/verdict each byte-load-bearing, policy-rotation-detectable. Python + TypeScript byte-for-byte. Normative spec: an instance of the `draft-hopley-x402-retention-chain` §7.6-7.8 binding-ref framework; the published conformance set is the byte-level artifact. |
+| [`vectors/spend_decision_v1/`](./vectors/spend_decision_v1/) | 7 | **Spend decision**. `decision_ref` (ALLOW/DENY/REFER) + the spend_decision chain `prev_entry_hash` linkage; the ALLOW/DENY refs are byte-identical to `spend_guardrail_lite_v1`. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain`. |
+| [`vectors/substrate_guard_v1/`](./vectors/substrate_guard_v1/) | 15 | **Substrate Guard (lite)**. Deterministic input-bounds gate run BEFORE canonicalization: `profile_ref = "sha256:" + SHA-256(JCS(profile))` content-addresses the limits in force; `guard(value, profile)` accepts or rejects a well-formed but resource-hostile payload (bytes/depth/object-keys/array-length/string-length/total-nodes/unsafe-number) with a named code. The resource-bounds edition of `adversarial_isolation_v1`; every bound is a pure structural property so it is identical across implementations. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain` §7.5 (Input Validation), resource-bounds edition. |
 | [`vectors/rfc9421_receipt_evidence_v0/`](./vectors/rfc9421_receipt_evidence_v0/) | 6 | **RFC 9421 receipt evidence**. 6 vectors (1 chain). RFC 9421 HTTP message-signature evidence over receipt payloads. |
-| **Total (anchor sets)** | **223** | 28 anchor sets (incl. the cryptographic-property fixtures below); authoritative per-set counts in `manifest.json`. |
+| **Total (anchor sets)** | **245** | 30 anchor sets (incl. the cryptographic-property fixtures below); authoritative per-set counts in `manifest.json`. |
 
 ## Cryptographic-property fixtures (complementary to JCS canonicalisation)
 

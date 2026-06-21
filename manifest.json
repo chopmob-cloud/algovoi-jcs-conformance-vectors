@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "published_at": "2026-05-23",
   "updated_at": "2026-06-21",
   "canon_version": "jcs-rfc8785-v1",
@@ -274,11 +274,19 @@
       "anchors_to": "draft-hopley-x402-retention-chain",
       "cross_validated": "Python + TypeScript byte-for-byte (2026-06-21)",
       "sha256": "sha256:6a406adb07f540c83ac6e64806e6f484c085aaae57d948b9a1448de4fdeaff03"
+    },
+    {
+      "name": "substrate_guard_v1",
+      "primary_file": "substrate_guard_v1.json",
+      "vector_count": 15,
+      "anchors_to": "draft-hopley-x402-retention-chain §7.5 (Input Validation), resource-bounds edition",
+      "cross_validated": "Python + TypeScript byte-for-byte (2026-06-21)",
+      "sha256": "sha256:f7d2aa8e3a147de4aef31ef213bbafe63c7ed52e2b275c89881440cd402fcdbf"
     }
   ],
-  "total_anchor_sets": 29,
-  "total_vectors": 230,
-  "total_vectors_note": "29 sets / 230 entries (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
+  "total_anchor_sets": 30,
+  "total_vectors": 245,
+  "total_vectors_note": "30 sets / 245 entries (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
     "languages": [
