@@ -1,0 +1,57 @@
+{
+  "set": "agent_passport_lite",
+  "schema_version": "agent_passport_lite/v1",
+  "description": "Open, content-addressed agent identity references over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). passport_ref = \"sha256:\" + SHA-256(JCS({agent_id, issuer, scope, validity_window})). This is exactly the agent_ref that spend_guardrail_lite binds: passport_1 / passport_2 here equal agent_1 / agent_2 in the spend_guardrail_lite_v1 set, so the decision chain composes (passport_ref -> agent_ref). Each of the four fields is byte-load-bearing; a missing or empty field is rejected, not hashed. Lite tier: no signature; the commercial Agent Passport adds Falcon-1024 PQC credentials, spend limits, and revocation.",
+  "canonicalizer": "rfc8785-jcs",
+  "fields": ["agent_id", "issuer", "scope", "validity_window"],
+  "note_chain": "passport_1 (sha256:b3594e33...) and passport_2 (sha256:57ff6157...) are the agent_1 / agent_2 references in spend_guardrail_lite_v1; this set is the upstream origin of that agent_ref.",
+  "vectors": [
+    {"id": "ap-001", "agent_id": "agent-001", "issuer": "did:algo:issuer", "scope": "payments", "validity_window": "2026-06-21/2026-09-21", "expected_passport_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be"},
+    {"id": "ap-002", "agent_id": "agent-002", "issuer": "did:algo:issuer", "scope": "payments", "validity_window": "2026-06-21/2026-09-21", "expected_passport_ref": "sha256:57ff61574bfb48a62f636770ef6bfbe4c80f36d260a091ac4e6a7e865ec8daa0"},
+    {"id": "ap-003", "agent_id": "agent-001", "issuer": "did:algo:issuer", "scope": "refunds", "validity_window": "2026-06-21/2026-09-21", "expected_passport_ref": "sha256:ecd1dd280d12436cd99d6039776b119c2aa5fbd6ef65fb5c335b436efe1a4f31"}
+  ],
+  "negatives": [
+    {
+      "id": "ap-neg-agent-swap", "family": "agent_id",
+      "claimed_passport_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "agent_id": "agent-002", "issuer": "did:algo:issuer", "scope": "payments", "validity_window": "2026-06-21/2026-09-21",
+      "recomputes_to": "sha256:57ff61574bfb48a62f636770ef6bfbe4c80f36d260a091ac4e6a7e865ec8daa0",
+      "must": "differ", "note": "same issuer/scope/window, different agent_id; passport_ref diverges (== passport_2)"
+    },
+    {
+      "id": "ap-neg-scope-tamper", "family": "scope",
+      "claimed_passport_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "agent_id": "agent-001", "issuer": "did:algo:issuer", "scope": "refunds", "validity_window": "2026-06-21/2026-09-21",
+      "recomputes_to": "sha256:ecd1dd280d12436cd99d6039776b119c2aa5fbd6ef65fb5c335b436efe1a4f31",
+      "must": "differ", "note": "scope is byte-load-bearing; payments -> refunds diverges the ref (== passport_3)"
+    },
+    {
+      "id": "ap-neg-issuer-tamper", "family": "issuer",
+      "claimed_passport_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "agent_id": "agent-001", "issuer": "did:algo:other", "scope": "payments", "validity_window": "2026-06-21/2026-09-21",
+      "recomputes_to": "sha256:e1e775907092868aadb3f84a570004f1135385e16dc410c3c1ac40d1c504899e",
+      "must": "differ", "note": "issuer is byte-load-bearing"
+    },
+    {
+      "id": "ap-neg-window-tamper", "family": "validity_window",
+      "claimed_passport_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "agent_id": "agent-001", "issuer": "did:algo:issuer", "scope": "payments", "validity_window": "2026-06-21/2026-12-21",
+      "recomputes_to": "sha256:1e915c712f42ed8347abc026f24cbdc2da615894f8b74b6870a7a8aa3b7cba70",
+      "must": "differ", "note": "validity_window is byte-load-bearing"
+    },
+    {
+      "id": "ap-neg-empty-agent", "family": "empty_field",
+      "agent_id": "", "issuer": "did:algo:issuer", "scope": "payments", "validity_window": "2026-06-21/2026-09-21",
+      "must": "reject", "reason": "agent_id must be a non-empty string; an empty field is rejected, not hashed"
+    },
+    {
+      "id": "ap-neg-empty-scope", "family": "empty_field",
+      "agent_id": "agent-001", "issuer": "did:algo:issuer", "scope": "", "validity_window": "2026-06-21/2026-09-21",
+      "must": "reject", "reason": "scope must be a non-empty string; an empty field is rejected, not hashed"
+    }
+  ],
+  "invariants": [
+    {"id": "field-distinctness", "assert": "changing any of {agent_id, issuer, scope, validity_window} changes passport_ref (ap-001, ap-002, ap-003, issuer-tamper, window-tamper all distinct)", "reason": "all four fields are byte-load-bearing"},
+    {"id": "reject-empty", "assert": "a passport with any empty field is rejected", "reason": "stateless, deterministic, total-field content address"}
+  ]
+}
