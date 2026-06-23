@@ -63,6 +63,7 @@ def main() -> int:
     mandate = _load("payment_mandate_lite_v1")
     policy = _load("policy_binding_v1")
     guardrail = _load("spend_guardrail_lite_v1")
+    cancellation = _load("cancellation_receipt_lite_v1")
 
     sg_allow = _guardrail_positive(guardrail, dec["verdicts"]["ALLOW"]["source_vector"])
     sg_deny = _guardrail_positive(guardrail, dec["verdicts"]["DENY"]["source_vector"])
@@ -120,6 +121,17 @@ def main() -> int:
             g,
         ))
 
+    # --- 5. lifecycle: cancellation_ref binds the SAME mandate_ref the chain used ---
+    lc = trace["lifecycle"]["cancellation"]
+    cancellation_ref = ref({"cancellation_reason": lc["cancellation_reason"], "mandate_ref": mandate_ref})
+    cpub = next(v["expected_cancellation_ref"] for v in cancellation["vectors"] if v["id"] == lc["source_vector"])
+    checks.append((
+        "cancellation_ref recomputes over the SAME mandate_ref the chain used, equals the published "
+        "cancellation_receipt_lite reference, and closes the lifecycle on the authority",
+        cancellation_ref == lc["expected"] == cpub,
+        cancellation_ref,
+    ))
+
     width = 74
     print("=" * width)
     print("OPEN PRE-PAYMENT DECISION CHAIN -- composition proof")
@@ -134,9 +146,10 @@ def main() -> int:
     print("\n" + "-" * width)
     if all_ok:
         print(f"PASS {len(checks)}/{len(checks)} -- the chain composes end-to-end, byte-for-byte.")
-        print("     passport_ref + mandate_ref + policy_bound_ref -> guardrail_ref;")
+        print("     passport_ref + mandate_ref + policy_bound_ref -> guardrail_ref -> cancellation_ref;")
         print("     identity, authority, and policy each recomputed from raw fields, each the")
-        print("     reference the decision binds, final decision reproduced for ALLOW and DENY.")
+        print("     reference the decision binds, decision reproduced for ALLOW and DENY, and the")
+        print("     cancellation closing the lifecycle over the same authority.")
         return 0
     print(f"FAIL ({sum(1 for _, ok, _ in checks if not ok)}/{len(checks)}) -- composition broken.")
     return 1

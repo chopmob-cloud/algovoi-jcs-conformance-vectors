@@ -1,0 +1,45 @@
+{
+  "set": "cancellation_receipt_lite",
+  "schema_version": "cancellation_receipt_lite/v1",
+  "description": "Open, content-addressed cancellation references over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). cancellation_ref = \"sha256:\" + SHA-256(JCS({cancellation_reason, mandate_ref})). The mandate_ref is the spend authority being cancelled, imported by hash: cn-001/002/003 cancel mandate_1 (sha256:a4f8cb5e...) which is the mandate_ref spend_guardrail_lite binds and payment_mandate_lite produces, so the cancellation composes onto the live decision chain. cancellation_reason is a closed enum {USER_REQUESTED, MERCHANT_REQUESTED, COMPLIANCE_TERMINATED, EXPIRED}; a reason outside the enum or an empty mandate_ref is rejected, not hashed. Both fields are byte-load-bearing. Lite tier: no signature; the commercial Cancellation Receipt adds Falcon-1024 PQC signing, effective-from timing, provider + jurisdiction, and cross-chain propagation.",
+  "canonicalizer": "rfc8785-jcs",
+  "fields": ["cancellation_reason", "mandate_ref"],
+  "reasons": ["USER_REQUESTED", "MERCHANT_REQUESTED", "COMPLIANCE_TERMINATED", "EXPIRED"],
+  "note_chain": "mandate_ref sha256:a4f8cb5e... is mandate_1 in payment_mandate_lite_v1 / spend_guardrail_lite_v1; cancellation_ref binds a categorical reason to that exact authority, closing the lifecycle on the authority side.",
+  "vectors": [
+    {"id": "cn-001", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "cancellation_reason": "USER_REQUESTED", "expected_cancellation_ref": "sha256:9f2913d20750e1bc0c57002e372bc47af44e0ecf53752e05015f2707a24ec218"},
+    {"id": "cn-002", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "cancellation_reason": "MERCHANT_REQUESTED", "expected_cancellation_ref": "sha256:5de4ae35cee0b820a30eda323a6918ef0f96d2293e6e71f95efbda0442b679ba"},
+    {"id": "cn-003", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "cancellation_reason": "COMPLIANCE_TERMINATED", "expected_cancellation_ref": "sha256:b1021a9cb3f96fafb80a4ed721437dfc1ac627de907540371675731797f82065"},
+    {"id": "cn-004", "mandate_ref": "sha256:fefcf604aa85994cd8058b960b0472122d54f81fc48efa394bb0c488599a7615", "cancellation_reason": "EXPIRED", "expected_cancellation_ref": "sha256:518ddce28c6829cee4887e9708938834c3389bb24362ea11e40b25ecfa843478"}
+  ],
+  "negatives": [
+    {
+      "id": "cn-neg-reason-swap", "family": "cancellation_reason",
+      "claimed_cancellation_ref": "sha256:9f2913d20750e1bc0c57002e372bc47af44e0ecf53752e05015f2707a24ec218",
+      "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "cancellation_reason": "MERCHANT_REQUESTED",
+      "recomputes_to": "sha256:5de4ae35cee0b820a30eda323a6918ef0f96d2293e6e71f95efbda0442b679ba",
+      "must": "differ", "note": "same mandate, different reason; cancellation_ref diverges (== cn-002)"
+    },
+    {
+      "id": "cn-neg-mandate-swap", "family": "mandate_ref",
+      "claimed_cancellation_ref": "sha256:9f2913d20750e1bc0c57002e372bc47af44e0ecf53752e05015f2707a24ec218",
+      "mandate_ref": "sha256:fefcf604aa85994cd8058b960b0472122d54f81fc48efa394bb0c488599a7615", "cancellation_reason": "USER_REQUESTED",
+      "recomputes_to": "sha256:67f7d1fed792365290fc29363291d6d6743abd4fa4e178d8e0a412de10ee2be2",
+      "must": "differ", "note": "same reason, different mandate; a cancellation cannot be re-pointed to another authority"
+    },
+    {
+      "id": "cn-neg-invalid-enum", "family": "closed_enum",
+      "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "cancellation_reason": "CANCELLED",
+      "must": "reject", "reason": "cancellation_reason must be one of the closed enum; an unknown reason is rejected, not hashed"
+    },
+    {
+      "id": "cn-neg-empty-mandate", "family": "empty_field",
+      "mandate_ref": "", "cancellation_reason": "USER_REQUESTED",
+      "must": "reject", "reason": "mandate_ref must be a non-empty string; an empty field is rejected, not hashed"
+    }
+  ],
+  "invariants": [
+    {"id": "field-distinctness", "assert": "changing either {cancellation_reason, mandate_ref} changes cancellation_ref (cn-001, reason-swap, mandate-swap all distinct)", "reason": "both fields are byte-load-bearing"},
+    {"id": "reject-invalid", "assert": "a reason outside the closed enum and an empty mandate_ref are both rejected", "reason": "stateless, deterministic, closed-enum content address"}
+  ]
+}

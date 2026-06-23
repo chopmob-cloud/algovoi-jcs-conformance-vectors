@@ -25,6 +25,7 @@ const passport = load('agent_passport_lite_v1');
 const mandate = load('payment_mandate_lite_v1');
 const policy = load('policy_binding_v1');
 const guardrail = load('spend_guardrail_lite_v1');
+const cancellation = load('cancellation_receipt_lite_v1');
 
 const sgAllow = find(guardrail.vectors, dec.verdicts.ALLOW.source_vector);
 const sgDeny = find(guardrail.vectors, dec.verdicts.DENY.source_vector);
@@ -74,6 +75,16 @@ for (const [verdict, sgVec] of [['ALLOW', sgAllow], ['DENY', sgDeny]]) {
     g,
   ]);
 }
+
+// 5. lifecycle: cancellation_ref binds the SAME mandate_ref the chain used
+const lc = trace.lifecycle.cancellation;
+const cancellationRef = ref({ cancellation_reason: lc.cancellation_reason, mandate_ref: mandateRef });
+const cPub = find(cancellation.vectors, lc.source_vector).expected_cancellation_ref;
+checks.push([
+  'cancellation_ref recomputes over the SAME mandate_ref the chain used, equals the published cancellation_receipt_lite reference, and closes the lifecycle on the authority',
+  cancellationRef === lc.expected && cancellationRef === cPub,
+  cancellationRef,
+]);
 
 const width = 74;
 console.log('='.repeat(width));
