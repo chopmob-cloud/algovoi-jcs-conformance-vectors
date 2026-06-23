@@ -1,0 +1,64 @@
+{
+  "set": "spend_decision_chain_v1",
+  "schema_version": "spend_decision_chain/v1",
+  "description": "End-to-end composition proof of the open pre-payment decision chain. From raw identity, authority, and policy inputs, each content-addressed reference is recomputed independently (RFC 8785 JCS + SHA-256, no package import), shown to equal the published output of its own lite conformance set, and shown to be exactly the input the Spend Guardrail decision binds. The final guardrail_ref is then recomputed from the three composed references plus the verdict and matches the published spend_guardrail_lite_v1 reference byte-for-byte, for both ALLOW and DENY. No new vectors, no new hashing primitive: every asserted value is an existing published expected output. The chain: passport_ref (identity) + mandate_ref (authority) + policy_bound_ref (policy) -> guardrail_ref (decision).",
+  "canonicalizer": "rfc8785-jcs",
+  "steps": {
+    "passport_ref": {
+      "binds_as": "agent_ref",
+      "source_set": "agent_passport_lite_v1",
+      "source_vector": "ap-001",
+      "construction": "sha256: + SHA-256(JCS({agent_id, issuer, scope, validity_window}))",
+      "inputs": {
+        "agent_id": "agent-001",
+        "issuer": "did:algo:issuer",
+        "scope": "payments",
+        "validity_window": "2026-06-21/2026-09-21"
+      },
+      "expected": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be"
+    },
+    "mandate_ref": {
+      "binds_as": "mandate_ref",
+      "source_set": "payment_mandate_lite_v1",
+      "source_vector": "pm-001",
+      "construction": "sha256: + SHA-256(JCS({cap, payer, period, revocation_state}))",
+      "inputs": {
+        "payer": "0x00000000000000000000000000000000DEADBEEF",
+        "cap": "1000",
+        "period": "monthly",
+        "revocation_state": "active"
+      },
+      "expected": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35"
+    },
+    "policy_bound_ref": {
+      "binds_as": "policy_bound_ref",
+      "source_set": "policy_binding_v1",
+      "source_vector": "pb-sab-v1-P",
+      "construction": "policy_ref = sha256: + SHA-256(JCS(policy)); policy_bound_ref = sha256: + SHA-256(JCS({policy_ref, subject_ref}))",
+      "policy": {
+        "policy_id": "aml.transfer",
+        "version": 1,
+        "max_amount": 1000,
+        "deny_jurisdictions": ["XX"]
+      },
+      "subject_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca",
+      "expected_policy_ref": "sha256:acc943b05fa8e8096e5b313288bc4f919cc2661f167c833770509a53049afa1c",
+      "expected": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21"
+    }
+  },
+  "decision": {
+    "consumer_set": "spend_guardrail_lite_v1",
+    "construction": "guardrail_ref = sha256: + SHA-256(JCS({agent_ref, mandate_ref, policy_bound_ref, verdict}))",
+    "verdicts": {
+      "ALLOW": {
+        "source_vector": "sg-allow-P",
+        "expected": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+      },
+      "DENY": {
+        "source_vector": "sg-deny-P",
+        "expected": "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf"
+      }
+    }
+  },
+  "note": "Recomputing any input field diverges the affected reference and every reference downstream of it, so a decision made for one agent/authority/policy cannot be silently re-attributed to another. The composition introduces no new construction; it proves the four independently published constructions chain into one recomputable decision."
+}

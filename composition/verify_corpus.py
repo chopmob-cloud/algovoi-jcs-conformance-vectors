@@ -158,7 +158,15 @@ def main() -> int:
     audit_ok = audit.returncode == 0
     print(f"{'PASS  ' if audit_ok else 'FAIL  '} regulatory_audit_trail_v1 (audit trail composition)"
           f"   {'6/6 stages byte-for-byte' if audit_ok else 'BROKEN'}")
-    comp_ok = comp_ok and audit_ok
+
+    chain = subprocess.run(
+        [sys.executable, str(HERE / "spend_decision_chain_v1" / "verify_chain.py")],
+        capture_output=True, text=True,
+    )
+    chain_ok = chain.returncode == 0
+    print(f"{'PASS  ' if chain_ok else 'FAIL  '} spend_decision_chain_v1 (decision chain composition)"
+          f"   {'5/5 links byte-for-byte' if chain_ok else 'BROKEN'}")
+    comp_ok = comp_ok and audit_ok and chain_ok
 
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "
