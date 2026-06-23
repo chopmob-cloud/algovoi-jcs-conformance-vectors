@@ -42,7 +42,7 @@ pip install algovoi-substrate
 python verify_corpus.py
 ```
 
-That runs the 20 JCS+SHA-256 sets plus the end-to-end composition proof and exits
+That runs the JCS+SHA-256 sets plus the end-to-end composition proof and exits
 `0`. Four signature-bearing sets (Ed25519, Falcon-1024 PQC, RFC 9421) need extra
 crypto libraries and are clearly flagged with their install command rather than
 failing. For the full **24/24**, install the requirements first:

@@ -10,10 +10,9 @@
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts. 256 vectors across
-31 anchor sets, with **880/880 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts, with **880/880 byte-for-byte agreements directly executed**
 across eight independent JCS implementations in eight programming languages
-(cumulative as of 2026-06-18; see the cross-implementation validation matrix).
+(cumulative as of 2026-06-18; see the cross-implementation validation matrix). Authoritative anchor-set and vector counts live in `manifest.json`.
 
 This repository is the AlgoVoi-authored reference test corpus that downstream
 implementations of x402, AP2, A2A and MPP receipts can validate against. The
@@ -52,7 +51,7 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | [`vectors/spend_decision_v1/`](./vectors/spend_decision_v1/) | 7 | **Spend decision**. `decision_ref` (ALLOW/DENY/REFER) + the spend_decision chain `prev_entry_hash` linkage; the ALLOW/DENY refs are byte-identical to `spend_guardrail_lite_v1`. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain`. |
 | [`vectors/substrate_guard_v1/`](./vectors/substrate_guard_v1/) | 15 | **Substrate Guard (lite)**. Deterministic input-bounds gate run BEFORE canonicalization: `profile_ref = "sha256:" + SHA-256(JCS(profile))` content-addresses the limits in force; `guard(value, profile)` accepts or rejects a well-formed but resource-hostile payload (bytes/depth/object-keys/array-length/string-length/total-nodes/unsafe-number) with a named code. The resource-bounds edition of `adversarial_isolation_v1`; every bound is a pure structural property so it is identical across implementations. Python + TypeScript byte-for-byte. Normative spec: `draft-hopley-x402-retention-chain` §7.5 (Input Validation), resource-bounds edition. |
 | [`vectors/rfc9421_receipt_evidence_v0/`](./vectors/rfc9421_receipt_evidence_v0/) | 6 | **RFC 9421 receipt evidence**. 6 vectors (1 chain). RFC 9421 HTTP message-signature evidence over receipt payloads. |
-| **Total (anchor sets)** | **256** | 31 anchor sets (incl. the cryptographic-property fixtures below); authoritative per-set counts in `manifest.json`. |
+| **Total** | see `manifest.json` | Authoritative anchor-set and vector counts live in `manifest.json` (incl. the cryptographic-property fixtures below). |
 
 ## Cryptographic-property fixtures (complementary to JCS canonicalisation)
 
