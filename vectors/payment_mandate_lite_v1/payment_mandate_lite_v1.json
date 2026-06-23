@@ -1,0 +1,57 @@
+{
+  "set": "payment_mandate_lite",
+  "schema_version": "payment_mandate_lite/v1",
+  "description": "Open, content-addressed spend-authority references over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). mandate_ref = \"sha256:\" + SHA-256(JCS({cap, payer, period, revocation_state})). This is exactly the mandate_ref that spend_guardrail_lite binds: mandate_1 / mandate_2 here equal mandate_1 / mandate_2 in the spend_guardrail_lite_v1 set, so the decision chain composes (mandate_ref -> the spend authority spend_guardrail binds). cap is a string. Each of the four fields is byte-load-bearing; a missing or empty field is rejected, not hashed. Lite tier: no signature; the commercial Payment Mandate adds Falcon-1024 PQC signing and per-period authorize-charge enforcement.",
+  "canonicalizer": "rfc8785-jcs",
+  "fields": ["payer", "cap", "period", "revocation_state"],
+  "note_chain": "mandate_1 (sha256:a4f8cb5e...) and mandate_2 (sha256:fefcf604...) are the mandate_1 / mandate_2 references in spend_guardrail_lite_v1; this set is the upstream origin of that mandate_ref.",
+  "vectors": [
+    {"id": "pm-001", "payer": "0x00000000000000000000000000000000DEADBEEF", "cap": "1000", "period": "monthly", "revocation_state": "active", "expected_mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35"},
+    {"id": "pm-002", "payer": "0x00000000000000000000000000000000C0FFEE11", "cap": "5000", "period": "monthly", "revocation_state": "active", "expected_mandate_ref": "sha256:fefcf604aa85994cd8058b960b0472122d54f81fc48efa394bb0c488599a7615"},
+    {"id": "pm-003", "payer": "0x00000000000000000000000000000000DEADBEEF", "cap": "1000", "period": "monthly", "revocation_state": "revoked", "expected_mandate_ref": "sha256:8976a5cf5eae108a885d499d56ec3e1f8e37a1c14a48f2cebdd6991d6be51ba9"}
+  ],
+  "negatives": [
+    {
+      "id": "pm-neg-payer-swap", "family": "payer",
+      "claimed_mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "payer": "0x00000000000000000000000000000000C0FFEE11", "cap": "1000", "period": "monthly", "revocation_state": "active",
+      "recomputes_to": "sha256:68d154d9b998cdbe02ff3297e51c325c83409fa2d917d905426615c2b88a7503",
+      "must": "differ", "note": "same cap/period/state, different payer; mandate_ref diverges"
+    },
+    {
+      "id": "pm-neg-cap-tamper", "family": "cap",
+      "claimed_mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "payer": "0x00000000000000000000000000000000DEADBEEF", "cap": "2000", "period": "monthly", "revocation_state": "active",
+      "recomputes_to": "sha256:5195641680c9875268e8a6a1a0d16ec79e046721c28786c7468327d0a4127d6b",
+      "must": "differ", "note": "the spending cap is byte-load-bearing; 1000 -> 2000 diverges the ref"
+    },
+    {
+      "id": "pm-neg-period-tamper", "family": "period",
+      "claimed_mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "payer": "0x00000000000000000000000000000000DEADBEEF", "cap": "1000", "period": "weekly", "revocation_state": "active",
+      "recomputes_to": "sha256:33b4b7ba686a6d6d916da8ab66317e3dd633e503e92a70d2976d4b6a2c432dd3",
+      "must": "differ", "note": "the cap period is byte-load-bearing; monthly -> weekly diverges the ref"
+    },
+    {
+      "id": "pm-neg-revocation-tamper", "family": "revocation_state",
+      "claimed_mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "payer": "0x00000000000000000000000000000000DEADBEEF", "cap": "1000", "period": "monthly", "revocation_state": "revoked",
+      "recomputes_to": "sha256:8976a5cf5eae108a885d499d56ec3e1f8e37a1c14a48f2cebdd6991d6be51ba9",
+      "must": "differ", "note": "revocation_state is byte-load-bearing; active -> revoked diverges the ref (== pm-003)"
+    },
+    {
+      "id": "pm-neg-empty-payer", "family": "empty_field",
+      "payer": "", "cap": "1000", "period": "monthly", "revocation_state": "active",
+      "must": "reject", "reason": "payer must be a non-empty string; an empty field is rejected, not hashed"
+    },
+    {
+      "id": "pm-neg-empty-cap", "family": "empty_field",
+      "payer": "0x00000000000000000000000000000000DEADBEEF", "cap": "", "period": "monthly", "revocation_state": "active",
+      "must": "reject", "reason": "cap must be a non-empty string; an empty field is rejected, not hashed"
+    }
+  ],
+  "invariants": [
+    {"id": "field-distinctness", "assert": "changing any of {payer, cap, period, revocation_state} changes mandate_ref (pm-001, payer-swap, cap-tamper, period-tamper, revocation-tamper all distinct)", "reason": "all four fields are byte-load-bearing"},
+    {"id": "reject-empty", "assert": "a mandate with any empty field is rejected", "reason": "stateless, deterministic, total-field content address"}
+  ]
+}
