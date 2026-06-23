@@ -156,7 +156,6 @@ them and tallies the result.
 | `cancellation_receipt_v1` | closed-enum cancellation receipts |
 | `compliance_receipt_v1` | admission-time compliance receipt |
 | `composite_trust_query_v1` | composite trust query envelope |
-| `ctef_aps_v1` | CTEF / APS attestation vectors |
 | `epi_interop_v0` | `.epi` portable evidence interop |
 | `epi_pqc_v0` | `.epi` post-quantum profile |
 | `multichain_ed25519_substrate_v0` | substrate-independent multichain wire format |

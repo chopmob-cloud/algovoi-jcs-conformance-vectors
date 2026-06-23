@@ -29,7 +29,6 @@ underneath is formalised in PR #2436 in `x402-foundation/x402` and pinned to
 | Anchor set | Vectors | What it exercises |
 |---|---|---|
 | [`vectors/ap2_omh_v0/`](./vectors/ap2_omh_v0/) | 7 | AP2 `open_mandate_hash` derivation - object-key-order, array-order, optional-fields, currency-minor-unit, Unicode NFC-vs-NFD pairs |
-| [`vectors/ctef_aps_v1/`](./vectors/ctef_aps_v1/) | 10 | CTEF v0.3.1 + APS v1 - the APS attestation vector set (`aps_vectors.json`). 4 further CTEF top-level cases (envelope / verdict / scope-violation / composition-failure) live in `ctef_vectors.json`. |
 | [`vectors/privacy_class_v0_1/`](./vectors/privacy_class_v0_1/) | 13 | Settlement-plane visibility declarations across the six privacy invariants in PR #2334 (privacy_class v0.1 supersedes v0) |
 | [`vectors/per_chain_envelope_v0/`](./vectors/per_chain_envelope_v0/) | 19 | Per-chain receipt envelopes across seven chain families (Algorand, VOI, Hedera, Stellar, Base, Solana, Tempo) |
 | [`vectors/action_ref_namespace_v0/`](./vectors/action_ref_namespace_v0/) | 8 | `action_ref` namespace-prefixing convention. Pins the four production-anchor digests (algovoi:compliance_screen, vauban:stark_settlement, agent_os:committed_claim, aura:reputation_observe) plus four unprefixed equivalents; 4 pair invariants prove the namespace prefix is byte-load-bearing. Validates against `algovoi-substrate>=0.2.1` on PyPI / `@algovoi/substrate>=0.2.1` on npm. |
@@ -146,7 +145,7 @@ step.
 ### As a downstream implementer
 
 1. Pick the anchor set that matches your receipt type (AP2 mandates,
-   CTEF / APS attestations, privacy_class declarations, per-chain envelopes).
+   privacy_class declarations, per-chain envelopes).
 2. Use one of the included runner harnesses against your implementation's
    canonicalisation routine.
 3. If your bytes match the `expected_hash` for every vector in the set,
