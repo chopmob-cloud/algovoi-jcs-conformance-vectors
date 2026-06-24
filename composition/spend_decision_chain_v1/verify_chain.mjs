@@ -26,6 +26,7 @@ const mandate = load('payment_mandate_lite_v1');
 const policy = load('policy_binding_v1');
 const guardrail = load('spend_guardrail_lite_v1');
 const cancellation = load('cancellation_receipt_lite_v1');
+const refund = load('refund_receipt_lite_v1');
 
 const sgAllow = find(guardrail.vectors, dec.verdicts.ALLOW.source_vector);
 const sgDeny = find(guardrail.vectors, dec.verdicts.DENY.source_vector);
@@ -84,6 +85,16 @@ checks.push([
   'cancellation_ref recomputes over the SAME mandate_ref the chain used, equals the published cancellation_receipt_lite reference, and closes the lifecycle on the authority',
   cancellationRef === lc.expected && cancellationRef === cPub,
   cancellationRef,
+]);
+
+// 6. lifecycle: refund_ref refunds the SAME guardrail_ref (ALLOW) the chain produced
+const rf = trace.lifecycle.refund;
+const refundRef = ref({ refund_amount: rf.refund_amount, refund_result: rf.refund_result, subject_ref: rf.subject_ref });
+const rPub = find(refund.vectors, rf.source_vector).expected_refund_ref;
+checks.push([
+  'refund_ref recomputes over the SAME guardrail_ref the ALLOW decision produced, equals the published refund_receipt_lite reference, and closes the lifecycle after settlement',
+  refundRef === rf.expected && refundRef === rPub && rf.subject_ref === dec.verdicts.ALLOW.expected,
+  refundRef,
 ]);
 
 const width = 74;

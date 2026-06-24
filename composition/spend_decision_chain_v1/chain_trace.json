@@ -68,6 +68,16 @@
       "binds": "mandate_ref",
       "cancellation_reason": "USER_REQUESTED",
       "expected": "sha256:9f2913d20750e1bc0c57002e372bc47af44e0ecf53752e05015f2707a24ec218"
+    },
+    "refund": {
+      "consumer_set": "refund_receipt_lite_v1",
+      "source_vector": "rf-001",
+      "construction": "refund_ref = sha256: + SHA-256(JCS({refund_amount, refund_result, subject_ref}))",
+      "binds": "guardrail_ref (ALLOW decision)",
+      "subject_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "refund_result": "FULL",
+      "refund_amount": "1000",
+      "expected": "sha256:1d32c8b9e20411aa4fcc1953bc34cd91ac65033d4e66f53501aea3debab621fe"
     }
   },
   "note": "Recomputing any input field diverges the affected reference and every reference downstream of it, so a decision made for one agent/authority/policy cannot be silently re-attributed to another. The composition introduces no new construction; it proves the four independently published constructions chain into one recomputable decision."

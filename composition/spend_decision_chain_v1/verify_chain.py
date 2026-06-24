@@ -64,6 +64,7 @@ def main() -> int:
     policy = _load("policy_binding_v1")
     guardrail = _load("spend_guardrail_lite_v1")
     cancellation = _load("cancellation_receipt_lite_v1")
+    refund = _load("refund_receipt_lite_v1")
 
     sg_allow = _guardrail_positive(guardrail, dec["verdicts"]["ALLOW"]["source_vector"])
     sg_deny = _guardrail_positive(guardrail, dec["verdicts"]["DENY"]["source_vector"])
@@ -132,6 +133,17 @@ def main() -> int:
         cancellation_ref,
     ))
 
+    # --- 6. lifecycle: refund_ref refunds the SAME guardrail_ref (ALLOW) the chain produced ---
+    rf = trace["lifecycle"]["refund"]
+    refund_ref = ref({"refund_amount": rf["refund_amount"], "refund_result": rf["refund_result"], "subject_ref": rf["subject_ref"]})
+    rpub = next(v["expected_refund_ref"] for v in refund["vectors"] if v["id"] == rf["source_vector"])
+    checks.append((
+        "refund_ref recomputes over the SAME guardrail_ref the ALLOW decision produced, equals the published "
+        "refund_receipt_lite reference, and closes the lifecycle after settlement",
+        refund_ref == rf["expected"] == rpub and rf["subject_ref"] == dec["verdicts"]["ALLOW"]["expected"],
+        refund_ref,
+    ))
+
     width = 74
     print("=" * width)
     print("OPEN PRE-PAYMENT DECISION CHAIN -- composition proof")
@@ -146,10 +158,11 @@ def main() -> int:
     print("\n" + "-" * width)
     if all_ok:
         print(f"PASS {len(checks)}/{len(checks)} -- the chain composes end-to-end, byte-for-byte.")
-        print("     passport_ref + mandate_ref + policy_bound_ref -> guardrail_ref -> cancellation_ref;")
+        print("     passport_ref + mandate_ref + policy_bound_ref -> guardrail_ref -> cancellation_ref + refund_ref;")
         print("     identity, authority, and policy each recomputed from raw fields, each the")
-        print("     reference the decision binds, decision reproduced for ALLOW and DENY, and the")
-        print("     cancellation closing the lifecycle over the same authority.")
+        print("     reference the decision binds, decision reproduced for ALLOW and DENY, the")
+        print("     cancellation closing the lifecycle over the same authority, and the refund")
+        print("     closing the lifecycle over the same authorized payment after settlement.")
         return 0
     print(f"FAIL ({sum(1 for _, ok, _ in checks if not ok)}/{len(checks)}) -- composition broken.")
     return 1

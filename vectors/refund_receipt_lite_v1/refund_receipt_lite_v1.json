@@ -1,0 +1,52 @@
+{
+  "set": "refund_receipt_lite",
+  "schema_version": "refund_receipt_lite/v1",
+  "description": "Open, content-addressed refund references over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). refund_ref = \"sha256:\" + SHA-256(JCS({refund_amount, refund_result, subject_ref})). The subject_ref is the prior payment/decision being refunded, imported by hash: rf-001/002/003 refund subject sha256:2a444c62... which is the ALLOW guardrail_ref in spend_guardrail_lite_v1 / spend_decision_chain_v1, so the refund composes onto the live decision chain (it closes the lifecycle after the authorized payment). refund_result is a closed enum {FULL, PARTIAL, REJECTED}; a result outside the enum, or an empty subject_ref or refund_amount, is rejected, not hashed. All three fields are byte-load-bearing. Lite tier: no signature; the commercial Refund Receipt adds Falcon-1024 PQC signing, provider + timing + jurisdiction, and closes the original payment across the settlement and retention chains.",
+  "canonicalizer": "rfc8785-jcs",
+  "fields": ["refund_amount", "refund_result", "subject_ref"],
+  "refund_results": ["FULL", "PARTIAL", "REJECTED"],
+  "note_chain": "subject_ref sha256:2a444c62... is the ALLOW guardrail_ref in spend_guardrail_lite_v1 / spend_decision_chain_v1; refund_ref binds a categorical result + amount to that exact authorized payment, closing the lifecycle after settlement.",
+  "vectors": [
+    {"id": "rf-001", "subject_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97", "refund_result": "FULL", "refund_amount": "1000", "expected_refund_ref": "sha256:1d32c8b9e20411aa4fcc1953bc34cd91ac65033d4e66f53501aea3debab621fe"},
+    {"id": "rf-002", "subject_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97", "refund_result": "PARTIAL", "refund_amount": "500", "expected_refund_ref": "sha256:908db96a05dad15753892a196c5b37ccc343153e3de71fec403980b6f73cc742"},
+    {"id": "rf-003", "subject_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97", "refund_result": "REJECTED", "refund_amount": "0", "expected_refund_ref": "sha256:e2713bd2755cd2f369e0eb3137119a94a36076e98f8a51b7a37be15da53031c4"},
+    {"id": "rf-004", "subject_ref": "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf", "refund_result": "FULL", "refund_amount": "5000", "expected_refund_ref": "sha256:05ea2bc3968aa282f57e536d8dcdabfafb9907624ee45fe2a4d8cebf87ae1c37"}
+  ],
+  "negatives": [
+    {
+      "id": "rf-neg-result-swap", "family": "refund_result",
+      "claimed_refund_ref": "sha256:1d32c8b9e20411aa4fcc1953bc34cd91ac65033d4e66f53501aea3debab621fe",
+      "subject_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97", "refund_result": "PARTIAL", "refund_amount": "1000",
+      "recomputes_to": "sha256:d87ddcedffaac2eba1662eb61ca9f708a008b11311c0afa683034d1fdcfa74ac",
+      "must": "differ", "note": "same subject + amount, different result; refund_ref diverges"
+    },
+    {
+      "id": "rf-neg-amount-tamper", "family": "refund_amount",
+      "claimed_refund_ref": "sha256:1d32c8b9e20411aa4fcc1953bc34cd91ac65033d4e66f53501aea3debab621fe",
+      "subject_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97", "refund_result": "FULL", "refund_amount": "2000",
+      "recomputes_to": "sha256:49a14db5b027c1dcfef995fcb4e7ab61316289b59286a58c2c7ec1d8620a093c",
+      "must": "differ", "note": "the refund amount is byte-load-bearing; 1000 -> 2000 diverges the ref"
+    },
+    {
+      "id": "rf-neg-subject-swap", "family": "subject_ref",
+      "claimed_refund_ref": "sha256:1d32c8b9e20411aa4fcc1953bc34cd91ac65033d4e66f53501aea3debab621fe",
+      "subject_ref": "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf", "refund_result": "FULL", "refund_amount": "1000",
+      "recomputes_to": "sha256:6f194067a64bbb8c36d4855c32bc6d856be55b8b204f27fae3eab56a967f778f",
+      "must": "differ", "note": "same result + amount, different subject; a refund cannot be re-pointed to another payment"
+    },
+    {
+      "id": "rf-neg-invalid-enum", "family": "closed_enum",
+      "subject_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97", "refund_result": "REFUNDED", "refund_amount": "1000",
+      "must": "reject", "reason": "refund_result must be one of the closed enum; an unknown result is rejected, not hashed"
+    },
+    {
+      "id": "rf-neg-empty-subject", "family": "empty_field",
+      "subject_ref": "", "refund_result": "FULL", "refund_amount": "1000",
+      "must": "reject", "reason": "subject_ref must be a non-empty string; an empty field is rejected, not hashed"
+    }
+  ],
+  "invariants": [
+    {"id": "field-distinctness", "assert": "changing any of {refund_amount, refund_result, subject_ref} changes refund_ref (rf-001, result-swap, amount-tamper, subject-swap all distinct)", "reason": "all three fields are byte-load-bearing"},
+    {"id": "reject-invalid", "assert": "a result outside the closed enum, an empty subject_ref, and an empty refund_amount are all rejected", "reason": "stateless, deterministic, closed-enum content address"}
+  ]
+}
