@@ -71,6 +71,37 @@ support the substrate authorship claim:
 | [`vectors/rfc9421_proxy_chain_v1/`](./vectors/rfc9421_proxy_chain_v1/) | RFC 9421 §2.5-conformant HTTP message signature + RFC 9530 content-digest survive a re-terminating proxy chain byte-identical | Single fixture, RFC 9421 §2.5 signing base (Ed25519). |
 | [`vectors/multichain_ed25519_substrate_v0/`](./vectors/multichain_ed25519_substrate_v0/) | Ed25519 signing over a shared canonical payload across keys derived from independent chain BIP44 paths (Algorand, Solana, Stellar) | Three signatures of the same 221-byte canonical JSON payload (SHA-256 `4f867161…0b56267c`) under three different chain-derivation paths |
 
+## Compositions (end-to-end keystone proofs)
+
+Beyond the per-set vectors, the corpus ships composition proofs that recompute a whole
+lifecycle from raw fields and show each reference equals the published output of its own set.
+Each is byte-for-byte in Python and an independent Node implementation, offline, with no
+package import (an RFC 8785 JCS library and SHA-256 are the whole dependency):
+
+| Composition | Links | Proves |
+|---|---|---|
+| [`composition/spend_decision_chain_v1/`](./composition/spend_decision_chain_v1/) | 8 | The open decision lifecycle: `passport_ref + mandate_ref + policy_bound_ref` compose into one `guardrail_ref`, extended through cancellation, refund, and a capping trust query. |
+| [`composition/keystone_v1/`](./composition/keystone_v1/) | 6 | The full Keystone: identity, authority, policy, decision, execution, then one trust verdict over the ordered chain. The execution tier (`execution_ref`) binds the exact decision that authorized it. |
+| [`composition/settlement_binding_v1/`](./composition/settlement_binding_v1/) | 6 | The settlement tier binds to execution: a settlement attestation whose `settled_payment_ref` is the exact `execution_ref`, capped by one `execution_binding` over `{execution_ref, settlement_ref, retention_chain_ref}`. What settled binds to what executed. |
+| [`composition/refund_execution_v1/`](./composition/refund_execution_v1/) | 5 | A refund anchored to the `execution_ref` of the payment that committed, not merely to the decision that authorized it; the anchor is byte-load-bearing. |
+| [`composition/pef_keystone_v1/`](./composition/pef_keystone_v1/) | 6 | PEF (Payment Evidence Frame) as the signed transport over the Keystone: a frame wraps a keystone record and pins it, so its `frame_id` commits to the exact keystone position it carries. The envelope layer, not a new link in the chain. |
+| [`composition/audit_chain_of_frames_v1/`](./composition/audit_chain_of_frames_v1/) | 6 | The whole lifecycle (execution, settlement, refund) as a chain of PEF frames, each frame's `receipt_hash` equal to the keystone reference it transports, linked by `prev_hash` and capped by one `trust_query_ref`. |
+| [`composition/regulated_lifecycle_v1/`](./composition/regulated_lifecycle_v1/) | 5 | The regulated payment lifecycle composition. |
+| [`composition/regulatory_audit_trail_v1/`](./composition/regulatory_audit_trail_v1/) | 6 | The regulatory audit trail composition. |
+
+Run one composition, for example the Keystone:
+
+```
+python composition/keystone_v1/verify_keystone.py     # 6/6 links byte-for-byte
+node   composition/keystone_v1/verify_keystone.mjs    # Node == Python
+```
+
+Or run every vector set and every composition at once:
+
+```
+python composition/verify_corpus.py
+```
+
 ## Cross-implementation validation matrix
 
 The vector sets below were directly validated to produce byte-identical canonical
