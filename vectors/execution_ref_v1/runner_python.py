@@ -12,7 +12,8 @@ timestamp is REJECTED, not converted then hashed (Substrate Rule 2); (5) cross-s
 composition: the decision_ref inputs are byte-identical to spend_decision_v1
 expected_decision_ref (the keystone composes decision -> execution).
 
-    pip install algovoi-substrate>=0.5.0
+    pip install algovoi-execution-ref      # any substrate version
+    # or, once published:  pip install algovoi-substrate>=1.0.0   (native)
     python runner_python.py [execution_ref_v1.json]
 """
 from __future__ import annotations
@@ -21,8 +22,13 @@ import json
 import sys
 from pathlib import Path
 
-from algovoi_substrate import execution_ref
-from algovoi_substrate.execution_ref import ExecutionRefError
+# execution_ref ships natively in substrate 1.0.0+; until then (and on any
+# substrate version) the standalone algovoi-execution-ref app provides it.
+try:
+    from algovoi_substrate import execution_ref
+    from algovoi_substrate.execution_ref import ExecutionRefError
+except ImportError:
+    from algovoi_execution_ref import execution_ref, ExecutionRefError
 
 
 def _ref(v) -> str:

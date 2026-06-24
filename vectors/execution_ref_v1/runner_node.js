@@ -11,13 +11,23 @@
  * outcome enum; each negative recomputes DIFFERENT; an RFC 3339 string timestamp
  * is REJECTED (Substrate Rule 2); cross-set composition vs spend_decision_v1.
  *
- *   npm install @algovoi/substrate
+ *   npm install @algovoi/execution-ref      // any substrate version
+ *   // or, once published:  npm install @algovoi/substrate@>=1.0.0   (native)
  *   node runner_node.js [execution_ref_v1.json]
  */
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { executionRef, ExecutionRefError } from "@algovoi/substrate";
+
+// execution_ref ships natively in @algovoi/substrate 1.0.0+; until then (and on
+// any substrate version) the standalone @algovoi/execution-ref provides it.
+let executionRef, ExecutionRefError;
+try {
+  ({ executionRef, ExecutionRefError } = await import("@algovoi/substrate"));
+  if (typeof executionRef !== "function") throw new Error("not native in this substrate");
+} catch {
+  ({ executionRef, ExecutionRefError } = await import("@algovoi/execution-ref"));
+}
 
 const ref = (v) =>
   executionRef({
