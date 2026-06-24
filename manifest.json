@@ -265,7 +265,7 @@
       "vector_count": 7,
       "anchors_to": "draft-hopley-x402-retention-chain",
       "cross_validated": "Python + TypeScript byte-for-byte (2026-06-21)",
-      "sha256": "sha256:6a406adb07f540c83ac6e64806e6f484c085aaae57d948b9a1448de4fdeaff03"
+      "sha256": "sha256:c0c7a40fc270585380340ae1a36be2cfc42cbce2ee50ed27ee2e9b75e081fefb"
     },
     {
       "name": "execution_ref_v1",
