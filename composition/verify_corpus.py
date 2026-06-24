@@ -198,7 +198,15 @@ def main() -> int:
     refund_x_ok = refund_x.returncode == 0
     print(f"{'PASS  ' if refund_x_ok else 'FAIL  '} refund_execution_v1 (refund binds to keystone execution)"
           f"   {'5/5 links byte-for-byte' if refund_x_ok else 'BROKEN'}")
-    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok and pef_ok and refund_x_ok
+
+    acf = subprocess.run(
+        [sys.executable, str(HERE / "audit_chain_of_frames_v1" / "verify_audit_chain_of_frames.py")],
+        capture_output=True, text=True,
+    )
+    acf_ok = acf.returncode == 0
+    print(f"{'PASS  ' if acf_ok else 'FAIL  '} audit_chain_of_frames_v1 (lifecycle as chained PEF frames, capped)"
+          f"   {'6/6 links byte-for-byte' if acf_ok else 'BROKEN'}")
+    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok and pef_ok and refund_x_ok and acf_ok
 
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "

@@ -1,0 +1,136 @@
+{
+  "set": "audit_chain_of_frames_v1",
+  "title": "Keystone lifecycle as a chain of signed-transport frames, capped by one verdict",
+  "canon_version": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+  "summary": "execution -> settlement -> refund, each carried as a PEF frame whose receipt_hash equals the keystone reference it transports, linked into an audit chain by prev_hash and capped by one trust_query_ref over the ordered frame ids. Tamper any frame and both the chain and the cap diverge. No new hashing primitive.",
+  "execution": {
+    "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+    "action_type": "payment",
+    "scope": "bilateral",
+    "outcome": "COMMITTED",
+    "executed_at_ms": 1716460800000,
+    "expected_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+  },
+  "frames": [
+    {
+      "role": "execution",
+      "frame_id": "sha256:07deb7a240ef068d2b17c31b448c41bb771fcd71be043b0fc312aa992677139e",
+      "receipt_hash": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+      "carries_ref": "execution_ref",
+      "preimage": {
+        "canon_version": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+        "claim_type": "payment_execution",
+        "frame_provider_did": "did:web:api.algovoi.co.uk",
+        "frame_timestamp_ms": 1716460800000,
+        "pef_version": "1",
+        "receipt": {
+          "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+          "action_type": "payment",
+          "scope": "bilateral",
+          "outcome": "COMMITTED",
+          "executed_at_ms": 1716460800000
+        },
+        "receipt_format": "execution-ref-v1",
+        "receipt_hash": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+      }
+    },
+    {
+      "role": "settlement",
+      "frame_id": "sha256:e25b6ff76be33dfe375ec89fe3f5b399e417c129d74e685cf426d1b91fa68e9c",
+      "receipt_hash": "sha256:d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9",
+      "carries_ref": "settlement_ref",
+      "preimage": {
+        "canon_version": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+        "claim_type": "payment_settlement",
+        "frame_provider_did": "did:web:api.algovoi.co.uk",
+        "frame_timestamp_ms": 1716494400000,
+        "pef_version": "1",
+        "receipt": {
+          "canon_version": "jcs-rfc8785-v1",
+          "jurisdiction_flags": [
+            "UK",
+            "EU"
+          ],
+          "settled_payment_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+          "settlement_amount": {
+            "amount_minor": "100000",
+            "asset_id": "USDC.6"
+          },
+          "settlement_chain": "ethereum:8453",
+          "settlement_provider_did": "did:example:settlement-provider-1",
+          "settlement_result": "SETTLED",
+          "settlement_timestamp_ms": 1716494400000
+        },
+        "receipt_format": "settlement-attestation-v1",
+        "receipt_hash": "sha256:d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9"
+      }
+    },
+    {
+      "role": "refund",
+      "frame_id": "sha256:8813f2292dafb23d60ba166b75c1ce6e6c9e30cb85f3bdb6c9818b1557cedf23",
+      "receipt_hash": "sha256:d788dca372c121c27c6babc767fa8d842112ab87e5b76406f7c9303a7970b941",
+      "carries_ref": "refund_ref",
+      "preimage": {
+        "canon_version": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+        "claim_type": "payment_refund",
+        "frame_provider_did": "did:web:api.algovoi.co.uk",
+        "frame_timestamp_ms": 1716508800000,
+        "pef_version": "1",
+        "receipt": {
+          "refund_amount": "1000",
+          "refund_result": "FULL",
+          "subject_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+        },
+        "receipt_format": "refund-receipt-lite-v1",
+        "receipt_hash": "sha256:d788dca372c121c27c6babc767fa8d842112ab87e5b76406f7c9303a7970b941"
+      }
+    }
+  ],
+  "carries": {
+    "execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+    "settlement_ref": "sha256:d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9",
+    "refund_ref": "sha256:d788dca372c121c27c6babc767fa8d842112ab87e5b76406f7c9303a7970b941"
+  },
+  "audit_chain": [
+    {
+      "row": {
+        "content_hash": "sha256:07deb7a240ef068d2b17c31b448c41bb771fcd71be043b0fc312aa992677139e",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "row_number": 1
+      },
+      "expected_row_hash": "e538f57088be1c2ad2793b7339cda8e530cfb0a54fdfa28632f6fc1ef21fa3f3"
+    },
+    {
+      "row": {
+        "content_hash": "sha256:e25b6ff76be33dfe375ec89fe3f5b399e417c129d74e685cf426d1b91fa68e9c",
+        "prev_hash": "e538f57088be1c2ad2793b7339cda8e530cfb0a54fdfa28632f6fc1ef21fa3f3",
+        "row_number": 2
+      },
+      "expected_row_hash": "be9f9e1e28e91b3198e96640c97491dff4c26b066c92667840e2cd8e6409f78e"
+    },
+    {
+      "row": {
+        "content_hash": "sha256:8813f2292dafb23d60ba166b75c1ce6e6c9e30cb85f3bdb6c9818b1557cedf23",
+        "prev_hash": "be9f9e1e28e91b3198e96640c97491dff4c26b066c92667840e2cd8e6409f78e",
+        "row_number": 3
+      },
+      "expected_row_hash": "08273d83a30e5f131e7b0a680e837d3a624f211271fe707ff861ee7a7f12fc00"
+    }
+  ],
+  "cap": {
+    "subject_refs": [
+      "sha256:07deb7a240ef068d2b17c31b448c41bb771fcd71be043b0fc312aa992677139e",
+      "sha256:e25b6ff76be33dfe375ec89fe3f5b399e417c129d74e685cf426d1b91fa68e9c",
+      "sha256:8813f2292dafb23d60ba166b75c1ce6e6c9e30cb85f3bdb6c9818b1557cedf23"
+    ],
+    "trust_outcome": "TRUSTED",
+    "expected_trust_query_ref": "sha256:5bcfd94d14456ab8fb7be11abf61470f586fba9235ee08397bfb9b14c5087b10"
+  },
+  "tamper": {
+    "reversed_frame2_id": "sha256:a7b75c7cb970e2fabdb88861df8e3de147473fe9ba5d8aa3cb963beb4730aac0",
+    "reversed_row2_hash": "576de60972ef3cef647e7acd4ae0d3961ef97762ac5be3c9223c5bef9c754c06",
+    "reversed_row3_hash": "d33bb5928802e1107748b97e32ff9b65d74b1711bd3fab4bce79714b65844e04",
+    "reversed_cap": "sha256:2a323add3d2b34bca86ae5e735323b6e5f281bc159a80ab0936093b2476d7816",
+    "note": "REVERSED settlement reshapes frame 2 -> frame_id, rows 2-3, and the cap all diverge."
+  }
+}

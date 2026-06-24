@@ -56,6 +56,17 @@ we evolve L1 we take them into account and weigh backward-compatibility for them
   refund-over-decision; the latter matches the published `rf-001`). Reuses
   `refund_receipt_lite_v1` unchanged (subject_ref re-anchored) and `execution_ref_v1` /
   `keystone_v1`. Reference impl: `algovoi-refund-receipt-lite` (`refund_ref(...)`).
+- **2026-06-24 — `audit_chain_of_frames_v1`** (composition capstone; 6/6 links, Python == Node
+  byte-for-byte). The whole post-decision lifecycle as a chain of signed-transport frames:
+  Frame 1 (execution) / Frame 2 (settlement) / Frame 3 (refund), each a PEF frame wrapping the
+  exact preimage of a keystone reference so its `receipt_hash` EQUALS that reference
+  (`execution_ref` / `settlement_ref` / `refund_ref`). Frames link into an audit chain
+  (`prev_hash` == prior row hash, genesis 64 zeros) and one `trust_query_ref` over the ordered
+  frame ids caps the lifecycle. Tamper any frame (e.g. REVERSED settlement) and its `frame_id`,
+  the downstream rows, and the cap all diverge. Composes `pef_v1`, `execution_ref_v1`,
+  `settlement_attestation_v1`, `refund_receipt_lite_v1`, the audit-chain row shape, and
+  `trust_query_ref` — no new hashing primitive. Anchor: `payment-evidence-frame` +
+  `draft-hopley-x402-retention-chain-06`.
 
 ## L2 layers (validated against L1, recorded for change management)
 
