@@ -171,7 +171,17 @@ them and tallies the result.
 | `settlement_attestation_v1` | settlement attestation content hash |
 | `settlement_action_binding_v1` | binds settlement to the verified action it paid for |
 | `zkp_receipt_v1` | zero-knowledge receipt predicate |
-| **`regulated_lifecycle_v1`** | **the keystone: all of the above, composed end-to-end** |
+| `agent_passport_lite_v1` | open agent-identity `passport_ref` (lite) |
+| `payment_mandate_lite_v1` | open spend-authority `mandate_ref` (lite) |
+| `policy_binding_v1` | policy snapshot bound to a frozen subject (version-provable, rotation-detectable) |
+| `compliance_gate_lite_v1` | open ALLOW/REFER/DENY `gate_ref` bound to the policy in force (lite) |
+| `spend_guardrail_lite_v1` | open pre-payment `guardrail_ref` ALLOW/DENY decision (lite) |
+| `spend_decision_v1` | `decision_ref` (ALLOW/DENY/REFER) + spend_decision chain linkage |
+| `cancellation_receipt_lite_v1` | open `cancellation_ref` closing the authority before payment (lite) |
+| `refund_receipt_lite_v1` | open `refund_ref` closing the payment after settlement (lite) |
+| `composite_trust_query_lite_v1` | open `trust_query_ref` capping the chain with one verdict (lite) |
+| `substrate_guard_v1` | input-bounds / DoS gate before canonicalization (lite) |
+| **`regulated_lifecycle_v1`, `regulatory_audit_trail_v1`, `spend_decision_chain_v1`** | **the keystones: published sets composed end-to-end (5/5, 6/6, 8/8 links)** |
 
 One set, `service_trust_v0`, is intentionally **outside** this offline corpus: it
 is a third-party scoring set verified by calling an external service, not by local
