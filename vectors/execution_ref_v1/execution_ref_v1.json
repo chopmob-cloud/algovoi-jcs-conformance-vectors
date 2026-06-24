@@ -1,0 +1,125 @@
+{
+  "set": "execution_ref_v1",
+  "schema_version": "1",
+  "description": "execution_ref: decision-bound execution evidence. execution_ref = \"sha256:\" + SHA-256(JCS({decision_ref, action_type, scope, outcome, executed_at_ms})). The decision_ref inputs are the byte-identical expected_decision_ref values from spend_decision_v1, so the keystone composes: passport_ref -> mandate_ref -> decision_ref (PRE-payment) -> execution_ref (POST-execution). execution_ref proves the executed action is consistent with the exact decision that authorized it, not merely correlated with an identity. outcome is the closed enum {COMMITTED, SKIPPED, FAILED, REVERSED} (SKIPPED is the exactly-once dedupe result). executed_at_ms is an epoch-millisecond integer hashed directly (Substrate Rule 2); RFC 3339 string timestamps are rejected. No raw agent_id appears: it is already bound inside decision_ref, so execution_ref is no-PII by construction.",
+  "canonicalizer": "rfc8785-jcs + sha256, prefixed 'sha256:'",
+  "fields": [
+    "decision_ref",
+    "action_type",
+    "scope",
+    "outcome",
+    "executed_at_ms"
+  ],
+  "outcomes": [
+    "COMMITTED",
+    "SKIPPED",
+    "FAILED",
+    "REVERSED"
+  ],
+  "cross_set_invariant": {
+    "note": "decision_ref inputs (DEC_ALLOW/DEC_DENY/DEC_REFER) equal spend_decision_v1 sd-allow/sd-deny/sd-refer expected_decision_ref; this set is the execution tier composing onto that decision tier."
+  },
+  "vectors": [
+    {
+      "id": "ex-allow-committed",
+      "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "COMMITTED",
+      "executed_at_ms": 1716460800000,
+      "expected_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+    },
+    {
+      "id": "ex-allow-skipped",
+      "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "SKIPPED",
+      "executed_at_ms": 1716460800000,
+      "expected_execution_ref": "sha256:a711210ca87a111eba6c21fd198d4a60302be0cb9dfcfd635c5e59f1f6481a6a"
+    },
+    {
+      "id": "ex-allow-reversed",
+      "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "REVERSED",
+      "executed_at_ms": 1716460800500,
+      "expected_execution_ref": "sha256:ee765cf1dd5c81e5ef29c515306a99d18a790ecf0de09d128db5d11016a7b59c"
+    },
+    {
+      "id": "ex-refer-failed",
+      "decision_ref": "sha256:914ea5fb17d6ee423d5724f18388af003aabf64d7fb162492bcadc0d93b2a872",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "FAILED",
+      "executed_at_ms": 1716460801000,
+      "expected_execution_ref": "sha256:f5270ce6093e726a610684cd24f6899e2b87636ca5d57132551d128ba5f41f69"
+    }
+  ],
+  "negatives": [
+    {
+      "id": "ex-neg-decision-swap",
+      "family": "decision_ref",
+      "claimed_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+      "decision_ref": "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "COMMITTED",
+      "executed_at_ms": 1716460800000,
+      "recomputes_to": "sha256:255c236117fa5c25e23698de2cce69e921be3ce2e4bc9434d0c2e7067993a9e9",
+      "must": "differ",
+      "note": "execution bound to its authorizing decision: a DENY decision_ref cannot claim an ALLOW execution (consistency, not just correlation)."
+    },
+    {
+      "id": "ex-neg-outcome-swap",
+      "family": "outcome",
+      "claimed_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+      "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "REVERSED",
+      "executed_at_ms": 1716460800000,
+      "recomputes_to": "sha256:8a71a2a3c2f7d4ee5c4be890b869930e3bb994dcb379c37469c77454e0213ae8",
+      "must": "differ",
+      "note": "outcome is load-bearing: COMMITTED and REVERSED are distinct evidence."
+    },
+    {
+      "id": "ex-neg-timestamp-1ms",
+      "family": "executed_at_ms",
+      "claimed_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+      "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "COMMITTED",
+      "executed_at_ms": 1716460800001,
+      "recomputes_to": "sha256:2678e81188f1f6c8bdb7df8fa2a93c655736482bba49cc25e5b50e3b960051d6",
+      "must": "differ",
+      "note": "1ms difference changes the ref; integer epoch-ms is hashed directly."
+    },
+    {
+      "id": "ex-neg-scope-swap",
+      "family": "scope",
+      "claimed_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+      "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "action_type": "payment",
+      "scope": "unilateral",
+      "outcome": "COMMITTED",
+      "executed_at_ms": 1716460800000,
+      "recomputes_to": "sha256:b4e6204a8f826eb89416d2b1f48ddc0116f22a8eabab20ee31ef73c922b4c897",
+      "must": "differ",
+      "note": "scope is load-bearing."
+    },
+    {
+      "id": "ex-neg-rfc3339-timestamp",
+      "family": "executed_at_ms",
+      "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "COMMITTED",
+      "executed_at_ms": "2026-05-23T10:40:00.000Z",
+      "must": "reject",
+      "note": "Substrate Rule 2: an RFC 3339 string timestamp is rejected, not converted then hashed. This is the form a non-conformant lineage uses; it cannot reproduce these bytes."
+    }
+  ]
+}

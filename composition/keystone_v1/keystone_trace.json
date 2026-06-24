@@ -1,0 +1,73 @@
+{
+  "set": "keystone_v1",
+  "schema_version": "keystone/v1",
+  "description": "End-to-end composition proof of the full AlgoVoi keystone flow, through the post-decision execution-evidence tier. From raw identity, authority, and policy inputs, each content-addressed reference is recomputed first-principles (RFC 8785 JCS + SHA-256, no package import) and shown to equal the published output of its lite conformance set. The decision (guardrail_ref) is recomputed from the three composed references plus the verdict. The execution_ref is then recomputed over the EXACT decision_ref the chain produced, proving the executed action is consistent with the decision that authorized it (not merely correlated with an identity), and matches the published execution_ref_v1 reference. Finally trust_query_ref assesses the whole chain [passport_ref, mandate_ref, policy_bound_ref, decision_ref, execution_ref] in order, capping identity -> authority -> policy -> decision -> execution as one verdict. No new hashing primitive: every asserted value is an existing published expected output.",
+  "canonicalizer": "rfc8785-jcs",
+  "steps": {
+    "passport_ref": {
+      "binds_as": "agent_ref",
+      "source_set": "agent_passport_lite_v1",
+      "source_vector": "ap-001",
+      "inputs": {
+        "agent_id": "agent-001",
+        "issuer": "did:algo:issuer",
+        "scope": "payments",
+        "validity_window": "2026-06-21/2026-09-21"
+      },
+      "expected": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be"
+    },
+    "mandate_ref": {
+      "binds_as": "mandate_ref",
+      "source_set": "payment_mandate_lite_v1",
+      "source_vector": "pm-001",
+      "inputs": {
+        "payer": "0x00000000000000000000000000000000DEADBEEF",
+        "cap": "1000",
+        "period": "monthly",
+        "revocation_state": "active"
+      },
+      "expected": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35"
+    },
+    "policy_bound_ref": {
+      "binds_as": "policy_bound_ref",
+      "source_set": "policy_binding_v1",
+      "source_vector": "pb-sab-v1-P",
+      "policy": {
+        "policy_id": "aml.transfer",
+        "version": 1,
+        "max_amount": 1000,
+        "deny_jurisdictions": ["XX"]
+      },
+      "subject_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca",
+      "expected_policy_ref": "sha256:acc943b05fa8e8096e5b313288bc4f919cc2661f167c833770509a53049afa1c",
+      "expected": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21"
+    }
+  },
+  "decision": {
+    "consumer_set": "spend_guardrail_lite_v1",
+    "construction": "guardrail_ref = sha256: + SHA-256(JCS({agent_ref, mandate_ref, policy_bound_ref, verdict}))",
+    "verdict": "ALLOW",
+    "source_vector": "sg-allow-P",
+    "expected": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+  },
+  "execution": {
+    "consumer_set": "execution_ref_v1",
+    "source_vector": "ex-allow-committed",
+    "construction": "execution_ref = sha256: + SHA-256(JCS({decision_ref, action_type, scope, outcome, executed_at_ms}))",
+    "binds": "decision_ref (the ALLOW decision the chain produced)",
+    "action_type": "payment",
+    "scope": "bilateral",
+    "outcome": "COMMITTED",
+    "executed_at_ms": 1716460800000,
+    "expected": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+  },
+  "cap": {
+    "consumer_set": "composite_trust_query_lite_v1",
+    "source_vector": "tq-keystone",
+    "construction": "trust_query_ref = sha256: + SHA-256(JCS({subject_refs, trust_outcome}))",
+    "assesses": ["passport_ref", "mandate_ref", "policy_bound_ref", "decision_ref", "execution_ref"],
+    "trust_outcome": "TRUSTED",
+    "expected": "sha256:18fb601a08c71eb6bed11e1c117f33bdc0ada6d635ea9bb9cca15e8410ce7ebd"
+  },
+  "note": "Recomputing any input field diverges the affected reference and every reference downstream of it. The execution tier is bound to the decision tier: the execution_ref preimage carries the decision_ref the chain produced, so an execution recorded under one decision cannot be re-attributed to another. trust_query_ref over the full ordered chain caps identity -> authority -> policy -> decision -> execution as one verdict."
+}

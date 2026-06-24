@@ -3,55 +3,156 @@
   "schema_version": "composite_trust_query_lite/v1",
   "description": "Open, content-addressed trust-verdict references over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). trust_query_ref = \"sha256:\" + SHA-256(JCS({subject_refs, trust_outcome})). subject_refs is the ordered list of references the verdict was reached over, each imported by hash; tq-001/002/003 assess the full live decision chain [passport_ref, mandate_ref, policy_bound_ref, guardrail_ref(ALLOW)] from spend_decision_chain_v1, so this caps the open lifecycle. Both order and membership of subject_refs are byte-load-bearing, as is trust_outcome (a closed enum {TRUSTED, PROVISIONAL, INSUFFICIENT_EVIDENCE, UNTRUSTED}). An outcome outside the enum, an empty subject_refs list, or an empty member is rejected, not hashed. LITE tier binds ONLY; the scoring/verification that produce the verdict stay commercial (the commercial Composite Trust Query walks the audit chain and issues a Falcon-1024 PQC signed verdict).",
   "canonicalizer": "rfc8785-jcs",
-  "fields": ["subject_refs", "trust_outcome"],
-  "trust_outcomes": ["TRUSTED", "PROVISIONAL", "INSUFFICIENT_EVIDENCE", "UNTRUSTED"],
-  "note_chain": "subject_refs [b3594e33.., a4f8cb5e.., aaee2091.., 2a444c62..] are passport_ref + mandate_ref + policy_bound_ref + guardrail_ref(ALLOW) from spend_decision_chain_v1; trust_query_ref binds a categorical verdict to that exact assessed set, capping the lifecycle.",
+  "fields": [
+    "subject_refs",
+    "trust_outcome"
+  ],
+  "trust_outcomes": [
+    "TRUSTED",
+    "PROVISIONAL",
+    "INSUFFICIENT_EVIDENCE",
+    "UNTRUSTED"
+  ],
+  "note_chain": "subject_refs [b3594e33.., a4f8cb5e.., aaee2091.., 2a444c62..] are passport_ref + mandate_ref + policy_bound_ref + guardrail_ref(ALLOW) from spend_decision_chain_v1; trust_query_ref binds a categorical verdict to that exact assessed set, capping the lifecycle. tq-keystone extends the cap to the full keystone flow: subject_refs [passport_ref, mandate_ref, policy_bound_ref, decision_ref(ALLOW), execution_ref] spans identity -> authority -> policy -> decision -> execution, so one trust verdict covers the whole chain through the post-decision execution evidence.",
   "vectors": [
-    {"id": "tq-001", "subject_refs": ["sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"], "trust_outcome": "TRUSTED", "expected_trust_query_ref": "sha256:2ba78e79c5392bbfac490b812d733fb935b68346fb7c57b07dc45b1c2237db97"},
-    {"id": "tq-002", "subject_refs": ["sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"], "trust_outcome": "PROVISIONAL", "expected_trust_query_ref": "sha256:1335daa95a71112df11fffa7b27b39df5b934f37e576f86cfb68177404f76267"},
-    {"id": "tq-003", "subject_refs": ["sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"], "trust_outcome": "INSUFFICIENT_EVIDENCE", "expected_trust_query_ref": "sha256:9ae59e96d5b57c925277d6334036b7086adc009859930dc85667f91e22e79cec"},
-    {"id": "tq-004", "subject_refs": ["sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf"], "trust_outcome": "UNTRUSTED", "expected_trust_query_ref": "sha256:6778b4adb059fd09262300d06352424fd2f31a4df63f70b793c4d217589e551f"}
+    {
+      "id": "tq-001",
+      "subject_refs": [
+        "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+      ],
+      "trust_outcome": "TRUSTED",
+      "expected_trust_query_ref": "sha256:2ba78e79c5392bbfac490b812d733fb935b68346fb7c57b07dc45b1c2237db97"
+    },
+    {
+      "id": "tq-002",
+      "subject_refs": [
+        "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+      ],
+      "trust_outcome": "PROVISIONAL",
+      "expected_trust_query_ref": "sha256:1335daa95a71112df11fffa7b27b39df5b934f37e576f86cfb68177404f76267"
+    },
+    {
+      "id": "tq-003",
+      "subject_refs": [
+        "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+      ],
+      "trust_outcome": "INSUFFICIENT_EVIDENCE",
+      "expected_trust_query_ref": "sha256:9ae59e96d5b57c925277d6334036b7086adc009859930dc85667f91e22e79cec"
+    },
+    {
+      "id": "tq-004",
+      "subject_refs": [
+        "sha256:792a5b43e9df0fc460d6bf99d6357afafbdcf910ef1e81a340e3581bc27109cf"
+      ],
+      "trust_outcome": "UNTRUSTED",
+      "expected_trust_query_ref": "sha256:6778b4adb059fd09262300d06352424fd2f31a4df63f70b793c4d217589e551f"
+    },
+    {
+      "id": "tq-keystone",
+      "subject_refs": [
+        "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+        "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+      ],
+      "trust_outcome": "TRUSTED",
+      "expected_trust_query_ref": "sha256:18fb601a08c71eb6bed11e1c117f33bdc0ada6d635ea9bb9cca15e8410ce7ebd"
+    }
   ],
   "negatives": [
     {
-      "id": "tq-neg-outcome-swap", "family": "trust_outcome",
+      "id": "tq-neg-outcome-swap",
+      "family": "trust_outcome",
       "claimed_trust_query_ref": "sha256:2ba78e79c5392bbfac490b812d733fb935b68346fb7c57b07dc45b1c2237db97",
-      "subject_refs": ["sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"], "trust_outcome": "PROVISIONAL",
+      "subject_refs": [
+        "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+      ],
+      "trust_outcome": "PROVISIONAL",
       "recomputes_to": "sha256:1335daa95a71112df11fffa7b27b39df5b934f37e576f86cfb68177404f76267",
-      "must": "differ", "note": "same assessed set, different verdict; trust_query_ref diverges (== tq-002)"
+      "must": "differ",
+      "note": "same assessed set, different verdict; trust_query_ref diverges (== tq-002)"
     },
     {
-      "id": "tq-neg-order-swap", "family": "subject_refs_order",
+      "id": "tq-neg-order-swap",
+      "family": "subject_refs_order",
       "claimed_trust_query_ref": "sha256:2ba78e79c5392bbfac490b812d733fb935b68346fb7c57b07dc45b1c2237db97",
-      "subject_refs": ["sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"], "trust_outcome": "TRUSTED",
+      "subject_refs": [
+        "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+        "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+      ],
+      "trust_outcome": "TRUSTED",
       "recomputes_to": "sha256:6cdd9328ca0ed626d73cd0f9bf768ff7802771e0dc673436740a2c165beb04b1",
-      "must": "differ", "note": "same members reordered (mandate before passport); array order is byte-load-bearing"
+      "must": "differ",
+      "note": "same members reordered (mandate before passport); array order is byte-load-bearing"
     },
     {
-      "id": "tq-neg-subset-drop", "family": "subject_refs_membership",
+      "id": "tq-neg-subset-drop",
+      "family": "subject_refs_membership",
       "claimed_trust_query_ref": "sha256:2ba78e79c5392bbfac490b812d733fb935b68346fb7c57b07dc45b1c2237db97",
-      "subject_refs": ["sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21"], "trust_outcome": "TRUSTED",
+      "subject_refs": [
+        "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+        "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+        "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21"
+      ],
+      "trust_outcome": "TRUSTED",
       "recomputes_to": "sha256:7ae8ef983c4c21c045066f28e8a07da4f6a9ace68e73273fc8b21512215e5fef",
-      "must": "differ", "note": "dropped the guardrail_ref; membership is byte-load-bearing, a verdict cannot drop a reference it claimed to assess"
+      "must": "differ",
+      "note": "dropped the guardrail_ref; membership is byte-load-bearing, a verdict cannot drop a reference it claimed to assess"
     },
     {
-      "id": "tq-neg-invalid-enum", "family": "closed_enum",
-      "subject_refs": ["sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"], "trust_outcome": "OK",
-      "must": "reject", "reason": "trust_outcome must be one of the closed enum; an unknown outcome is rejected, not hashed"
+      "id": "tq-neg-invalid-enum",
+      "family": "closed_enum",
+      "subject_refs": [
+        "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+      ],
+      "trust_outcome": "OK",
+      "must": "reject",
+      "reason": "trust_outcome must be one of the closed enum; an unknown outcome is rejected, not hashed"
     },
     {
-      "id": "tq-neg-empty-list", "family": "empty_field",
-      "subject_refs": [], "trust_outcome": "TRUSTED",
-      "must": "reject", "reason": "subject_refs must be a non-empty list; an empty assessed set is rejected, not hashed"
+      "id": "tq-neg-empty-list",
+      "family": "empty_field",
+      "subject_refs": [],
+      "trust_outcome": "TRUSTED",
+      "must": "reject",
+      "reason": "subject_refs must be a non-empty list; an empty assessed set is rejected, not hashed"
     },
     {
-      "id": "tq-neg-empty-member", "family": "empty_field",
-      "subject_refs": [""], "trust_outcome": "TRUSTED",
-      "must": "reject", "reason": "each subject_ref must be a non-empty string; an empty member is rejected, not hashed"
+      "id": "tq-neg-empty-member",
+      "family": "empty_field",
+      "subject_refs": [
+        ""
+      ],
+      "trust_outcome": "TRUSTED",
+      "must": "reject",
+      "reason": "each subject_ref must be a non-empty string; an empty member is rejected, not hashed"
     }
   ],
   "invariants": [
-    {"id": "outcome-distinctness", "assert": "changing trust_outcome changes trust_query_ref (tq-001..tq-003 distinct over the same set)", "reason": "the verdict is byte-load-bearing"},
-    {"id": "subject-distinctness", "assert": "reordering or changing the membership of subject_refs changes trust_query_ref (order-swap, subset-drop distinct)", "reason": "both order and membership of the assessed set are byte-load-bearing"}
+    {
+      "id": "outcome-distinctness",
+      "assert": "changing trust_outcome changes trust_query_ref (tq-001..tq-003 distinct over the same set)",
+      "reason": "the verdict is byte-load-bearing"
+    },
+    {
+      "id": "subject-distinctness",
+      "assert": "reordering or changing the membership of subject_refs changes trust_query_ref (order-swap, subset-drop distinct)",
+      "reason": "both order and membership of the assessed set are byte-load-bearing"
+    }
   ]
 }

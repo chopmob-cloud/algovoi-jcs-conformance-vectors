@@ -166,7 +166,15 @@ def main() -> int:
     chain_ok = chain.returncode == 0
     print(f"{'PASS  ' if chain_ok else 'FAIL  '} spend_decision_chain_v1 (decision chain composition)"
           f"   {'8/8 links byte-for-byte' if chain_ok else 'BROKEN'}")
-    comp_ok = comp_ok and audit_ok and chain_ok
+
+    keystone = subprocess.run(
+        [sys.executable, str(HERE / "keystone_v1" / "verify_keystone.py")],
+        capture_output=True, text=True,
+    )
+    keystone_ok = keystone.returncode == 0
+    print(f"{'PASS  ' if keystone_ok else 'FAIL  '} keystone_v1 (full keystone flow incl execution tier)"
+          f"   {'6/6 links byte-for-byte' if keystone_ok else 'BROKEN'}")
+    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok
 
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "
