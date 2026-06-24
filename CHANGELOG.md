@@ -49,6 +49,13 @@ we evolve L1 we take them into account and weigh backward-compatibility for them
   only schema change is the additive `claim_type` value `payment_execution` (preimage shape
   identical to `pef_v1`). Reference shape: `pef_v1`. Anchor: `payment-evidence-frame` +
   `draft-hopley-x402-retention-chain-06`.
+- **2026-06-24 — `refund_execution_v1`** (composition; 5/5 links, Python == Node byte-for-byte).
+  Refund anchored to the execution tier: a refund receipt whose `subject_ref` is the exact
+  `execution_ref` the keystone produced (refund of the payment that committed, not just the
+  decision). The anchor is byte-load-bearing (refund-over-execution differs from
+  refund-over-decision; the latter matches the published `rf-001`). Reuses
+  `refund_receipt_lite_v1` unchanged (subject_ref re-anchored) and `execution_ref_v1` /
+  `keystone_v1`. Reference impl: `algovoi-refund-receipt-lite` (`refund_ref(...)`).
 
 ## L2 layers (validated against L1, recorded for change management)
 

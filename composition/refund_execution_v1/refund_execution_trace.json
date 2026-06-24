@@ -1,0 +1,30 @@
+{
+  "set": "refund_execution_v1",
+  "title": "Refund binds to the keystone execution tier",
+  "canon_version": "jcs-rfc8785-v1",
+  "summary": "A refund receipt whose subject_ref is the exact execution_ref the keystone produced: the refund binds to the payment that committed, not just the decision that authorized it. The anchor is byte-load-bearing (refund-of-execution differs from refund-of-decision); a divergent execution diverges the refund. No new hashing primitive (refund_receipt_lite_v1 construction, subject_ref re-anchored).",
+  "execution": {
+    "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+    "action_type": "payment",
+    "scope": "bilateral",
+    "outcome": "COMMITTED",
+    "executed_at_ms": 1716460800000,
+    "expected_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+  },
+  "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+  "refund": {
+    "refund_amount": "1000",
+    "refund_result": "FULL",
+    "subject_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+    "expected_refund_ref": "sha256:d788dca372c121c27c6babc767fa8d842112ab87e5b76406f7c9303a7970b941"
+  },
+  "anchor_distinctness": {
+    "refund_over_decision": "sha256:1d32c8b9e20411aa4fcc1953bc34cd91ac65033d4e66f53501aea3debab621fe",
+    "note": "same amount + result, subject_ref=decision_ref -> different refund_ref; anchor is byte-load-bearing."
+  },
+  "tamper": {
+    "failed_execution_ref": "sha256:ee8742fd0d5957b7b0a4ce602382ef5eea1618952e5bf9e299daa959e61c859c",
+    "refund_over_failed": "sha256:89bec27fd1a792cb363f55c4aa3108c4705dbc3570e5832e95f9874fbf905b3e",
+    "note": "FAILED execution diverges execution_ref, which diverges the refund subject and refund_ref."
+  }
+}
