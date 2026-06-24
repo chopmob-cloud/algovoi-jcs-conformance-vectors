@@ -1,0 +1,52 @@
+{
+  "set": "pef_keystone_v1",
+  "title": "PEF is the signed-transport layer over the keystone",
+  "canon_version": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+  "summary": "A Payment Evidence Frame wraps the settlement-bound keystone record (execution_binding output) and pins it: receipt_hash commits to the keystone fact and frame_id commits to the frame. Tamper any carried keystone reference and both diverge. PEF is the envelope, not a new spine link; the preimage is byte-identical to pef_v1.",
+  "keystone_fact": {
+    "execution": {
+      "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "action_type": "payment",
+      "scope": "bilateral",
+      "outcome": "COMMITTED",
+      "executed_at_ms": 1716460800000,
+      "expected_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+    },
+    "settlement_ref": "sha256:d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9",
+    "retention_chain_ref": "sha256:067e2dc9d4a334860950a041da97fc943829c412223022368b3962a70d7271b4",
+    "expected_binding_ref": "sha256:820954e57aa9f9cba662c14bbf37d79ae90d0d3e05d905d228ee1b91a58286b8"
+  },
+  "pef_frame": {
+    "receipt": {
+      "binding_ref": "sha256:820954e57aa9f9cba662c14bbf37d79ae90d0d3e05d905d228ee1b91a58286b8",
+      "canon_version": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+      "execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+      "retention_chain_ref": "sha256:067e2dc9d4a334860950a041da97fc943829c412223022368b3962a70d7271b4",
+      "settlement_ref": "sha256:d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9"
+    },
+    "expected_receipt_hash": "sha256:f55720f15161c5e7c1a7f214737f62c86654efdb93d7d83ac601dec19c6520ad",
+    "preimage": {
+      "canon_version": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+      "claim_type": "payment_execution",
+      "frame_provider_did": "did:web:api.algovoi.co.uk",
+      "frame_timestamp_ms": 1748534600000,
+      "pef_version": "1",
+      "receipt": {
+        "binding_ref": "sha256:820954e57aa9f9cba662c14bbf37d79ae90d0d3e05d905d228ee1b91a58286b8",
+        "canon_version": "urn:x402:canonicalisation:jcs-rfc8785-v1",
+        "execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+        "retention_chain_ref": "sha256:067e2dc9d4a334860950a041da97fc943829c412223022368b3962a70d7271b4",
+        "settlement_ref": "sha256:d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9"
+      },
+      "receipt_format": "execution-binding-v1",
+      "receipt_hash": "sha256:f55720f15161c5e7c1a7f214737f62c86654efdb93d7d83ac601dec19c6520ad"
+    },
+    "expected_frame_id": "sha256:41db4086f70df5caed99c9a0f37d997daefb486dfb6fd99b7f6ea73b69319d34",
+    "binds_ref": "receipt.binding_ref (the keystone position this frame attests)"
+  },
+  "tamper": {
+    "tampered_receipt_hash": "sha256:3fa50afa18426a6cb4e4d5d4050c1e5de00bf3134d05a0991ac1ecd0326a00f9",
+    "tampered_frame_id": "sha256:004ba547d6a074a8f39d7316af84d6065dab118eb2412a9af335c3a1302b1780",
+    "note": "flipping receipt.binding_ref diverges receipt_hash, which diverges frame_id."
+  }
+}

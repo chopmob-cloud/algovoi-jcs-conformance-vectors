@@ -39,6 +39,16 @@ we evolve L1 we take them into account and weigh backward-compatibility for them
   no new hashing primitive. Reference impl: `algovoi-execution-ref` (`execution_binding(...)`).
   Anchor: `execution_ref` normative in `draft-hopley-x402-retention-chain-06` (§7.9, §7.10) +
   `draft-hopley-x402-settlement-attestation-00`.
+- **2026-06-24 — `pef_keystone_v1`** (composition; 6/6 links, Python == Node byte-for-byte).
+  PEF (Payment Evidence Frame) as the signed-transport layer over the keystone: a frame wraps the
+  settlement-bound keystone record (the `execution_binding` output) verbatim, pins it with
+  `receipt_hash = "sha256:" + SHA-256(JCS(receipt))`, and commits to it with
+  `frame_id = "sha256:" + SHA-256(JCS(preimage))`. Tamper any carried keystone reference and both
+  diverge. PEF is the envelope, not a new spine link. Reuses `execution_ref_v1` / `keystone_v1`,
+  `settlement_binding_v1` (`binding_ref`), and the `pef_v1` frame construction byte-for-byte; the
+  only schema change is the additive `claim_type` value `payment_execution` (preimage shape
+  identical to `pef_v1`). Reference shape: `pef_v1`. Anchor: `payment-evidence-frame` +
+  `draft-hopley-x402-retention-chain-06`.
 
 ## L2 layers (validated against L1, recorded for change management)
 

@@ -182,7 +182,15 @@ def main() -> int:
     settlement_ok = settlement.returncode == 0
     print(f"{'PASS  ' if settlement_ok else 'FAIL  '} settlement_binding_v1 (settlement tier binds to keystone execution)"
           f"   {'6/6 links byte-for-byte' if settlement_ok else 'BROKEN'}")
-    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok
+
+    pef = subprocess.run(
+        [sys.executable, str(HERE / "pef_keystone_v1" / "verify_pef_keystone.py")],
+        capture_output=True, text=True,
+    )
+    pef_ok = pef.returncode == 0
+    print(f"{'PASS  ' if pef_ok else 'FAIL  '} pef_keystone_v1 (PEF signed-transport wraps + pins a keystone fact)"
+          f"   {'6/6 links byte-for-byte' if pef_ok else 'BROKEN'}")
+    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok and pef_ok
 
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "
