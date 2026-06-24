@@ -80,5 +80,13 @@
       "expected": "sha256:1d32c8b9e20411aa4fcc1953bc34cd91ac65033d4e66f53501aea3debab621fe"
     }
   },
+  "cap": {
+    "consumer_set": "composite_trust_query_lite_v1",
+    "source_vector": "tq-001",
+    "construction": "trust_query_ref = sha256: + SHA-256(JCS({subject_refs, trust_outcome}))",
+    "assesses": ["passport_ref", "mandate_ref", "policy_bound_ref", "guardrail_ref(ALLOW)"],
+    "trust_outcome": "TRUSTED",
+    "expected": "sha256:2ba78e79c5392bbfac490b812d733fb935b68346fb7c57b07dc45b1c2237db97"
+  },
   "note": "Recomputing any input field diverges the affected reference and every reference downstream of it, so a decision made for one agent/authority/policy cannot be silently re-attributed to another. The composition introduces no new construction; it proves the four independently published constructions chain into one recomputable decision."
 }

@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "published_at": "2026-05-23",
   "updated_at": "2026-06-23",
   "canon_version": "jcs-rfc8785-v1",
@@ -306,11 +306,19 @@
       "anchors_to": "Refund reference closing the spend-authority lifecycle after settlement; refund_ref binds a closed-enum result (FULL/PARTIAL/REJECTED) + amount to the subject_ref being refunded (rf-001/002/003 refund the ALLOW guardrail_ref spend_guardrail_lite_v1 / spend_decision_chain_v1 produced). Instance of the binding framework (no new IETF section).",
       "cross_validated": "Python + TypeScript byte-for-byte (2026-06-24)",
       "sha256": "sha256:2a77d07175c7313c6615dd774f1e6d2959fca6bac8d94272053ef75a3d0a1706"
+    },
+    {
+      "name": "composite_trust_query_lite_v1",
+      "primary_file": "composite_trust_query_lite_v1.json",
+      "vector_count": 12,
+      "anchors_to": "Composite trust verdict capping the spend-authority lifecycle; trust_query_ref binds a closed-enum outcome (TRUSTED/PROVISIONAL/INSUFFICIENT_EVIDENCE/UNTRUSTED) to an ordered subject_refs list (order + membership byte-load-bearing). tq-001/002/003 assess the full chain [passport_ref, mandate_ref, policy_bound_ref, guardrail_ref(ALLOW)] from spend_decision_chain_v1, so the verdict caps the open lifecycle. Lite binds only; scoring stays commercial. Instance of the binding framework (no new IETF section).",
+      "cross_validated": "Python + TypeScript byte-for-byte (2026-06-24)",
+      "sha256": "sha256:122bc22c4f996c576f0a727eeca9ca61a6700ad743a23b537871f6bbaa11a638"
     }
   ],
-  "total_anchor_sets": 33,
-  "total_vectors": 278,
-  "total_vectors_note": "33 sets / 278 entries (incl. refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
+  "total_anchor_sets": 34,
+  "total_vectors": 290,
+  "total_vectors_note": "34 sets / 290 entries (incl. composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
     "languages": [

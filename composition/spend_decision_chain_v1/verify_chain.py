@@ -65,6 +65,7 @@ def main() -> int:
     guardrail = _load("spend_guardrail_lite_v1")
     cancellation = _load("cancellation_receipt_lite_v1")
     refund = _load("refund_receipt_lite_v1")
+    trust = _load("composite_trust_query_lite_v1")
 
     sg_allow = _guardrail_positive(guardrail, dec["verdicts"]["ALLOW"]["source_vector"])
     sg_deny = _guardrail_positive(guardrail, dec["verdicts"]["DENY"]["source_vector"])
@@ -144,6 +145,18 @@ def main() -> int:
         refund_ref,
     ))
 
+    # --- 7. cap: trust_query_ref assesses the full composed chain in order ---
+    cap = trace["cap"]
+    allow_guardrail = dec["verdicts"]["ALLOW"]["expected"]
+    trust_query_ref = ref({"subject_refs": [agent_ref, mandate_ref, policy_bound_ref, allow_guardrail], "trust_outcome": cap["trust_outcome"]})
+    tpub = next(v["expected_trust_query_ref"] for v in trust["vectors"] if v["id"] == cap["source_vector"])
+    checks.append((
+        "trust_query_ref assesses the full composed chain [passport_ref, mandate_ref, policy_bound_ref, "
+        "guardrail_ref(ALLOW)] in order, equals the published composite_trust_query_lite reference, and caps the lifecycle",
+        trust_query_ref == cap["expected"] == tpub,
+        trust_query_ref,
+    ))
+
     width = 74
     print("=" * width)
     print("OPEN PRE-PAYMENT DECISION CHAIN -- composition proof")
@@ -161,8 +174,9 @@ def main() -> int:
         print("     passport_ref + mandate_ref + policy_bound_ref -> guardrail_ref -> cancellation_ref + refund_ref;")
         print("     identity, authority, and policy each recomputed from raw fields, each the")
         print("     reference the decision binds, decision reproduced for ALLOW and DENY, the")
-        print("     cancellation closing the lifecycle over the same authority, and the refund")
-        print("     closing the lifecycle over the same authorized payment after settlement.")
+        print("     cancellation closing the lifecycle over the same authority, the refund")
+        print("     closing the lifecycle over the same authorized payment after settlement, and")
+        print("     trust_query_ref capping the chain by assessing all four composed references in order.")
         return 0
     print(f"FAIL ({sum(1 for _, ok, _ in checks if not ok)}/{len(checks)}) -- composition broken.")
     return 1

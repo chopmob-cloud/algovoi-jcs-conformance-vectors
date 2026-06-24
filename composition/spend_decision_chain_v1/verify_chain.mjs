@@ -27,6 +27,7 @@ const policy = load('policy_binding_v1');
 const guardrail = load('spend_guardrail_lite_v1');
 const cancellation = load('cancellation_receipt_lite_v1');
 const refund = load('refund_receipt_lite_v1');
+const trust = load('composite_trust_query_lite_v1');
 
 const sgAllow = find(guardrail.vectors, dec.verdicts.ALLOW.source_vector);
 const sgDeny = find(guardrail.vectors, dec.verdicts.DENY.source_vector);
@@ -95,6 +96,17 @@ checks.push([
   'refund_ref recomputes over the SAME guardrail_ref the ALLOW decision produced, equals the published refund_receipt_lite reference, and closes the lifecycle after settlement',
   refundRef === rf.expected && refundRef === rPub && rf.subject_ref === dec.verdicts.ALLOW.expected,
   refundRef,
+]);
+
+// 7. cap: trust_query_ref assesses the full composed chain in order
+const cap = trace.cap;
+const allowGuardrail = dec.verdicts.ALLOW.expected;
+const trustQueryRef = ref({ subject_refs: [agentRef, mandateRef, policyBoundRef, allowGuardrail], trust_outcome: cap.trust_outcome });
+const tPub = find(trust.vectors, cap.source_vector).expected_trust_query_ref;
+checks.push([
+  'trust_query_ref assesses the full composed chain [passport_ref, mandate_ref, policy_bound_ref, guardrail_ref(ALLOW)] in order, equals the published composite_trust_query_lite reference, and caps the lifecycle',
+  trustQueryRef === cap.expected && trustQueryRef === tPub,
+  trustQueryRef,
 ]);
 
 const width = 74;

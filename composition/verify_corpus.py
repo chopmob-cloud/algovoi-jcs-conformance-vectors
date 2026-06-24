@@ -165,7 +165,7 @@ def main() -> int:
     )
     chain_ok = chain.returncode == 0
     print(f"{'PASS  ' if chain_ok else 'FAIL  '} spend_decision_chain_v1 (decision chain composition)"
-          f"   {'7/7 links byte-for-byte' if chain_ok else 'BROKEN'}")
+          f"   {'8/8 links byte-for-byte' if chain_ok else 'BROKEN'}")
     comp_ok = comp_ok and audit_ok and chain_ok
 
     print("=" * width)
