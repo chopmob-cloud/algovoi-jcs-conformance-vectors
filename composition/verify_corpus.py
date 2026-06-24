@@ -174,7 +174,15 @@ def main() -> int:
     keystone_ok = keystone.returncode == 0
     print(f"{'PASS  ' if keystone_ok else 'FAIL  '} keystone_v1 (full keystone flow incl execution tier)"
           f"   {'6/6 links byte-for-byte' if keystone_ok else 'BROKEN'}")
-    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok
+
+    settlement = subprocess.run(
+        [sys.executable, str(HERE / "settlement_binding_v1" / "verify_settlement_binding.py")],
+        capture_output=True, text=True,
+    )
+    settlement_ok = settlement.returncode == 0
+    print(f"{'PASS  ' if settlement_ok else 'FAIL  '} settlement_binding_v1 (settlement tier binds to keystone execution)"
+          f"   {'6/6 links byte-for-byte' if settlement_ok else 'BROKEN'}")
+    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok
 
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "

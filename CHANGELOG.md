@@ -29,6 +29,16 @@ we evolve L1 we take them into account and weigh backward-compatibility for them
   **48/48** (`_attestations/2026-06-18-settlement-action-binding-v1.md`). Reference impls:
   `algovoi-substrate` 0.4.0 / `@algovoi/substrate` 0.4.0 (`settlement_action_binding(...)`).
   Anchor: `draft-hopley-x402-retention-chain-02` §7 + `draft-hopley-x402-settlement-attestation-00`.
+- **2026-06-24 — `settlement_binding_v1`** (composition; 6/6 links, Python == Node byte-for-byte).
+  Execution-tier successor to `settlement_action_binding_v1`: a settlement attestation whose
+  `settled_payment_ref` is the exact `execution_ref` the keystone produced (the settled payment
+  binds to the executed action, not an identity), capped by one
+  `execution_binding = "sha256:" + SHA-256(JCS({execution_ref, settlement_ref, retention_chain_ref}))`.
+  Subsumes the old `(action_ref, transition_hash)` pair into one decision-bound reference. Composes
+  `execution_ref_v1` / `keystone_v1`, `settlement_attestation_v1`, and the audit-chain row shape —
+  no new hashing primitive. Reference impl: `algovoi-execution-ref` (`execution_binding(...)`).
+  Anchor: `execution_ref` normative in `draft-hopley-x402-retention-chain-06` (§7.9, §7.10) +
+  `draft-hopley-x402-settlement-attestation-00`.
 
 ## L2 layers (validated against L1, recorded for change management)
 

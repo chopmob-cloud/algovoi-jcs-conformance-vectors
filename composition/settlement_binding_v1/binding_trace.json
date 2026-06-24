@@ -1,0 +1,56 @@
+{
+  "set": "settlement_binding_v1",
+  "title": "Settlement tier binds to the keystone execution tier",
+  "canon_version": "jcs-rfc8785-v1",
+  "summary": "A settlement attestation whose settled_payment_ref is the exact execution_ref the keystone produced, capped by one execution_binding over (execution_ref, settlement_ref, retention_chain_ref). Proves the settled payment binds to the executed action that authorized it, not merely an identity. No new hashing primitive.",
+  "execution": {
+    "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+    "action_type": "payment",
+    "scope": "bilateral",
+    "outcome": "COMMITTED",
+    "executed_at_ms": 1716460800000,
+    "expected_execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+  },
+  "settlement_attestation": {
+    "receipt": {
+      "canon_version": "jcs-rfc8785-v1",
+      "jurisdiction_flags": [
+        "UK",
+        "EU"
+      ],
+      "settled_payment_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+      "settlement_amount": {
+        "amount_minor": "100000",
+        "asset_id": "USDC.6"
+      },
+      "settlement_chain": "ethereum:8453",
+      "settlement_provider_did": "did:example:settlement-provider-1",
+      "settlement_result": "SETTLED",
+      "settlement_timestamp_ms": 1716494400000
+    },
+    "expected_content_hash": "d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9",
+    "expected_settlement_ref": "sha256:d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9",
+    "binds_to": "execution_ref (settled_payment_ref == execution_ref)"
+  },
+  "retention_chain": {
+    "row": {
+      "content_hash": "d0ec6b76020c40b06dc40573c884ef27399e91002718d647345d4ecba12921c9",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "row_number": 1
+    },
+    "expected_retention_chain_ref": "sha256:067e2dc9d4a334860950a041da97fc943829c412223022368b3962a70d7271b4"
+  },
+  "execution_binding": {
+    "preimage_fields": [
+      "execution_ref",
+      "retention_chain_ref",
+      "settlement_ref"
+    ],
+    "expected_binding_ref": "sha256:820954e57aa9f9cba662c14bbf37d79ae90d0d3e05d905d228ee1b91a58286b8"
+  },
+  "tamper": {
+    "failed_execution_ref": "sha256:ee8742fd0d5957b7b0a4ce602382ef5eea1618952e5bf9e299daa959e61c859c",
+    "reversed_settlement_ref": "sha256:b0a99370c4c806b2f0cd2142b813e29593b18b3d8f26508c7a91e1830d6588cf",
+    "note": "failed_execution_ref != expected_execution_ref (outcome is byte-load-bearing); reversed_settlement_ref != expected_settlement_ref (settlement_result is byte-load-bearing). Either diverges binding_ref."
+  }
+}
