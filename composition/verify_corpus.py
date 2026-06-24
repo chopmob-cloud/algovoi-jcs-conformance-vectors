@@ -206,7 +206,23 @@ def main() -> int:
     acf_ok = acf.returncode == 0
     print(f"{'PASS  ' if acf_ok else 'FAIL  '} audit_chain_of_frames_v1 (lifecycle as chained PEF frames, capped)"
           f"   {'6/6 links byte-for-byte' if acf_ok else 'BROKEN'}")
-    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok and pef_ok and refund_x_ok and acf_ok
+
+    cgk = subprocess.run([sys.executable, str(HERE / "compliance_gate_keystone_v1" / "verify_compliance_gate_keystone.py")], capture_output=True, text=True)
+    cgk_ok = cgk.returncode == 0
+    print(f"{'PASS  ' if cgk_ok else 'FAIL  '} compliance_gate_keystone_v1 (compliance verdict binds the decision)"
+          f"   {'5/5 links byte-for-byte' if cgk_ok else 'BROKEN'}")
+
+    cnk = subprocess.run([sys.executable, str(HERE / "cancellation_keystone_v1" / "verify_cancellation_keystone.py")], capture_output=True, text=True)
+    cnk_ok = cnk.returncode == 0
+    print(f"{'PASS  ' if cnk_ok else 'FAIL  '} cancellation_keystone_v1 (cancellation closes the keystone authority)"
+          f"   {'4/4 links byte-for-byte' if cnk_ok else 'BROKEN'}")
+
+    gk = subprocess.run([sys.executable, str(HERE / "guard_keystone_v1" / "verify_guard_keystone.py")], capture_output=True, text=True)
+    gk_ok = gk.returncode == 0
+    print(f"{'PASS  ' if gk_ok else 'FAIL  '} guard_keystone_v1 (keystone admitted under the input-bounds profile)"
+          f"   {'3/3 within bounds' if gk_ok else 'BROKEN'}")
+
+    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok and pef_ok and refund_x_ok and acf_ok and cgk_ok and cnk_ok and gk_ok
 
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "

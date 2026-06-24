@@ -1,0 +1,50 @@
+{
+  "set": "guard_keystone_v1",
+  "title": "The keystone record is admitted under the substrate-guard profile",
+  "canon_version": "jcs-rfc8785-v1",
+  "summary": "Provenance / precondition binding (not a chain link): the input-bounds profile_ref recomputes to the published value, and the keystone record is within every named bound of that profile, so the deterministic guard that runs before canonicalisation ACCEPTS it.",
+  "profile": {
+    "name": "guard-receipt-v1",
+    "max_bytes": 65536,
+    "max_depth": 32,
+    "max_object_keys": 256,
+    "max_array_length": 1024,
+    "max_string_length": 8192,
+    "max_total_nodes": 4096,
+    "number_safety": true
+  },
+  "expected_profile_ref": "sha256:a4791b13c67a16109b85ef67fc65700ea902b6ad40dad44d8556632c3d5524a6",
+  "keystone_record": {
+    "canon_version": "jcs-rfc8785-v1",
+    "type": "execution_keystone",
+    "passport_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+    "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+    "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+    "verdict": "ALLOW",
+    "decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+    "action_type": "payment",
+    "scope": "bilateral",
+    "outcome": "COMMITTED",
+    "executed_at_ms": 1716460800000,
+    "execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+    "trust_outcome": "TRUSTED",
+    "trust_query_ref": "sha256:18fb601a08c71eb6bed11e1c117f33bdc0ada6d635ea9bb9cca15e8410ce7ebd",
+    "chain": [
+      "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+    ]
+  },
+  "measured": {
+    "byte_len": 1124,
+    "depth": 3,
+    "nodes": 21,
+    "max_array": 5,
+    "max_string": 71,
+    "max_keys": 15,
+    "numbers_safe": true
+  },
+  "verdict": "ACCEPT"
+}

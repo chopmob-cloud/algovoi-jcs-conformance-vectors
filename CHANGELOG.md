@@ -67,6 +67,22 @@ we evolve L1 we take them into account and weigh backward-compatibility for them
   `settlement_attestation_v1`, `refund_receipt_lite_v1`, the audit-chain row shape, and
   `trust_query_ref` — no new hashing primitive. Anchor: `payment-evidence-frame` +
   `draft-hopley-x402-retention-chain-06`.
+- **2026-06-24 — `compliance_gate_keystone_v1`** (composition; 5/5, Python == Node). Binds the
+  compliance verdict into the keystone decision: the compliance gate (`gate_ref`) assessed the exact
+  `policy_bound_ref` the decision used, so the decision was admitted under the compliance verdict in
+  force; a compliance-spanning `trust_query_ref` caps `[passport, mandate, policy, gate, decision,
+  execution]`. Reuses `compliance_gate_lite_v1` (published `cg-allow-P` golden) + the keystone
+  `decision_ref` + `trust_query_ref`. No new hashing primitive.
+- **2026-06-24 — `cancellation_keystone_v1`** (composition; 4/4, Python == Node). Authority-side
+  closure, the mirror of `refund_execution_v1`: a cancellation receipt whose `mandate_ref` is the
+  exact keystone mandate, closing the authority before execution (refund closes the payment after).
+  Reuses `cancellation_receipt_lite_v1` (published `cn-001` golden) + the keystone `mandate_ref`.
+  Closed-enum reason byte-load-bearing. No new hashing primitive.
+- **2026-06-24 — `guard_keystone_v1`** (composition; 3/3, Python == Node). Provenance / precondition
+  binding (not a chain link): the substrate-guard `profile_ref` recomputes to the published default,
+  and the keystone record is within every named bound of that profile, so the input-bounds gate that
+  runs before canonicalisation ACCEPTS it. Reuses `substrate_guard_v1` (published default
+  `profile_ref`) + the keystone record; structural metrics only. No new hashing primitive.
 
 ## L2 layers (validated against L1, recorded for change management)
 

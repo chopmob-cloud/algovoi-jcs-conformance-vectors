@@ -1,0 +1,22 @@
+{
+  "set": "cancellation_keystone_v1",
+  "title": "Cancellation closes the keystone authority (mirror of refund)",
+  "canon_version": "jcs-rfc8785-v1",
+  "summary": "A cancellation receipt whose mandate_ref is the exact mandate the keystone used, closing the authority before execution. The authority-side mirror of refund_execution_v1 (which binds the execution after the payment commits). Reason is byte-load-bearing. Published cancellation_receipt_lite_v1 golden; no new hashing primitive.",
+  "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+  "execution_ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a",
+  "cancellation": {
+    "cancellation_reason": "USER_REQUESTED",
+    "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+    "expected_cancellation_ref": "sha256:9f2913d20750e1bc0c57002e372bc47af44e0ecf53752e05015f2707a24ec218",
+    "binds": "mandate_ref == keystone mandate (authority tier, pre-execution)"
+  },
+  "mirror": {
+    "cancellation_binds": "mandate_ref (authority, pre-execution)",
+    "refund_binds": "execution_ref (payment, post-execution)"
+  },
+  "tamper": {
+    "cancel_merchant": "sha256:5de4ae35cee0b820a30eda323a6918ef0f96d2293e6e71f95efbda0442b679ba",
+    "note": "MERCHANT_REQUESTED over the same mandate diverges cancellation_ref; the closed-enum reason is byte-load-bearing."
+  }
+}
