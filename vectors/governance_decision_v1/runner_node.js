@@ -89,12 +89,12 @@ for (const nv of d.negative_vectors) {
   if (ok || !errors.some((e) => e.includes(nv.expect_error_contains))) fails.push(`${nv.id}:not-rejected`);
 }
 
-// 4. contiguity vectors
-const cv = d.contiguity_vectors;
-if (verifyContiguity(cv.valid.records, cv.valid.seal) !== cv.valid.expected_complete) fails.push("contig-valid");
-if (verifyContiguity(cv.gap.records, cv.gap.seal) !== cv.gap.expected_complete) fails.push("contig-gap");
+// 4. completeness vectors (contiguous complete; mid-gap + tail-drop caught; tail-unsealed = honest residual)
+for (const cv of d.contiguity_vectors) {
+  if (verifyContiguity(cv.records, cv.seal) !== cv.expected_complete) fails.push(cv.id);
+}
 
-const n = d.vectors.length * 5 + d.normalization_vectors.length * 2 + d.negative_vectors.length + 2;
+const n = d.vectors.length * 5 + d.normalization_vectors.length * 2 + d.negative_vectors.length + d.contiguity_vectors.length;
 if (fails.length) {
   console.error("governance_decision_v1: FAIL ->", fails.join(", "));
   process.exit(1);

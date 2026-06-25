@@ -124,22 +124,22 @@ def main() -> int:
         if ok or not any(nv["expect_error_contains"] in e for e in errors):
             fails.append(f"{nv['id']}:not-rejected")
 
-    # 4. contiguity vectors: valid run complete, gap run incomplete
-    cv = d["contiguity_vectors"]
-    if verify_contiguity(cv["valid"]["records"], cv["valid"]["seal"]) is not cv["valid"]["expected_complete"]:
-        fails.append("contig-valid")
-    if verify_contiguity(cv["gap"]["records"], cv["gap"]["seal"]) is not cv["gap"]["expected_complete"]:
-        fails.append("contig-gap")
+    # 4. completeness vectors: contiguous run complete; mid-gap + tail-drop caught;
+    #    tail-unsealed is the honest residual (passes from the held set alone)
+    for cv in d["contiguity_vectors"]:
+        if verify_contiguity(cv["records"], cv["seal"]) is not cv["expected_complete"]:
+            fails.append(cv["id"])
 
     n = (len(d["vectors"]) * 5 + len(d["normalization_vectors"]) * 2
-         + len(d["negative_vectors"]) + 2)
+         + len(d["negative_vectors"]) + len(d["contiguity_vectors"]))
     if fails:
         print("governance_decision_v1: FAIL ->", ", ".join(fails))
         return 1
     print(f"governance_decision_v1: {n}/{n} PASS "
           f"({len(d['vectors'])} decisions x 5 digests + "
           f"{len(d['normalization_vectors'])} JCS-norm + "
-          f"{len(d['negative_vectors'])} route-rejections + 2 contiguity), byte-for-byte.")
+          f"{len(d['negative_vectors'])} route-rejections + "
+          f"{len(d['contiguity_vectors'])} completeness incl tail-drop), byte-for-byte.")
     return 0
 
 

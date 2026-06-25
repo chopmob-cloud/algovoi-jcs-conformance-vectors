@@ -40,8 +40,12 @@ distinct. Inner digests are carried as their `"sha256:"`-prefixed strings in the
 - **negative vectors** (`negative_vectors`): malformed decisions that the contract's
   `validate_governance_decision` route rules must reject (e.g. an `allow` with no `policy_refs`,
   a `deny` with no `reason`), with the expected rejection reason.
-- **contiguity vectors** (`contiguity_vectors`): a sealed 0-indexed run (`seq` 0..2,
-  `running_count == seq + 1`, `total == 3`) that verifies complete, and a gap run that does not.
+- **completeness vectors** (`contiguity_vectors`): the four `seq` / `GovernanceSeal` cases,
+  because the two drop modes are not symmetric. `complete` (sealed 0..2) verifies; `mid-gap`
+  (seq 1 dropped) is self-evident from the running count; `tail-sealed` (a dropped suffix) is
+  caught only because the seal pins the total; `tail-unsealed` is the honest residual, a suffix
+  drop with no seal looks whole from the held set alone and passes (closing it needs an external
+  anchor, RFC 3161, not a per-record field).
 - **keystone reference** (`keystone_reference`): the composability proof referenced from the
   contract's Composability section. The published keystone (`composition/keystone_v1`) recomputes a
   full decision chain end to end; a `GovernanceDecision`'s `intent_ref` is the per-decision anchor
@@ -51,10 +55,10 @@ distinct. Inner digests are carried as their `"sha256:"`-prefixed strings in the
 
 ```
 pip install algovoi-substrate>=0.4.0
-python runner_python.py            # 42/42 PASS
+python runner_python.py            # 44/44 PASS
 
 npm install @algovoi/substrate
-node runner_node.js                # 42/42 PASS (Node == Python)
+node runner_node.js                # 44/44 PASS (Node == Python)
 ```
 
 A PASS in both, against the same published hashes, is the byte-for-byte parity proof.

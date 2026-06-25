@@ -276,9 +276,9 @@
       "expect_error_contains": "revalidate_if"
     }
   ],
-  "contiguity_vectors": {
-    "valid": {
-      "id": "contig-valid",
+  "contiguity_vectors": [
+    {
+      "id": "contig-complete",
       "records": [
         {
           "seq": 0,
@@ -297,16 +297,17 @@
         }
       ],
       "seal": {
-        "boundary_id": "run-7",
+        "boundary_id": "run-complete",
         "sealed": true,
         "total": 3,
         "final_seq": 2,
         "sealed_at": "2026-06-25T05:10:00Z"
       },
-      "expected_complete": true
+      "expected_complete": true,
+      "note": "full sealed run: seq 0..2 contiguous, running_count == seq+1, held count == seal.total"
     },
-    "gap": {
-      "id": "contig-gap",
+    {
+      "id": "contig-mid-gap",
       "records": [
         {
           "seq": 0,
@@ -320,15 +321,58 @@
         }
       ],
       "seal": {
-        "boundary_id": "run-8",
+        "boundary_id": "run-midgap",
         "sealed": true,
         "total": 3,
         "final_seq": 2,
-        "sealed_at": "2026-06-25T05:11:00Z"
+        "sealed_at": "2026-06-25T05:10:00Z"
       },
-      "expected_complete": false
+      "expected_complete": false,
+      "note": "mid-stream gap: seq 1 dropped; self-evident from the running count even without the seal"
+    },
+    {
+      "id": "contig-tail-sealed",
+      "records": [
+        {
+          "seq": 0,
+          "running_count": 1,
+          "decision_id": "c0"
+        },
+        {
+          "seq": 1,
+          "running_count": 2,
+          "decision_id": "c1"
+        }
+      ],
+      "seal": {
+        "boundary_id": "run-tailsealed",
+        "sealed": true,
+        "total": 3,
+        "final_seq": 2,
+        "sealed_at": "2026-06-25T05:10:00Z"
+      },
+      "expected_complete": false,
+      "note": "tail drop CAUGHT: prefix looks contiguous, but held count (2) < seal.total (3) reveals the dropped suffix"
+    },
+    {
+      "id": "contig-tail-unsealed",
+      "records": [
+        {
+          "seq": 0,
+          "running_count": 1,
+          "decision_id": "c0"
+        },
+        {
+          "seq": 1,
+          "running_count": 2,
+          "decision_id": "c1"
+        }
+      ],
+      "seal": null,
+      "expected_complete": true,
+      "note": "honest RESIDUAL: with no seal, a suffix drop is invisible; the held prefix is internally consistent and passes. No per-record field can close this; an external anchor (RFC 3161) is required for full residual closure."
     }
-  },
+  ],
   "keystone_reference": {
     "note": "Composability proof referenced from the contract's Composability section. The published keystone recomputes a full decision chain (identity -> authority -> policy -> decision -> execution -> verdict) byte-for-byte; a GovernanceDecision's intent_ref is the per-decision anchor such a chain composes over, verifiable by another crew with no shared runtime. See composition/keystone_v1 (verify_keystone.py / .mjs).",
     "set": "keystone_v1"
