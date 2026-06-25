@@ -1,0 +1,98 @@
+{
+  "set": "delegation_ref",
+  "schema_version": "delegation_ref/v1",
+  "description": "Content-addressed delegation references over the AlgoVoi substrate (RFC 8785 JCS + integer-millisecond validity bounds). delegation_ref = \"sha256:\" + SHA-256(JCS({delegate_id, delegator_id, not_after_ms, not_before_ms, prev_delegation_ref, scope})). A holder detects tamper offline: positives recompute byte-identical (including reordered envelope keys, which JCS absorbs) and chain via prev_delegation_ref; negatives diverge when scope/expiry/delegate/chain-link is altered, or are rejected when a validity bound is malformed. Contrast: an opaque delegation token (an arbitrary label) does not change when the delegation's content is altered.",
+  "canonicalizer": "rfc8785-jcs",
+  "delegation_ref_definition": "delegation_ref = \"sha256:\" + hex(SHA-256(JCS({delegate_id, delegator_id, not_after_ms, not_before_ms, prev_delegation_ref, scope})))",
+  "root_envelope": {
+    "delegator_id": "did:web:org.example",
+    "delegate_id": "did:web:agent-1.example",
+    "scope": "payments:usdc:<=100",
+    "not_before_ms": 1716494400000,
+    "not_after_ms": 1716498000000,
+    "prev_delegation_ref": ""
+  },
+  "root_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276",
+  "chain_envelope": {
+    "delegator_id": "did:web:agent-1.example",
+    "delegate_id": "did:web:agent-2.example",
+    "scope": "payments:usdc:<=50",
+    "not_before_ms": 1716494400000,
+    "not_after_ms": 1716498000000,
+    "prev_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276"
+  },
+  "chain_delegation_ref": "sha256:91329d2887d8eb879cef066c36418245266116b52758c386246fdb927d34494a",
+  "positives": [
+    {
+      "id": "dr-pos-root",
+      "envelope": {"delegator_id": "did:web:org.example", "delegate_id": "did:web:agent-1.example", "scope": "payments:usdc:<=100", "not_before_ms": 1716494400000, "not_after_ms": 1716498000000, "prev_delegation_ref": ""},
+      "expected_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276"
+    },
+    {
+      "id": "dr-pos-key-order",
+      "envelope": {"scope": "payments:usdc:<=100", "not_after_ms": 1716498000000, "prev_delegation_ref": "", "delegate_id": "did:web:agent-1.example", "not_before_ms": 1716494400000, "delegator_id": "did:web:org.example"},
+      "expected_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276",
+      "note": "envelope keys reordered; JCS absorbs key order, so the ref is byte-identical to the root (NOT tamper)"
+    },
+    {
+      "id": "dr-pos-chain",
+      "envelope": {"delegator_id": "did:web:agent-1.example", "delegate_id": "did:web:agent-2.example", "scope": "payments:usdc:<=50", "not_before_ms": 1716494400000, "not_after_ms": 1716498000000, "prev_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276"},
+      "expected_delegation_ref": "sha256:91329d2887d8eb879cef066c36418245266116b52758c386246fdb927d34494a",
+      "note": "second link; prev_delegation_ref = root ref, so the chain is tamper-evident end to end"
+    }
+  ],
+  "negatives": [
+    {
+      "id": "dr-neg-scope-widen",
+      "tamper_family": "scope",
+      "claimed_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276",
+      "envelope": {"delegator_id": "did:web:org.example", "delegate_id": "did:web:agent-1.example", "scope": "payments:usdc:*", "not_before_ms": 1716494400000, "not_after_ms": 1716498000000, "prev_delegation_ref": ""},
+      "recomputes_to": "sha256:e30dbd4782298eb77c9be989538a5c6b6c2aed7e83a7506ca60d4597bf6200a2",
+      "must": "differ"
+    },
+    {
+      "id": "dr-neg-expiry-extend",
+      "tamper_family": "expiry",
+      "claimed_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276",
+      "envelope": {"delegator_id": "did:web:org.example", "delegate_id": "did:web:agent-1.example", "scope": "payments:usdc:<=100", "not_before_ms": 1716494400000, "not_after_ms": 1716501600000, "prev_delegation_ref": ""},
+      "recomputes_to": "sha256:b4b5dfc3b387f791865a35ff61c3ade0b304eb72800f2cc80f64a3495b25a54a",
+      "must": "differ"
+    },
+    {
+      "id": "dr-neg-delegate-swap",
+      "tamper_family": "delegate",
+      "claimed_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276",
+      "envelope": {"delegator_id": "did:web:org.example", "delegate_id": "did:web:attacker.example", "scope": "payments:usdc:<=100", "not_before_ms": 1716494400000, "not_after_ms": 1716498000000, "prev_delegation_ref": ""},
+      "recomputes_to": "sha256:be6fd71169cea6df9a93e2e9f8d80274f9df58e7bdee4f0ca8990394c079c35c",
+      "must": "differ"
+    },
+    {
+      "id": "dr-neg-chain-break",
+      "tamper_family": "chain",
+      "claimed_delegation_ref": "sha256:91329d2887d8eb879cef066c36418245266116b52758c386246fdb927d34494a",
+      "envelope": {"delegator_id": "did:web:agent-1.example", "delegate_id": "did:web:agent-2.example", "scope": "payments:usdc:<=50", "not_before_ms": 1716494400000, "not_after_ms": 1716498000000, "prev_delegation_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000"},
+      "recomputes_to": "sha256:d68866034b0e6b893586db365cc4014e6b42905e29e46e55feba3ae3c14c71fd",
+      "must": "differ"
+    },
+    {
+      "id": "dr-neg-malformed-bound",
+      "tamper_family": "validity_form",
+      "claimed_delegation_ref": "sha256:4e59d4d1fcee3e2fa6a9be3cfa905b4bc09e5746a40c1dab96c277c4e10d3276",
+      "envelope": {"delegator_id": "did:web:org.example", "delegate_id": "did:web:agent-1.example", "scope": "payments:usdc:<=100", "not_before_ms": 1716494400000, "not_after_ms": "2024-05-23T21:00:00Z", "prev_delegation_ref": ""},
+      "must": "reject",
+      "reason": "an RFC-3339 string validity bound is not integer-millisecond; rejected at validation, never minted into a clean-looking delegation_ref"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "key-order-invariance",
+      "assert": "delegation_ref(root_envelope) == delegation_ref(root_envelope with keys reordered)",
+      "reason": "JCS (RFC 8785) canonicalises key order"
+    },
+    {
+      "id": "chain-integrity",
+      "assert": "verify_chain([root_envelope, chain_envelope]) == [root_delegation_ref, chain_delegation_ref]",
+      "reason": "each link's prev_delegation_ref equals the prior link's computed ref; a broken link is rejected"
+    }
+  ]
+}

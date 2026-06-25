@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.26.0",
+  "version": "0.27.0",
   "published_at": "2026-05-23",
   "updated_at": "2026-06-25",
   "canon_version": "jcs-rfc8785-v1",
@@ -330,10 +330,18 @@
       "anchors_to": "crewAIInc/crewAI PR #6030 GovernanceDecision contract (interop; AlgoVoi provides the JCS+SHA-256 digest-conformance layer, schema is crewAI's)",
       "cross_validated": "Python + Node byte-for-byte (2026-06-25, 44/44 each incl tail-drop completeness); VM2 clean-box published-package validated",
       "sha256": "sha256:f21be5a966652c685c6659039eacc2ac147e6d5d58ebbb8e352ffdfa85cbe421"
+    },
+    {
+      "name": "delegation_ref_v1",
+      "primary_file": "delegation_ref_v1.json",
+      "vector_count": 10,
+      "anchors_to": "Cross-party authority delegation: delegation_ref binds delegator + delegate + scope + integer-millisecond validity window + a prev_delegation_ref chain link into a tamper-evident, content-addressed reference; delegations chain A->B->C so a widened scope, extended expiry, swapped delegate, or broken link is detectable offline. The multi-party extension of the spend-authority chain; the cross-party scope-consistency proof is the commercial Orchestrator capability. Instance of the binding framework (no new IETF section).",
+      "cross_validated": "Python + TypeScript byte-for-byte (2026-06-25)",
+      "sha256": "sha256:84439070f9ccd59625042ea7e7e81c87cd60eaa7d0465996ab8e93e3c84fd20b"
     }
   ],
-  "total_anchor_sets": 36,
-  "total_vectors": 319,
+  "total_anchor_sets": 37,
+  "total_vectors": 329,
   "total_vectors_note": "34 sets / 290 entries (incl. composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
