@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-06-24",
+  "updated_at": "2026-06-25",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -169,7 +169,7 @@
         "RFC 8032"
       ],
       "signing_base_mode": "algovoi-v0",
-      "note": "Legacy algovoi-v0 signing base (pre-RFC-9421-default): lowercased @method, 'created' carried as a covered component, no @signature-params line. Verified with mode='algovoi-v0'. The genuinely RFC 9421 \u00c3\u201a\u00c2\u00a72.5-conformant companion is rfc9421_proxy_chain_v1.",
+      "note": "Legacy algovoi-v0 signing base (pre-RFC-9421-default): lowercased @method, 'created' carried as a covered component, no @signature-params line. Verified with mode='algovoi-v0'. The genuinely RFC 9421 Ã‚Â§2.5-conformant companion is rfc9421_proxy_chain_v1.",
       "cross_validated": "8-impl algovoi-v0 signing-base survival, 24/24 (2026-05-24)",
       "sha256": "sha256:5224a7b088732b01beea6c4027e13a5929714170aa4e9eb57911d54284f0dfbf"
     },
@@ -184,7 +184,7 @@
         "RFC 8032"
       ],
       "signing_base_mode": "rfc9421",
-      "note": "RFC 9421 \u00c3\u201a\u00c2\u00a72.5-conformant signing base: @method case-preserved (GET), 'created' as a signature parameter (not a covered component), trailing @signature-params line. Conformant companion to the legacy rfc9421_proxy_chain_v0.",
+      "note": "RFC 9421 Ã‚Â§2.5-conformant signing base: @method case-preserved (GET), 'created' as a signature parameter (not a covered component), trailing @signature-params line. Conformant companion to the legacy rfc9421_proxy_chain_v0.",
       "cross_validated": "8-impl 8/8 Ed25519-verified (Python algovoi-rfc9421-verifier mode=rfc9421, Node, Go, Rust, Java, PHP/libsodium, .NET, Ruby), 2026-06-13",
       "sha256": "sha256:7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8"
     },
@@ -279,7 +279,7 @@
       "name": "substrate_guard_v1",
       "primary_file": "substrate_guard_v1.json",
       "vector_count": 15,
-      "anchors_to": "draft-hopley-x402-retention-chain \u00c2\u00a77.5 (Input Validation), resource-bounds edition",
+      "anchors_to": "draft-hopley-x402-retention-chain Â§7.5 (Input Validation), resource-bounds edition",
       "cross_validated": "Python + TypeScript byte-for-byte (2026-06-21)",
       "sha256": "sha256:f7d2aa8e3a147de4aef31ef213bbafe63c7ed52e2b275c89881440cd402fcdbf"
     },
@@ -322,10 +322,18 @@
       "anchors_to": "Composite trust verdict capping the spend-authority lifecycle; trust_query_ref binds a closed-enum outcome (TRUSTED/PROVISIONAL/INSUFFICIENT_EVIDENCE/UNTRUSTED) to an ordered subject_refs list (order + membership byte-load-bearing). tq-001/002/003 assess the full chain [passport_ref, mandate_ref, policy_bound_ref, guardrail_ref(ALLOW)] from spend_decision_chain_v1, so the verdict caps the open lifecycle. Lite binds only; scoring stays commercial. Instance of the binding framework (no new IETF section).",
       "cross_validated": "Python + TypeScript byte-for-byte (2026-06-24)",
       "sha256": "sha256:c2b2f451d3e5a7a259b74f4677068c18c6daeabb6cabdcc2d5d7818b22f2085f"
+    },
+    {
+      "name": "governance_decision_v1",
+      "primary_file": "governance_decision_v1.json",
+      "vector_count": 17,
+      "anchors_to": "crewAIInc/crewAI PR #6030 GovernanceDecision contract (interop; AlgoVoi provides the JCS+SHA-256 digest-conformance layer, schema is crewAI's)",
+      "cross_validated": "Python + Node byte-for-byte (2026-06-25, 42/42 each); VM2 clean-box published-package validated",
+      "sha256": "sha256:5a26132093cf9ced5d1b0537d6402de0afebf578a10a9ca6e1415f2b75459d34"
     }
   ],
-  "total_anchor_sets": 35,
-  "total_vectors": 300,
+  "total_anchor_sets": 36,
+  "total_vectors": 317,
   "total_vectors_note": "34 sets / 290 entries (incl. composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
@@ -465,7 +473,7 @@
       "signing_base_mode": "algovoi-v0",
       "date": "2026-05-24",
       "agreements": "24/24",
-      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain, over the legacy algovoi-v0 signing base (lowercased @method, no @signature-params line). The RFC 9421 \u00c3\u201a\u00c2\u00a72.5-conformant companion is signature_survival_rfc9421 below.",
+      "note": "8 implementations x 3 checks (signing-base + content-digest + Ed25519 verify) through a 3-hop TLS-re-terminating proxy chain, over the legacy algovoi-v0 signing base (lowercased @method, no @signature-params line). The RFC 9421 Ã‚Â§2.5-conformant companion is signature_survival_rfc9421 below.",
       "attestation": "_attestations/2026-05-24-rfc9421-8-impl-cross-validation.md"
     },
     "signature_survival_rfc9421": {
@@ -473,7 +481,7 @@
       "signing_base_mode": "rfc9421",
       "date": "2026-06-13",
       "agreements": "8/8",
-      "note": "RFC 9421 \u00c3\u201a\u00c2\u00a72.5-conformant signing base (@method case-preserved, created as a parameter, trailing @signature-params line). All 8 independent implementations verify the full chain (signing-base reconstruction + RFC 9530 content-digest + Ed25519): Python (algovoi-rfc9421-verifier mode=rfc9421), Node, Go, Rust (ed25519-dalek), Java (JDK 17 stdlib), PHP (libsodium), .NET (NSec.Cryptography), Ruby. Verified 2026-06-13, matching the v0 set's 8/8 on the same host."
+      "note": "RFC 9421 Ã‚Â§2.5-conformant signing base (@method case-preserved, created as a parameter, trailing @signature-params line). All 8 independent implementations verify the full chain (signing-base reconstruction + RFC 9530 content-digest + Ed25519): Python (algovoi-rfc9421-verifier mode=rfc9421), Node, Go, Rust (ed25519-dalek), Java (JDK 17 stdlib), PHP (libsodium), .NET (NSec.Cryptography), Ruby. Verified 2026-06-13, matching the v0 set's 8/8 on the same host."
     }
   },
   "interop_sets": [
