@@ -62,3 +62,12 @@ node runner_node.js                # 44/44 PASS (Node == Python)
 ```
 
 A PASS in both, against the same published hashes, is the byte-for-byte parity proof.
+
+## Acknowledgment
+
+The framing of sealed completeness as a distinct conformance axis, and the asymmetry of the
+two drop modes (a dropped tail cannot be self-diagnosed from the held set without the seal
+total), was raised by [@vaaraio](https://github.com/vaaraio) on
+[crewAIInc/crewAI#6030](https://github.com/crewAIInc/crewAI/pull/6030). The vectors here are
+derived independently from the contract's `GovernanceSeal`; the observation that sharpened
+this axis is his.
