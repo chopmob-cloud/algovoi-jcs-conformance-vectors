@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 AlgoVoi (chopmob-cloud). Conformance layer, Apache-2.0.
+# The GovernanceDecision / GovernanceOutcome schema is crewAI's (crewAIInc/crewAI PR #6030).
 """
 governance_decision_v1 runner (Python reference impl).
 
@@ -130,16 +133,60 @@ def main() -> int:
         if verify_contiguity(cv["records"], cv["seal"]) is not cv["expected_complete"]:
             fails.append(cv["id"])
 
+    # 5. outcome vectors: GovernanceOutcome's intent_ref is the normative cross-runtime join key.
+    #    A verifier recomputes it from the linked decision's fields (no shared runtime) and confirms
+    #    the outcome references the same authorized intent; the seq back-reference matches; the
+    #    jcs-sha256-profiled tool_output_hash recomputes; and a tampered join fails closed.
+    byid = {v["id"]: v for v in d["vectors"]}
+    outcome_checks = 0
+    for ov in d.get("outcome_vectors", []):
+        dec = byid[ov["links_to"]]
+        rec = ov["outcome_record"]
+        recomputed_join = refs_for(dec)["intent_ref"]
+        if ov.get("expect_join_fail"):
+            outcome_checks += 1
+            if recomputed_join == rec["intent_ref"]:
+                fails.append(f"{ov['id']}:join-should-fail")
+        else:
+            outcome_checks += 3
+            if recomputed_join != rec["intent_ref"]:
+                fails.append(f"{ov['id']}:join")
+            if rec.get("seq") != dec["seq"]:
+                fails.append(f"{ov['id']}:seq")
+            # outcome receipt_ref recomputes under the declared jcs-sha256 profile
+            # (intent_ref fields + completed_at); see receipt_ref_profile in the set.
+            recomputed_receipt = H({"agent_id": dec["agent_id"], "tool": dec["tool"],
+                                    "normalized_scope": dec["normalized_scope"],
+                                    "intent_digest": dec["expected_intent_digest"],
+                                    "idempotency_key": dec["idempotency_key"],
+                                    "completed_at": rec["completed_at"]})
+            if recomputed_receipt != rec["receipt_ref"] or recomputed_receipt != ov["expected_receipt_ref"]:
+                fails.append(f"{ov['id']}:receipt_ref")
+            if rec.get("tool_output") is not None:
+                outcome_checks += 1
+                if H(rec["tool_output"]) != ov["expected_tool_output_hash"]:
+                    fails.append(f"{ov['id']}:tool_output_hash")
+
+    # 6. normalization_id invariant: declared on every normalization vector, and NOT part of the
+    #    hashed preimage (it is metadata that tells a verifier which normalization to apply, so
+    #    adding it must not change the digest).
+    for nv in d["normalization_vectors"]:
+        if nv.get("normalization_id") != "jcs-sha256" or "normalization_id" in nv["preimage"]:
+            fails.append(f"{nv['id']}:normalization_id")
+
     n = (len(d["vectors"]) * 5 + len(d["normalization_vectors"]) * 2
-         + len(d["negative_vectors"]) + len(d["contiguity_vectors"]))
+         + len(d["negative_vectors"]) + len(d["contiguity_vectors"])
+         + outcome_checks + len(d["normalization_vectors"]))
     if fails:
         print("governance_decision_v1: FAIL ->", ", ".join(fails))
         return 1
     print(f"governance_decision_v1: {n}/{n} PASS "
-          f"({len(d['vectors'])} decisions x 5 digests + "
-          f"{len(d['normalization_vectors'])} JCS-norm + "
+          f"({len(d['vectors']) * 5} decision digests + "
+          f"{len(d['normalization_vectors']) * 2} JCS-norm + "
           f"{len(d['negative_vectors'])} route-rejections + "
-          f"{len(d['contiguity_vectors'])} completeness incl tail-drop), byte-for-byte.")
+          f"{len(d['contiguity_vectors'])} completeness + "
+          f"{outcome_checks} outcome [intent_ref join + receipt_ref + tool_output_hash + fail-closed] + "
+          f"{len(d['normalization_vectors'])} normalization_id), byte-for-byte.")
     return 0
 
 

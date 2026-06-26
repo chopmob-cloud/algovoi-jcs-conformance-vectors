@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 AlgoVoi (chopmob-cloud). Conformance layer, Apache-2.0.
+// The GovernanceDecision / GovernanceOutcome schema is crewAI's (crewAIInc/crewAI PR #6030).
 /**
  * governance_decision_v1 runner (Node.js / TypeScript reference impl).
  *
@@ -94,7 +97,44 @@ for (const cv of d.contiguity_vectors) {
   if (verifyContiguity(cv.records, cv.seal) !== cv.expected_complete) fails.push(cv.id);
 }
 
-const n = d.vectors.length * 5 + d.normalization_vectors.length * 2 + d.negative_vectors.length + d.contiguity_vectors.length;
+// 5. outcome vectors: intent_ref is the normative cross-runtime join key, recomputed from the
+//    linked decision (no shared runtime); seq back-reference matches; jcs-sha256-profiled
+//    tool_output_hash recomputes; a tampered join fails closed.
+const byId = Object.fromEntries(d.vectors.map((v) => [v.id, v]));
+let outcomeChecks = 0;
+for (const ov of d.outcome_vectors || []) {
+  const dec = byId[ov.links_to];
+  const rec = ov.outcome_record;
+  const recomputedJoin = refsFor(dec).intent_ref;
+  if (ov.expect_join_fail) {
+    outcomeChecks += 1;
+    if (recomputedJoin === rec.intent_ref) fails.push(`${ov.id}:join-should-fail`);
+  } else {
+    outcomeChecks += 3;
+    if (recomputedJoin !== rec.intent_ref) fails.push(`${ov.id}:join`);
+    if (rec.seq !== dec.seq) fails.push(`${ov.id}:seq`);
+    // outcome receipt_ref recomputes under the declared jcs-sha256 profile (intent_ref fields + completed_at)
+    const recomputedReceipt = H({
+      agent_id: dec.agent_id, tool: dec.tool, normalized_scope: dec.normalized_scope,
+      intent_digest: dec.expected_intent_digest, idempotency_key: dec.idempotency_key,
+      completed_at: rec.completed_at,
+    });
+    if (recomputedReceipt !== rec.receipt_ref || recomputedReceipt !== ov.expected_receipt_ref) fails.push(`${ov.id}:receipt_ref`);
+    if (rec.tool_output !== null && rec.tool_output !== undefined) {
+      outcomeChecks += 1;
+      if (H(rec.tool_output) !== ov.expected_tool_output_hash) fails.push(`${ov.id}:tool_output_hash`);
+    }
+  }
+}
+
+// 6. normalization_id invariant: declared on every normalization vector and NOT part of the hashed
+//    preimage (metadata only, so adding it must not change the digest).
+for (const nv of d.normalization_vectors) {
+  if (nv.normalization_id !== "jcs-sha256" || "normalization_id" in nv.preimage) fails.push(`${nv.id}:normalization_id`);
+}
+
+const n = d.vectors.length * 5 + d.normalization_vectors.length * 2 + d.negative_vectors.length
+  + d.contiguity_vectors.length + outcomeChecks + d.normalization_vectors.length;
 if (fails.length) {
   console.error("governance_decision_v1: FAIL ->", fails.join(", "));
   process.exit(1);

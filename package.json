@@ -1,0 +1,12 @@
+{
+  "name": "algovoi-jcs-conformance-vectors",
+  "version": "0.28.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "RFC 8785 (JCS) + SHA-256 conformance vectors and runners for the AlgoVoi agentic-payments substrate. The runner_node.js files are ES modules; this manifest declares `type: module` so `node runner_node.js` works on any Node version. Install the dependency each runner imports (@algovoi/substrate, canonicalize, or the per-set companion package named in its header).",
+  "dependencies": {
+    "@algovoi/substrate": ">=0.4.0",
+    "canonicalize": "^3.0.0"
+  }
+}

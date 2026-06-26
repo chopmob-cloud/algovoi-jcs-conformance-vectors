@@ -1,7 +1,7 @@
 {
   "set": "governance_decision_v1",
   "schema_version": "1",
-  "description": "Conformance vectors for the crewAI GovernanceDecision contract (PR #6030): the five RFC 8785 (JCS) + SHA-256 digest constructions (params_hash, intent_digest, intent_ref, receipt_ref, decision_context_hash) computed over representative authorization envelopes, byte-for-byte reproducible across Python and Node. Includes JCS normalization vectors, route-validation negative vectors, seq/seal contiguity vectors, and a keystone composability reference. AlgoVoi provides the conformance layer; the contract schema is crewAI's.",
+  "description": "Conformance vectors for the crewAI GovernanceDecision + GovernanceOutcome contract (PR #6030): the five RFC 8785 (JCS) + SHA-256 decision-side digest constructions (params_hash, intent_digest, intent_ref, receipt_ref, decision_context_hash), plus GovernanceOutcome vectors that recompute the normative intent_ref cross-runtime join key from decision-side fields and a jcs-sha256-profiled tool_output_hash, byte-for-byte reproducible across Python and Node. Includes JCS normalization vectors (each declaring normalization_id, which is metadata and not part of the hashed preimage), route-validation negative vectors, seq/seal contiguity vectors, and a keystone composability reference. AlgoVoi provides the conformance layer; the contract schema is crewAI's.",
   "canonicalizer": "rfc8785-jcs + sha256, prefixed 'sha256:'",
   "source_contract": "crewAIInc/crewAI PR #6030 lib/crewai/src/crewai/governance/governance_decision.py",
   "decisions": [
@@ -171,7 +171,8 @@
         "idempotency_key": "tool_action_991"
       },
       "expected_canonical_jcs": "{\"agent_id\":\"researcher_01\",\"idempotency_key\":\"tool_action_991\",\"intent_digest\":\"sha256:f49caf64fda319860041404bcab81d87387beab65ead30d393cd4449cde86f8e\",\"normalized_scope\":\"customers/eu\",\"tool\":\"customer_export\"}",
-      "expected_sha256": "sha256:d0437321f8e7492364ac7aa55f645c51b202f07dcde69cf45dd34b757dbdf84c"
+      "expected_sha256": "sha256:d0437321f8e7492364ac7aa55f645c51b202f07dcde69cf45dd34b757dbdf84c",
+      "normalization_id": "jcs-sha256"
     },
     {
       "id": "gd-deny-norm",
@@ -183,7 +184,8 @@
         "idempotency_key": "tool_action_992"
       },
       "expected_canonical_jcs": "{\"agent_id\":\"researcher_01\",\"idempotency_key\":\"tool_action_992\",\"intent_digest\":\"sha256:34082e0a420a1379abff8c3615e0cab21d9dc302ffd89102dcedff81c26cfde8\",\"normalized_scope\":\"prod/delete\",\"tool\":\"delete_database\"}",
-      "expected_sha256": "sha256:a370cf7b11026586c39da36c8875aaf46b4b739324c29b95cbbbc273b55416ad"
+      "expected_sha256": "sha256:a370cf7b11026586c39da36c8875aaf46b4b739324c29b95cbbbc273b55416ad",
+      "normalization_id": "jcs-sha256"
     },
     {
       "id": "gd-require-approval-norm",
@@ -195,7 +197,8 @@
         "idempotency_key": "tool_action_993"
       },
       "expected_canonical_jcs": "{\"agent_id\":\"ops_agent\",\"idempotency_key\":\"tool_action_993\",\"intent_digest\":\"sha256:b662e5e7a54c034c8bdf1b3765972dc1178dc9e7902cf50012f62ffc4bff17bf\",\"normalized_scope\":\"payments/transfer\",\"tool\":\"transfer_funds\"}",
-      "expected_sha256": "sha256:d8eac71396adc4f1a9d949dce314243c2ea09463f138a3cc55173e9e38e70ef8"
+      "expected_sha256": "sha256:d8eac71396adc4f1a9d949dce314243c2ea09463f138a3cc55173e9e38e70ef8",
+      "normalization_id": "jcs-sha256"
     },
     {
       "id": "gd-revise-norm",
@@ -207,7 +210,8 @@
         "idempotency_key": "tool_action_994"
       },
       "expected_canonical_jcs": "{\"agent_id\":\"writer_agent\",\"idempotency_key\":\"tool_action_994\",\"intent_digest\":\"sha256:2ff2d9aa9d522d30649c26a52fe2065a1e327a8478a37c2f1cf09ab204b1d8a5\",\"normalized_scope\":\"messaging/public\",\"tool\":\"post_message\"}",
-      "expected_sha256": "sha256:743dbf82369e80b8477064dbc9904870895e1efaa8559587494110e51b863332"
+      "expected_sha256": "sha256:743dbf82369e80b8477064dbc9904870895e1efaa8559587494110e51b863332",
+      "normalization_id": "jcs-sha256"
     },
     {
       "id": "gd-unicode-norm",
@@ -219,7 +223,8 @@
         "idempotency_key": "tool_action_995"
       },
       "expected_canonical_jcs": "{\"agent_id\":\"agent_éü\",\"idempotency_key\":\"tool_action_995\",\"intent_digest\":\"sha256:62dd7c48e27efb0d170ae69b86618475b41af5f63350a244b71abecae9be6417\",\"normalized_scope\":\"search/ünicøde\",\"tool\":\"search\"}",
-      "expected_sha256": "sha256:543995e4588acf5a3a92bdf44f07df56b24dcb2e7268e06d0e693fdd81b43138"
+      "expected_sha256": "sha256:543995e4588acf5a3a92bdf44f07df56b24dcb2e7268e06d0e693fdd81b43138",
+      "normalization_id": "jcs-sha256"
     }
   ],
   "negative_vectors": [
@@ -376,5 +381,110 @@
   "keystone_reference": {
     "note": "Composability proof referenced from the contract's Composability section. The published keystone recomputes a full decision chain (identity -> authority -> policy -> decision -> execution -> verdict) byte-for-byte; a GovernanceDecision's intent_ref is the per-decision anchor such a chain composes over, verifiable by another crew with no shared runtime. See composition/keystone_v1 (verify_keystone.py / .mjs).",
     "set": "keystone_v1"
-  }
+  },
+  "outcome_vectors": [
+    {
+      "id": "out-executed",
+      "links_to": "gd-allow",
+      "normalization_id": "jcs-sha256",
+      "outcome_record": {
+        "decision_id": "out-executed-rec",
+        "intent_ref": "sha256:d0437321f8e7492364ac7aa55f645c51b202f07dcde69cf45dd34b757dbdf84c",
+        "receipt_ref": "sha256:5ead77a26a85f0366d6f2544113d35727bd198c9abb069b3f489fb7467fc9d4f",
+        "outcome": "executed",
+        "tool_output": {
+          "rows_exported": 1000,
+          "format": "csv",
+          "region": "eu",
+          "truncated": false
+        },
+        "tool_output_hash": "sha256:f281e3c863825b34b885a95a5638abac2c1faf0a803c71d9094bdaa1e6108141",
+        "completed_at": "2026-06-25T05:00:02Z",
+        "seq": 0
+      },
+      "expected_tool_output_hash": "sha256:f281e3c863825b34b885a95a5638abac2c1faf0a803c71d9094bdaa1e6108141",
+      "note": "executed outcome joins gd-allow by intent_ref (the normative cross-runtime join key); tool_output_hash and receipt_ref both recompute under the declared jcs-sha256 profile (receipt_ref = intent_ref fields + completed_at). seq back-references the linked decision.",
+      "expected_receipt_ref": "sha256:5ead77a26a85f0366d6f2544113d35727bd198c9abb069b3f489fb7467fc9d4f"
+    },
+    {
+      "id": "out-blocked",
+      "links_to": "gd-deny",
+      "normalization_id": "jcs-sha256",
+      "outcome_record": {
+        "decision_id": "out-blocked-rec",
+        "intent_ref": "sha256:a370cf7b11026586c39da36c8875aaf46b4b739324c29b95cbbbc273b55416ad",
+        "receipt_ref": "sha256:cb6140c5eb6dc726ddc396fab78b6ebc51f88658abb39eb1bbecd1935be7ce01",
+        "outcome": "blocked",
+        "tool_output": null,
+        "tool_output_hash": null,
+        "completed_at": "2026-06-25T05:01:00Z",
+        "seq": 1
+      },
+      "expected_tool_output_hash": null,
+      "note": "deny path emits a positive blocked outcome (not absence of response), joined to gd-deny by intent_ref. No tool output, so no tool_output_hash.",
+      "expected_receipt_ref": "sha256:cb6140c5eb6dc726ddc396fab78b6ebc51f88658abb39eb1bbecd1935be7ce01"
+    },
+    {
+      "id": "out-error",
+      "links_to": "gd-unicode",
+      "normalization_id": "jcs-sha256",
+      "outcome_record": {
+        "decision_id": "out-error-rec",
+        "intent_ref": "sha256:543995e4588acf5a3a92bdf44f07df56b24dcb2e7268e06d0e693fdd81b43138",
+        "receipt_ref": "sha256:b14059178f0345bab8c1dc4ba906be29d6ea6e847a4ed96bc5cf94eaacca49d2",
+        "outcome": "error",
+        "error_type": "UpstreamTimeoutError",
+        "error_message": "tool backend returned 503",
+        "tool_output": null,
+        "tool_output_hash": null,
+        "completed_at": "2026-06-25T05:02:00Z",
+        "seq": 0
+      },
+      "expected_tool_output_hash": null,
+      "note": "error outcome joins gd-unicode by intent_ref; error_type/error_message carried, no tool output.",
+      "expected_receipt_ref": "sha256:b14059178f0345bab8c1dc4ba906be29d6ea6e847a4ed96bc5cf94eaacca49d2"
+    },
+    {
+      "id": "out-timeout",
+      "links_to": "gd-require-approval",
+      "normalization_id": "jcs-sha256",
+      "outcome_record": {
+        "decision_id": "out-timeout-rec",
+        "intent_ref": "sha256:d8eac71396adc4f1a9d949dce314243c2ea09463f138a3cc55173e9e38e70ef8",
+        "receipt_ref": "sha256:9e94e169ca551d6da1cce427889e4caa60e9d391d52f5207f22403ca9c64419d",
+        "outcome": "timeout",
+        "tool_output": null,
+        "tool_output_hash": null,
+        "completed_at": "2026-06-25T05:03:00Z",
+        "seq": 2
+      },
+      "expected_tool_output_hash": null,
+      "note": "timeout outcome (approval not granted in time) joins gd-require-approval by intent_ref.",
+      "expected_receipt_ref": "sha256:9e94e169ca551d6da1cce427889e4caa60e9d391d52f5207f22403ca9c64419d"
+    },
+    {
+      "id": "out-neg-join-mismatch",
+      "links_to": "gd-allow",
+      "normalization_id": "jcs-sha256",
+      "outcome_record": {
+        "decision_id": "out-neg-rec",
+        "intent_ref": "sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        "receipt_ref": "sha256:5ead77a26a85f0366d6f2544113d35727bd198c9abb069b3f489fb7467fc9d4f",
+        "outcome": "executed",
+        "tool_output": {
+          "rows_exported": 1000,
+          "format": "csv",
+          "region": "eu",
+          "truncated": false
+        },
+        "tool_output_hash": "sha256:f281e3c863825b34b885a95a5638abac2c1faf0a803c71d9094bdaa1e6108141",
+        "completed_at": "2026-06-25T05:00:02Z",
+        "seq": 0
+      },
+      "expect_join_fail": true,
+      "note": "fail-closed: an outcome whose intent_ref does not recompute from the linked decision must be rejected at the join.",
+      "expected_receipt_ref": "sha256:5ead77a26a85f0366d6f2544113d35727bd198c9abb069b3f489fb7467fc9d4f"
+    }
+  ],
+  "receipt_ref_profile": "jcs-sha256: outcome receipt_ref = sha256(JCS({agent_id, tool, normalized_scope, intent_digest, idempotency_key, completed_at})). Declared profile binding (contract states includes-timestamp + unique-per-record but does not pin the preimage); recomputable, not a contract MUST."
 }

@@ -22,7 +22,7 @@ final `GAUNTLET <lang> <ok>/<total>`; `run_gauntlet.sh` aggregates all eight.
 | Runner | Command |
 |---|---|
 | `gauntlet_python.py` | `python gauntlet_python.py <vectors.json>` |
-| `gauntlet_node.js`   | `node gauntlet_node.js <vectors.json>` |
+| `gauntlet_node.cjs`  | `node gauntlet_node.cjs <vectors.json>` |
 | `gauntlet_ruby.rb`   | `ruby gauntlet_ruby.rb <vectors.json>` |
 | `gauntlet_php.php`    | `php gauntlet_php.php <vectors.json>` |
 | `gauntlet_go.go`     | `GO111MODULE=off go run gauntlet_go.go <vectors.json>` |

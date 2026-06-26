@@ -16,7 +16,7 @@ LANGS=(python node ruby php go rust java dotnet)
 run_lang() {
   case "$1" in
     python) python "$HERE/gauntlet_python.py" "$VEC" ;;
-    node)   node "$HERE/gauntlet_node.js" "$VEC" ;;
+    node)   node "$HERE/gauntlet_node.cjs" "$VEC" ;;
     ruby)   ruby "$HERE/gauntlet_ruby.rb" "$VEC" ;;
     php)    php "$HERE/gauntlet_php.php" "$VEC" ;;
     go)     ( cd "$HERE" && GO111MODULE=off go run gauntlet_go.go "$VEC" ) ;;

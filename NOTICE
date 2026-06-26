@@ -12,3 +12,10 @@ Documented at https://docs.algovoi.co.uk/canonicalisation-substrate.
 
 When redistributing this work or derivative works, retain this NOTICE per
 Apache License, Version 2.0, Section 4(d).
+
+L2 interop layer (additive, AlgoVoi-authored, Apache-2.0):
+  - governance_decision_v1 and composition/cross_engine_governance_v1 provide the
+    RFC 8785 (JCS) + SHA-256 digest-conformance and cross-engine layer for the crewAI
+    GovernanceDecision / GovernanceOutcome contract. That CONTRACT SCHEMA is crewAI's
+    (crewAIInc/crewAI PR #6030) and is referenced for interop, not claimed by AlgoVoi.
+    The conformance vectors, runners, emitters, and cross-engine proof are AlgoVoi's.

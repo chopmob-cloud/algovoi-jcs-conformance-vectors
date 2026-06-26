@@ -222,7 +222,12 @@ def main() -> int:
     print(f"{'PASS  ' if gk_ok else 'FAIL  '} guard_keystone_v1 (keystone admitted under the input-bounds profile)"
           f"   {'3/3 within bounds' if gk_ok else 'BROKEN'}")
 
-    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok and pef_ok and refund_x_ok and acf_ok and cgk_ok and cnk_ok and gk_ok
+    cxg = subprocess.run([sys.executable, str(HERE / "cross_engine_governance_v1" / "verify_cross_engine.py")], capture_output=True, text=True)
+    cxg_ok = cxg.returncode == 0
+    print(f"{'PASS  ' if cxg_ok else 'FAIL  '} cross_engine_governance_v1 (crewAI + Strands emit byte-identical governance)"
+          f"   {'13/13, shared intent_ref' if cxg_ok else 'BROKEN'}")
+
+    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok and pef_ok and refund_x_ok and acf_ok and cgk_ok and cnk_ok and gk_ok and cxg_ok
 
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "
