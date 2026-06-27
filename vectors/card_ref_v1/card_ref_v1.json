@@ -1,0 +1,146 @@
+{
+  "set": "card_ref_v1",
+  "schema_version": 1,
+  "description": "card_ref: deterministic content-addressed reference to an A2A AgentCard. sha256: + SHA-256(JCS(AgentCard without signatures)). Recomputes offline with RFC 8785 + SHA-256, no JWS/JWKS. Preimage == A2A spec 8.4.2 signing payload (signatures excluded). This set covers the standalone reference and its conformance only.",
+  "canonicalizer": "rfc8785-jcs + sha256, prefixed 'sha256:'",
+  "source_spec": "A2A specification 8.4.1 (canonicalization) + 8.4.2 (exclude signatures)",
+  "construction": "card_ref = 'sha256:' + SHA-256(JCS({card without 'signatures'}))",
+  "vectors": [
+    {
+      "id": "cr-example",
+      "card": {
+        "name": "Example Agent",
+        "description": "",
+        "capabilities": {
+          "streaming": false,
+          "pushNotifications": false
+        },
+        "skills": []
+      },
+      "expected_card_ref": "sha256:1808821b320b677eef7f25a322ef398d84e147361dba544687684369bb0856e3",
+      "note": "A2A Example Agent card; expected_card_ref == 'sha256:'+the canonical bytes A2A itself signs"
+    },
+    {
+      "id": "cr-multiskill",
+      "card": {
+        "name": "Pay Agent",
+        "version": "1.0.0",
+        "url": "https://pay.example/a2a",
+        "capabilities": {
+          "streaming": true
+        },
+        "securitySchemes": {
+          "oauth": {
+            "type": "oauth2"
+          }
+        },
+        "skills": [
+          {
+            "id": "quote",
+            "name": "Quote"
+          },
+          {
+            "id": "settle",
+            "name": "Settle"
+          }
+        ]
+      },
+      "expected_card_ref": "sha256:e01adf20b3c87c039f7bb827ba3ee4a51d8e46031252f8988d7773935e790c12",
+      "note": "multi-skill card with url, capabilities, securityScheme"
+    }
+  ],
+  "invariant_vectors": [
+    {
+      "id": "inv-signatures-excluded",
+      "card": {
+        "name": "Example Agent",
+        "description": "",
+        "capabilities": {
+          "streaming": false,
+          "pushNotifications": false
+        },
+        "skills": [],
+        "signatures": [
+          {
+            "protected": "x",
+            "signature": "y"
+          }
+        ]
+      },
+      "equals_ref_of": "cr-example",
+      "note": "a signatures field MUST NOT change card_ref"
+    },
+    {
+      "id": "inv-key-reorder",
+      "card": {
+        "skills": [],
+        "capabilities": {
+          "pushNotifications": false,
+          "streaming": false
+        },
+        "name": "Example Agent",
+        "description": ""
+      },
+      "equals_ref_of": "cr-example",
+      "note": "JCS: key order MUST NOT change card_ref"
+    }
+  ],
+  "negative_vectors": [
+    {
+      "id": "neg-skill-changed",
+      "card": {
+        "name": "Pay Agent",
+        "version": "1.0.0",
+        "url": "https://pay.example/a2a",
+        "capabilities": {
+          "streaming": true
+        },
+        "securitySchemes": {
+          "oauth": {
+            "type": "oauth2"
+          }
+        },
+        "skills": [
+          {
+            "id": "quote2",
+            "name": "Quote"
+          },
+          {
+            "id": "settle",
+            "name": "Settle"
+          }
+        ]
+      },
+      "diverges_from": "cr-multiskill",
+      "note": "changing one skill id MUST diverge card_ref"
+    },
+    {
+      "id": "neg-scheme-changed",
+      "card": {
+        "name": "Pay Agent",
+        "version": "1.0.0",
+        "url": "https://pay.example/a2a",
+        "capabilities": {
+          "streaming": true
+        },
+        "securitySchemes": {
+          "apikey": {
+            "type": "apiKey"
+          }
+        },
+        "skills": [
+          {
+            "id": "quote",
+            "name": "Quote"
+          },
+          {
+            "id": "settle",
+            "name": "Settle"
+          }
+        ]
+      },
+      "diverges_from": "cr-multiskill",
+      "note": "changing a security scheme MUST diverge card_ref"
+    }
+  ]
+}
