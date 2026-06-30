@@ -1,0 +1,101 @@
+{
+  "set": "artifact_ref_v1",
+  "schema_version": 1,
+  "description": "artifact_ref: deterministic content-addressed reference to an A2A Task output. sha256: + SHA-256(JCS({artifact_type, output_hash, produced_at_ms, task_ref})). Recomputes offline with RFC 8785 + SHA-256, no JWS/JWKS. Transitively binds agent identity + task instruction + output via the task_ref field.",
+  "canonicalizer": "rfc8785-jcs + sha256, prefixed 'sha256:'",
+  "source_spec": "AlgoVoi-A2A-Artifact (chopmob-cloud); open Apache-2.0 primitive",
+  "construction": "artifact_ref = 'sha256:' + SHA-256(JCS({artifact_type, output_hash, produced_at_ms, task_ref}))",
+  "jcs_field_order": "artifact_type, output_hash, produced_at_ms, task_ref (lexicographic)",
+  "artifact_types": ["DATA", "ERROR", "FILE", "TEXT"],
+  "vectors": [
+    {
+      "id": "ar-001",
+      "task_ref": "sha256:4d98892a6b19d1b099a0b65c0bac2446965fee607ec135610c9d88de850993d2",
+      "output_hash": "sha256:3bd05c12213c2c3ff00f4bd0b41d630e6473bdd67ab9d86b0d5d37c9128f6910",
+      "artifact_type": "TEXT",
+      "produced_at_ms": 1751308900000,
+      "expected_artifact_ref": "sha256:2b0c528ee3b4616976d81b01b0bae5c2b3029aef04fd2ce612fb0bc7c1483aa5",
+      "note": "task_ref_v1 tr-001 (Example Agent analysis task); output_hash = SHA-256('Q2 revenue up 14% YoY. Top SKU: Model-X. Churn risk: Segment-3.'); type TEXT"
+    },
+    {
+      "id": "ar-002",
+      "task_ref": "sha256:478c932385f7132a1a5eafb6a620b4a761fd4aa0f5a8e8b0caf1e84037f4581f",
+      "output_hash": "sha256:c9e9f76b26e3ae25452d9385bb52517d0bb0ef5cd1d25ad17fe73224f26a5bcc",
+      "artifact_type": "DATA",
+      "produced_at_ms": 1751395300000,
+      "expected_artifact_ref": "sha256:5aafeb332f55c1b0b69e968b54e1a74dd9b743d6ef9d887cf7730c2854fff875",
+      "note": "task_ref_v1 tr-002 (Pay Agent settlement task); output_hash = SHA-256('{\"status\":\"settled\",\"tx_id\":\"0xabc123\",\"amount\":\"99.99\"}'); type DATA"
+    }
+  ],
+  "type_coverage_vectors": [
+    {
+      "id": "tc-FILE",
+      "task_ref": "sha256:4d98892a6b19d1b099a0b65c0bac2446965fee607ec135610c9d88de850993d2",
+      "output_hash": "sha256:3bd05c12213c2c3ff00f4bd0b41d630e6473bdd67ab9d86b0d5d37c9128f6910",
+      "artifact_type": "FILE",
+      "produced_at_ms": 1751308900000,
+      "expected_artifact_ref": "sha256:45b6ce16b1a577a65051a48e86871307bdc44ca2a3ccb937dd44cfc32b83908f",
+      "diverges_from": "ar-001",
+      "note": "same payload as ar-001 but artifact_type=FILE; MUST produce a distinct hash"
+    },
+    {
+      "id": "tc-ERROR",
+      "task_ref": "sha256:4d98892a6b19d1b099a0b65c0bac2446965fee607ec135610c9d88de850993d2",
+      "output_hash": "sha256:3bd05c12213c2c3ff00f4bd0b41d630e6473bdd67ab9d86b0d5d37c9128f6910",
+      "artifact_type": "ERROR",
+      "produced_at_ms": 1751308900000,
+      "expected_artifact_ref": "sha256:74dae8dee30a9eaa6a1bd9ba835ed5c2f9d391923d8c192837034448234bec9b",
+      "diverges_from": "ar-001",
+      "note": "same payload as ar-001 but artifact_type=ERROR; MUST produce a distinct hash"
+    }
+  ],
+  "invariant_vectors": [
+    {
+      "id": "inv-field-reorder",
+      "task_ref": "sha256:4d98892a6b19d1b099a0b65c0bac2446965fee607ec135610c9d88de850993d2",
+      "output_hash": "sha256:3bd05c12213c2c3ff00f4bd0b41d630e6473bdd67ab9d86b0d5d37c9128f6910",
+      "artifact_type": "TEXT",
+      "produced_at_ms": 1751308900000,
+      "equals_ref_of": "ar-001",
+      "note": "JCS sorts keys lexicographically before hashing; field insertion order MUST NOT change artifact_ref"
+    }
+  ],
+  "negative_vectors": [
+    {
+      "id": "neg-task-changed",
+      "task_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "output_hash": "sha256:3bd05c12213c2c3ff00f4bd0b41d630e6473bdd67ab9d86b0d5d37c9128f6910",
+      "artifact_type": "TEXT",
+      "produced_at_ms": 1751308900000,
+      "diverges_from": "ar-001",
+      "note": "a changed task_ref MUST diverge artifact_ref"
+    },
+    {
+      "id": "neg-output-changed",
+      "task_ref": "sha256:4d98892a6b19d1b099a0b65c0bac2446965fee607ec135610c9d88de850993d2",
+      "output_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "artifact_type": "TEXT",
+      "produced_at_ms": 1751308900000,
+      "diverges_from": "ar-001",
+      "note": "a changed output_hash MUST diverge artifact_ref"
+    },
+    {
+      "id": "neg-type-changed",
+      "task_ref": "sha256:4d98892a6b19d1b099a0b65c0bac2446965fee607ec135610c9d88de850993d2",
+      "output_hash": "sha256:3bd05c12213c2c3ff00f4bd0b41d630e6473bdd67ab9d86b0d5d37c9128f6910",
+      "artifact_type": "FILE",
+      "produced_at_ms": 1751308900000,
+      "diverges_from": "ar-001",
+      "note": "a changed artifact_type MUST diverge artifact_ref (FILE vs TEXT)"
+    },
+    {
+      "id": "neg-ts-changed",
+      "task_ref": "sha256:4d98892a6b19d1b099a0b65c0bac2446965fee607ec135610c9d88de850993d2",
+      "output_hash": "sha256:3bd05c12213c2c3ff00f4bd0b41d630e6473bdd67ab9d86b0d5d37c9128f6910",
+      "artifact_type": "TEXT",
+      "produced_at_ms": 1751308900001,
+      "diverges_from": "ar-001",
+      "note": "a 1ms timestamp change MUST diverge artifact_ref"
+    }
+  ]
+}

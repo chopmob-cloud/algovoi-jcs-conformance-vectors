@@ -1,0 +1,63 @@
+{
+  "set": "task_ref_v1",
+  "schema_version": 1,
+  "description": "task_ref: deterministic content-addressed reference to an A2A Task delegation. sha256: + SHA-256(JCS({card_ref, created_at_ms, instructions_hash})). Recomputes offline with RFC 8785 + SHA-256, no JWS/JWKS. Binds agent identity (card_ref) to task instruction (instructions_hash) at a millisecond-precise instant.",
+  "canonicalizer": "rfc8785-jcs + sha256, prefixed 'sha256:'",
+  "source_spec": "AlgoVoi-A2A-Task (chopmob-cloud); open Apache-2.0 primitive",
+  "construction": "task_ref = 'sha256:' + SHA-256(JCS({card_ref, created_at_ms, instructions_hash}))",
+  "jcs_field_order": "card_ref, created_at_ms, instructions_hash (lexicographic)",
+  "vectors": [
+    {
+      "id": "tr-001",
+      "card_ref": "sha256:1808821b320b677eef7f25a322ef398d84e147361dba544687684369bb0856e3",
+      "instructions_hash": "sha256:7ad904873dbe3f0fb178e593bfb91ab01c536edee28bbff3a7d28b70ed30a8dc",
+      "created_at_ms": 1751308800000,
+      "expected_task_ref": "sha256:4d98892a6b19d1b099a0b65c0bac2446965fee607ec135610c9d88de850993d2",
+      "note": "Example Agent card_ref (card_ref_v1 cr-example); instructions_hash = SHA-256('Analyse the Q2 sales report and summarise key trends.')"
+    },
+    {
+      "id": "tr-002",
+      "card_ref": "sha256:e01adf20b3c87c039f7bb827ba3ee4a51d8e46031252f8988d7773935e790c12",
+      "instructions_hash": "sha256:634755df914c7ea5f884ebeecb70428d62eec1020f103ed9f13aec74ea42d5d9",
+      "created_at_ms": 1751395200000,
+      "expected_task_ref": "sha256:478c932385f7132a1a5eafb6a620b4a761fd4aa0f5a8e8b0caf1e84037f4581f",
+      "note": "Pay Agent card_ref (card_ref_v1 cr-multiskill); instructions_hash = SHA-256('Execute payment settlement for order ORD-9921.')"
+    }
+  ],
+  "invariant_vectors": [
+    {
+      "id": "inv-field-reorder",
+      "card_ref": "sha256:1808821b320b677eef7f25a322ef398d84e147361dba544687684369bb0856e3",
+      "instructions_hash": "sha256:7ad904873dbe3f0fb178e593bfb91ab01c536edee28bbff3a7d28b70ed30a8dc",
+      "created_at_ms": 1751308800000,
+      "equals_ref_of": "tr-001",
+      "note": "JCS sorts keys lexicographically before hashing; field insertion order MUST NOT change task_ref"
+    }
+  ],
+  "negative_vectors": [
+    {
+      "id": "neg-card-changed",
+      "card_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "instructions_hash": "sha256:7ad904873dbe3f0fb178e593bfb91ab01c536edee28bbff3a7d28b70ed30a8dc",
+      "created_at_ms": 1751308800000,
+      "diverges_from": "tr-001",
+      "note": "a changed card_ref MUST diverge task_ref"
+    },
+    {
+      "id": "neg-instr-changed",
+      "card_ref": "sha256:1808821b320b677eef7f25a322ef398d84e147361dba544687684369bb0856e3",
+      "instructions_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "created_at_ms": 1751308800000,
+      "diverges_from": "tr-001",
+      "note": "a changed instructions_hash MUST diverge task_ref"
+    },
+    {
+      "id": "neg-ts-changed",
+      "card_ref": "sha256:1808821b320b677eef7f25a322ef398d84e147361dba544687684369bb0856e3",
+      "instructions_hash": "sha256:7ad904873dbe3f0fb178e593bfb91ab01c536edee28bbff3a7d28b70ed30a8dc",
+      "created_at_ms": 1751308800001,
+      "diverges_from": "tr-001",
+      "note": "a 1ms timestamp change MUST diverge task_ref"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.29.0",
+  "version": "0.31.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-06-27",
+  "updated_at": "2026-06-30",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -338,11 +338,27 @@
       "anchors_to": "A2A AgentCard content-addressed reference. card_ref = 'sha256:' + SHA-256(JCS(AgentCard without the signatures field)); the preimage is exactly the A2A spec 8.4.2 signing payload, so card_ref is the content-address of the same bytes A2A 8.4.1 canonicalizes (RFC 8785 JCS) for AgentCard signing. AlgoVoi-authored open primitive; recomputes offline with RFC 8785 + SHA-256, no JWS or JWKS.",
       "cross_validated": "Python + Node byte-for-byte (2026-06-27, 6/6 each: 2 positives incl the A2A canonical-bytes hash + 2 invariants [signatures excluded, key reorder] + 2 negatives [changed skill, changed scheme]); VM2 clean-box validated against published algovoi-substrate / @algovoi/substrate (6/6 Python + 6/6 Node in fresh python:3.12-slim and node:20-slim).",
       "sha256": "sha256:1b5aa611ee4eea7d3c010a6f7183320492d3c11f5f78ac905249d423778a561b"
+    },
+    {
+      "name": "task_ref_v1",
+      "primary_file": "task_ref_v1.json",
+      "vector_count": 6,
+      "anchors_to": "A2A Task delegation content-addressed reference. task_ref = 'sha256:' + SHA-256(JCS({card_ref, created_at_ms, instructions_hash})). Binds agent identity (card_ref) to task instruction (instructions_hash) at a millisecond-precise instant; composes onto card_ref_v1. AlgoVoi-authored open primitive; recomputes offline with RFC 8785 + SHA-256, no JWS or JWKS.",
+      "cross_validated": "Python + Node byte-for-byte (2026-06-30, 6/6 each: 2 positives + 1 field-reorder invariant + 3 negatives [changed card_ref, changed instructions_hash, 1ms timestamp change]).",
+      "sha256": "sha256:2a5bfc72d3ec08d9a6fc3c24a4e62517235c3a6713c127f1ca592ed8df49f74e"
+    },
+    {
+      "name": "artifact_ref_v1",
+      "primary_file": "artifact_ref_v1.json",
+      "vector_count": 9,
+      "anchors_to": "A2A Task output content-addressed reference. artifact_ref = 'sha256:' + SHA-256(JCS({artifact_type, output_hash, produced_at_ms, task_ref})). Transitively binds agent identity + task instruction + output via the task_ref field; completes the three-ref chain card_ref -> task_ref -> artifact_ref. artifact_type is a closed enum: TEXT | FILE | DATA | ERROR. AlgoVoi-authored open primitive; recomputes offline with RFC 8785 + SHA-256, no JWS or JWKS.",
+      "cross_validated": "Python + Node byte-for-byte (2026-06-30, 9/9 each: 2 positives + 2 type-coverage [FILE, ERROR] + 1 field-reorder invariant + 4 negatives [changed task_ref, changed output_hash, changed artifact_type, 1ms timestamp change]).",
+      "sha256": "sha256:f403753ab54a5d5b7cdebdc730f7d5ae86e82255ad2247f6b696c94b3c8afd43"
     }
   ],
-  "total_anchor_sets": 37,
-  "total_vectors": 331,
-  "total_vectors_note": "34 sets / 290 entries (incl. composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
+  "total_anchor_sets": 39,
+  "total_vectors": 346,
+  "total_vectors_note": "39 sets / 346 entries (incl. task_ref_v1 + artifact_ref_v1 + composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, A2A ref chain (card_ref -> task_ref -> artifact_ref), .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
     "implementations": 8,
     "languages": [
