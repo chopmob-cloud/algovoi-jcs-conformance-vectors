@@ -10,7 +10,7 @@
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts, with **880/880 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts, settlement attestations, and offline-verifiable x402 compliance receipts, with **880/880 byte-for-byte agreements directly executed**
 across eight independent JCS implementations in eight programming languages
 (cumulative as of 2026-06-18; see the cross-implementation validation matrix). Authoritative anchor-set and vector counts live in `manifest.json`.
 
