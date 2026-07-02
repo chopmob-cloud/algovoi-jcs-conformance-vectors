@@ -10,7 +10,7 @@
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts, settlement attestations, and offline-verifiable x402 compliance receipts, with **880/880 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts, settlement attestations, and offline-verifiable x402 compliance receipts, covering the full **agentic lifecycle** from identity to settlement: `passport_ref -> mandate_ref -> policy_bound_ref -> decision_ref -> execution_ref -> trust_query_ref`. **880/880 byte-for-byte agreements directly executed**
 across eight independent JCS implementations in eight programming languages
 (cumulative as of 2026-06-18; see the cross-implementation validation matrix). Authoritative anchor-set and vector counts live in `manifest.json`.
 
@@ -71,11 +71,11 @@ support the substrate authorship claim:
 | [`vectors/rfc9421_proxy_chain_v1/`](./vectors/rfc9421_proxy_chain_v1/) | RFC 9421 §2.5-conformant HTTP message signature + RFC 9530 content-digest survive a re-terminating proxy chain byte-identical | Single fixture, RFC 9421 §2.5 signing base (Ed25519). |
 | [`vectors/multichain_ed25519_substrate_v0/`](./vectors/multichain_ed25519_substrate_v0/) | Ed25519 signing over a shared canonical payload across keys derived from independent chain BIP44 paths (Algorand, Solana, Stellar) | Three signatures of the same 221-byte canonical JSON payload (SHA-256 `4f867161…0b56267c`) under three different chain-derivation paths |
 
-## Compositions (end-to-end keystone proofs)
+## Compositions (agentic lifecycle audit chain verification)
 
-Beyond the per-set vectors, the corpus ships composition proofs that recompute a whole
-lifecycle from raw fields and show each reference equals the published output of its own set.
-Each is byte-for-byte in Python and an independent Node implementation, offline, with no
+Beyond the per-set vectors, the corpus ships composition proofs that recompute the full **agentic lifecycle** -- identity, authority, policy, decision, execution, settlement, refund -- and verify each reference equals the published output of its own set. The `audit_chain_of_frames_v1` composition is the end-to-end **agentic lifecycle audit chain**: execution, settlement, and refund as a chain of PEF frames, each linked by `prev_hash` and capped by one `trust_query_ref`, recomputable byte-for-byte offline with no AlgoVoi software in the trust base.
+
+Each composition proof is in Python and an independent Node implementation, offline, with no
 package import (an RFC 8785 JCS library and SHA-256 are the whole dependency):
 
 | Composition | Links | Proves |
