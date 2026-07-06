@@ -101,3 +101,17 @@ attributes it.
   (`RESOLVER_OUTSIDE_ALLOWLIST`), `inline_unproven_invalid` (`INLINE_WITHOUT_ORIGIN_PROOF`).
   Same L1 signature passes in every key-source profile; what differs is whether the evidence
   explains why the key was acceptable.
+
+- **`attribution_ref_v1`** (external: `smartflowproai-lang/x402-attribution-ref`, Tom Smart /
+  SmartFlow Observatory). Validation record of the L2 attribution-evidence envelope, an
+  edge-agnostic attribution reference over payment observations. The L2 design is the adopting
+  effort's; AlgoVoi validates and records, does not author it. Imports `rfc9421_proxy_chain_v1`
+  REQUEST as `signing_base_ref` (manifest pins `signing_base_source_sha256`
+  `7e5e8f1012eabd6aaae52b0ae4e77e4c8b0392077b620d2d944002a0531901e8`) and derives
+  `attribution_ref = "sha256:" + SHA-256(JCS({edge, subject_refs, tier}))` on the same
+  canonicalisation pin (`urn:x402:canonicalisation:jcs-rfc8785-v1`). **5 positives / 21 negatives**.
+  All 5 positives independently re-validated green under `rfc8785` (`po-001`, `po-002`, `po-003`,
+  `fa-001`, `fa-002`). All 21 negatives sound: 19 diverge on a bound-field mutation (`tier-swap`,
+  `obs-tamper`, `payto-swap`, `obs-drop`, `obs-on-heuristic`, `cross-edge-tier`, and others), 2
+  reject as malformed, none collide with a positive. Carries the upstream substrate `NOTICE`
+  forward under Apache-2.0 Section 4(d), naming both L1 parts and their IETF drafts.
