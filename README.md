@@ -105,6 +105,16 @@ Or run every vector set and every composition at once:
 python composition/verify_corpus.py
 ```
 
+## Proposal sets (single-implementation, published for standards discussion)
+
+Proposal sets are single-implementation AlgoVoi fixtures published for a standards
+discussion. They are **not** cross-validated and **not** folded into the anchor-set or
+vector totals above. See `manifest.json` (`proposal_sets`).
+
+| Proposal set | Vectors | What it exercises |
+|---|---|---|
+| [`vectors/svm_create_ata_v0/`](./vectors/svm_create_ata_v0/) | 4 | **SVM create-ATA facilitator conformance** (non-JCS, Solana byte-pin). Byte-pin assertions for the optional idempotent create-associated-token-account at instruction index 2 in the x402 exact SVM scheme: `program == ATA program`, `data == 0x01`, the six-account layout, and the funder / destination / token-program pins. One positive plus three negatives (`pos-01`, `neg-01-legacy-create`, `neg-02-tampered-destination`, `neg-03-sender-funder`); `pos-01`'s `account[1]` is the real ATA derived from `(payTo, token program, mint)`, and `neg-03` pins the funder that closes the rent-sponsorship griefing vector. Published for x402 issue #2395 / PR #2798. Dependency-free `verify.py`. |
+
 ## Cross-implementation validation matrix
 
 The vector sets below were directly validated to produce byte-identical canonical
