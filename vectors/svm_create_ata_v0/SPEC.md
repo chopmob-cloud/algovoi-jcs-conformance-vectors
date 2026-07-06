@@ -66,6 +66,21 @@ facilitator that has not shipped this change still validates them exactly as bef
 first payment to a fresh ATA carries the create. Always-include would grow every payment and force
 every facilitator to update in lockstep, so it is not the recommended shape.
 
+## Working solution: recipient provisioning (x402 issue #1020)
+
+The griefing objection to facilitator sponsorship is answered by having the party that benefits
+pay the rent. The recipient provisions their own ATA, funded by their own key, once per
+`(wallet, mint)` before accepting payments. Because the owner is the funder and the signer, no
+facilitator or third party is ever exposed to rent, and a key can only ever create its own ATA, so
+the #1020 griefing vector does not exist here. The instruction it emits conforms to the pin table
+above, read with the recipient as both funder and owner. `solution.py` is a working reference:
+`provision_recipient_ata(rpc_url, recipient_secret_base58, mint, token_program=None)`, idempotent
+and race-safe.
+
+An equivalent shape nets the rent from the first payment, so a first-time recipient is provisioned
+out of what they receive rather than needing SOL up front; the funding party is still the recipient,
+not the facilitator.
+
 ## Conformance
 
 - `reference_validator.py` -- `validate_create_ata(instr, pay_to, mint, token_program, fee_payer)`

@@ -1,0 +1,15 @@
+svm_create_ata_v0 -- x402 SVM create-ATA facilitator conformance + recipient-provisioning solution
+Copyright 2026 Christopher Hopley / AlgoVoi (chopmob-cloud)
+
+Licensed under the Apache License, Version 2.0.
+
+This directory is AlgoVoi-authored work published for x402 issue #2395 / #1020:
+  - SPEC.md                 the normative construction (pin table, reason codes, #1020 griefing analysis)
+  - reference_validator.py  the reference facilitator static-path validator
+  - svm_create_ata_v0.json  the byte-level conformance vectors
+  - verify.py               a dependency-free vector verifier
+  - solution.py             a working, griefing-free recipient-provisioning solution for #1020
+
+When redistributing this work or derivative works, retain this NOTICE per Apache License,
+Version 2.0, Section 4(d). The construction, the anti-griefing funder pin, and the
+recipient-provisioning solution are AlgoVoi-authored.
