@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.32.0",
+  "version": "0.32.1",
   "published_at": "2026-05-23",
   "updated_at": "2026-07-06",
   "canon_version": "jcs-rfc8785-v1",
@@ -544,7 +544,7 @@
       "primary_file": "svm_create_ata_v0.json",
       "vector_count": 4,
       "category": "proposal",
-      "status": "PROPOSED SVM create-ATA facilitator conformance: byte-pin assertions for the optional idempotent create-associated-token-account at instruction index 2 in the x402 exact SVM scheme (data==0x01, six-account layout, funder/destination/token-program pins); 1 positive + 3 negatives; single-impl AlgoVoi, standalone Solana byte-pin set, NOT a JCS canonicalisation vector",
+      "status": "PROPOSED SVM create-ATA facilitator conformance: byte-pin assertions for the optional idempotent create-associated-token-account at instruction index 2 in the x402 exact SVM scheme (data==0x01, six-account layout, funder/destination/token-program pins); 1 positive + 3 negatives; single-impl AlgoVoi, standalone Solana byte-pin set, NOT a JCS canonicalisation vector Ships the AlgoVoi reference validator (reference_validator.py, defines conformance and recomputes the derived ATA) and the normative SPEC.md.",
       "source": {
         "discussion": "https://github.com/x402-foundation/x402/issues/2395",
         "pr": "https://github.com/x402-foundation/x402/pull/2798"
