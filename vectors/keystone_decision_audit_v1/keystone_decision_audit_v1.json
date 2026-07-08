@@ -1,0 +1,60 @@
+{
+  "set": "keystone_decision_audit",
+  "schema_version": "keystone_decision_audit/v1",
+  "description": "Open, content-addressed decision-audit bindings over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). decision_audit_ref = \"sha256:\" + SHA-256(JCS({decision_ref, passport_credential_ref, mandate_ref, policy_bound_ref[, screen_binding_ref]})), binding a keystone decision to the exact passport it was made for, the mandate it was checked against, the policy snapshot in force (policy_bound_ref from algovoi-policy-binding), and -- when a compliance screen applied -- the screen it consumed. Each input is imported by hash. Swapping the passport, mandate, policy, or screen diverges the decision_audit_ref; omitting the screen (a non-screened action) is a distinct preimage. Turns the opaque decision_ref into an auditable one. Lite tier: no signature; the commercial Keystone Secure adds Falcon-1024 signing + CCC posture ingestion + fail-closed enforcement.",
+  "canonicalizer": "rfc8785-jcs",
+  "note_inputs": "decision_ref / passport_credential_ref / mandate_ref / policy_bound_ref / screen_binding_ref are imported by hash. passport (agent) and mandate and policy_bound_ref values reuse the published spend_guardrail_lite_v1 subjects for cross-set continuity; policy_bound_ref_P and _Pprime are the algovoi-policy-binding published values.",
+  "subjects": {
+    "decision_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "screen_binding_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "passport_1": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+    "passport_2": "sha256:57ff61574bfb48a62f636770ef6bfbe4c80f36d260a091ac4e6a7e865ec8daa0",
+    "mandate_1": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+    "policy_bound_ref_P": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+    "policy_bound_ref_Pprime": "sha256:e6629ede721146e62ce148fc25c52b79a58103a7476784397b328809e0f027e2"
+  },
+  "vectors": [
+    {"id": "da-screened", "decision_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "screen_binding_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555", "expected_decision_audit_ref": "sha256:f70a6001a309737a8683f88f026f23f41a7cb2503c01d06e54b2a87b740059ba"},
+    {"id": "da-no-screen", "decision_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "screen_binding_ref": null, "expected_decision_audit_ref": "sha256:f865261ee58244b6ddfda7bdcb12757843f7280c2b0144dce9573014a597643a"}
+  ],
+  "negatives": [
+    {
+      "id": "da-neg-policy-rotation",
+      "family": "policy_rotation",
+      "claimed_decision_audit_ref": "sha256:f70a6001a309737a8683f88f026f23f41a7cb2503c01d06e54b2a87b740059ba",
+      "decision_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:e6629ede721146e62ce148fc25c52b79a58103a7476784397b328809e0f027e2", "screen_binding_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "recomputes_to": "sha256:dea38a3e4de33835d98f4a19069853ac696b9a5ca22fb6b9d7e9d38c2ddfd7d5",
+      "must": "differ",
+      "note": "same decision + passport + mandate + screen, but the policy_bound_ref is the ROTATED policy P'; the decision_audit_ref diverges -> the audit is bound to the policy in force"
+    },
+    {
+      "id": "da-neg-passport-swap",
+      "family": "passport",
+      "claimed_decision_audit_ref": "sha256:f70a6001a309737a8683f88f026f23f41a7cb2503c01d06e54b2a87b740059ba",
+      "decision_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "passport_credential_ref": "sha256:57ff61574bfb48a62f636770ef6bfbe4c80f36d260a091ac4e6a7e865ec8daa0", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "screen_binding_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "recomputes_to": "sha256:aaaec6cbd8c7a1ec894511dd2be4fe07ba5f449c27b4e3b148ea74ae54689412",
+      "must": "differ",
+      "note": "same decision + mandate + policy + screen, but a different passport_credential_ref; the decision_audit_ref diverges -> the audit is bound to the passport the decision was made for"
+    },
+    {
+      "id": "da-neg-screen-omission",
+      "family": "screen_presence",
+      "claimed_decision_audit_ref": "sha256:f70a6001a309737a8683f88f026f23f41a7cb2503c01d06e54b2a87b740059ba",
+      "decision_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "screen_binding_ref": null,
+      "recomputes_to": "sha256:f865261ee58244b6ddfda7bdcb12757843f7280c2b0144dce9573014a597643a",
+      "must": "differ",
+      "note": "same decision + passport + mandate + policy, but the compliance screen is omitted; the preimage without screen_binding_ref is distinct -> presence of a screen cannot be silently dropped"
+    },
+    {
+      "id": "da-neg-malformed-decision",
+      "family": "ref_form",
+      "decision_ref": "not-a-sha256-ref", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21", "screen_binding_ref": null,
+      "must": "reject",
+      "reason": "decision_ref must be a sha256: 64-hex reference; a malformed ref is rejected, not hashed"
+    }
+  ],
+  "invariants": [
+    {"id": "screen-distinctness", "assert": "decision_audit_ref(with screen) != decision_audit_ref(without screen) for the same decision + passport + mandate + policy", "reason": "the presence of a compliance screen is bound; screened is byte-distinct from non-screened"},
+    {"id": "policy-binding", "assert": "rotating policy_bound_ref diverges the decision_audit_ref", "reason": "the audit is provably tied to the policy in force when the decision was made"}
+  ]
+}

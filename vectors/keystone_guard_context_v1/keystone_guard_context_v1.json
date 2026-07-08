@@ -1,0 +1,56 @@
+{
+  "set": "keystone_guard_context",
+  "schema_version": "keystone_guard_context/v1",
+  "description": "Open, content-addressed admission-gate context over the AlgoVoi substrate (RFC 8785 JCS + SHA-256). guard_context_ref = \"sha256:\" + SHA-256(JCS({canon_version, type, guard_timestamp_ms, policy_ref, mandate_ref, passport_credential_ref})), pinning the exact policy, mandate, and passport the admission gate saw at an integer-millisecond moment, so the guard decision is reproducible offline. Each ref input is imported by hash; guard_timestamp_ms is an integer millisecond (Substrate Rule 2). Changing the moment, the policy, the mandate, or the passport diverges the guard_context_ref. Lite tier: no signature; the commercial Keystone Secure adds Falcon-1024 signing + CCC posture ingestion.",
+  "canonicalizer": "rfc8785-jcs",
+  "note_inputs": "policy_ref / mandate_ref / passport_credential_ref are imported by hash. passport and mandate reuse the published spend_guardrail_lite_v1 subjects; policy_ref is a raw substrate-canonical policy reference (the guard sees policy_ref, not policy_bound_ref). guard_timestamp_ms is an integer-millisecond epoch value.",
+  "subjects": {
+    "policy_ref": "sha256:1100000000000000000000000000000000000000000000000000000000000000",
+    "mandate_1": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+    "passport_1": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+    "passport_2": "sha256:57ff61574bfb48a62f636770ef6bfbe4c80f36d260a091ac4e6a7e865ec8daa0",
+    "timestamp_base_ms": 1720000000000,
+    "timestamp_plus_1s_ms": 1720000001000
+  },
+  "vectors": [
+    {"id": "gc-base", "guard_timestamp_ms": 1720000000000, "policy_ref": "sha256:1100000000000000000000000000000000000000000000000000000000000000", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be", "expected_guard_context_ref": "sha256:9c51e908def741b5ecc6427f7ddeea06842524e31be17f4a30068acf00ad17e6"}
+  ],
+  "negatives": [
+    {
+      "id": "gc-neg-timestamp-shift",
+      "family": "timestamp",
+      "claimed_guard_context_ref": "sha256:9c51e908def741b5ecc6427f7ddeea06842524e31be17f4a30068acf00ad17e6",
+      "guard_timestamp_ms": 1720000001000, "policy_ref": "sha256:1100000000000000000000000000000000000000000000000000000000000000", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "recomputes_to": "sha256:81cea6c50521fbf63262914e5dccebb0417818e5da6493b7c8b206618ea57bb8",
+      "must": "differ",
+      "note": "same policy + mandate + passport, but a different guard_timestamp_ms; the guard_context_ref diverges -> the context is bound to the moment the gate saw it"
+    },
+    {
+      "id": "gc-neg-passport-swap",
+      "family": "passport",
+      "claimed_guard_context_ref": "sha256:9c51e908def741b5ecc6427f7ddeea06842524e31be17f4a30068acf00ad17e6",
+      "guard_timestamp_ms": 1720000000000, "policy_ref": "sha256:1100000000000000000000000000000000000000000000000000000000000000", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "passport_credential_ref": "sha256:57ff61574bfb48a62f636770ef6bfbe4c80f36d260a091ac4e6a7e865ec8daa0",
+      "recomputes_to": "sha256:11ab8611edb1913e87a0508abf1679cafdeba5ef08162b61457d7fb0db7f7c5a",
+      "must": "differ",
+      "note": "same moment + policy + mandate, but a different passport_credential_ref; the guard_context_ref diverges -> the context is bound to the passport in force at the gate"
+    },
+    {
+      "id": "gc-neg-float-timestamp",
+      "family": "int_rule",
+      "guard_timestamp_ms": 1720000000000.5, "policy_ref": "sha256:1100000000000000000000000000000000000000000000000000000000000000", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "must": "reject",
+      "reason": "guard_timestamp_ms must be an integer millisecond (Substrate Rule 2); a floating-point timestamp is rejected, not hashed"
+    },
+    {
+      "id": "gc-neg-malformed-policy",
+      "family": "ref_form",
+      "guard_timestamp_ms": 1720000000000, "policy_ref": "policy-3", "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35", "passport_credential_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "must": "reject",
+      "reason": "policy_ref must be a sha256: 64-hex reference; a malformed ref is rejected, not hashed"
+    }
+  ],
+  "invariants": [
+    {"id": "moment-distinctness", "assert": "guard_context_ref changes when only guard_timestamp_ms changes", "reason": "the admission context is bound to the moment in time; two gate evaluations at different instants are byte-distinct"},
+    {"id": "integer-ms-rule", "assert": "a non-integer guard_timestamp_ms is rejected", "reason": "Substrate Rule 2 -- epoch-millisecond integers hashed directly, no floating point"}
+  ]
+}

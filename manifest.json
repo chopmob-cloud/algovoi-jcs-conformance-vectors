@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.32.2",
+  "version": "0.33.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-07-06",
+  "updated_at": "2026-07-08",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -354,6 +354,26 @@
       "anchors_to": "A2A Task output content-addressed reference. artifact_ref = 'sha256:' + SHA-256(JCS({artifact_type, output_hash, produced_at_ms, task_ref})). Transitively binds agent identity + task instruction + output via the task_ref field; completes the three-ref chain card_ref -> task_ref -> artifact_ref. artifact_type is a closed enum: TEXT | FILE | DATA | ERROR. AlgoVoi-authored open primitive; recomputes offline with RFC 8785 + SHA-256, no JWS or JWKS.",
       "cross_validated": "Python + Node byte-for-byte (2026-06-30, 9/9 each: 2 positives + 2 type-coverage [FILE, ERROR] + 1 field-reorder invariant + 4 negatives [changed task_ref, changed output_hash, changed artifact_type, 1ms timestamp change]).",
       "sha256": "sha256:f403753ab54a5d5b7cdebdc730f7d5ae86e82255ad2247f6b696c94b3c8afd43"
+    },
+    {
+      "name": "keystone_decision_audit_v1",
+      "primary_file": "keystone_decision_audit_v1.json",
+      "vector_count": 2,
+      "negative_count": 4,
+      "invariant_count": 2,
+      "anchors_to": "AlgoVoi keystone DECISION flow point (decision-audit binding; algovoi-keystone-secure-lite; commercial Keystone Secure signs the same construction)",
+      "cross_validated": "Python recompute byte-for-byte from algovoi-substrate + worktree substrate2 keystone_secure (2026-07-08, 8/8)",
+      "sha256": "sha256:f5788c934100a9f8326d34e05f697b7a8c6888f267fe8b5051cfb32ff169eb50"
+    },
+    {
+      "name": "keystone_guard_context_v1",
+      "primary_file": "keystone_guard_context_v1.json",
+      "vector_count": 1,
+      "negative_count": 4,
+      "invariant_count": 2,
+      "anchors_to": "AlgoVoi keystone GUARD flow point (admission-context binding; algovoi-keystone-secure-lite; commercial Keystone Secure signs the same construction)",
+      "cross_validated": "Python recompute byte-for-byte from algovoi-substrate + worktree substrate2 keystone_secure (2026-07-08, 7/7)",
+      "sha256": "sha256:4454638a602439ab135903477a8f808a71fd57352309d6b510b919b50042629b"
     }
   ],
   "total_anchor_sets": 39,
