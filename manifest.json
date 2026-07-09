@@ -13,7 +13,7 @@
       "pair_invariants": 5,
       "supersets": "action_ref_transactional_v0",
       "anchors_to": "draft-hopley-x402-retention-chain-02 Section 7 (Payment Action Lifecycle)",
-      "cross_validated": "8-impl direct (2026-06-09, 48/48)",
+      "cross_validated": "10-impl direct (2026-06-09, 48/48 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
       "sha256": "sha256:e0872c9fedb12cc4e704880d3dc37edcf90d76abbc7eed7b4b4d37ea39e9e8ee"
     },
     {
@@ -55,7 +55,7 @@
       "primary_file": "cancellation_receipt_v1.json",
       "vector_count": 8,
       "anchors_to": "draft-hopley-x402-cancellation-receipt",
-      "cross_validated": "8-impl direct (2026-05-25)",
+      "cross_validated": "10-impl direct (2026-05-25 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
       "sha256": "sha256:0d5c3f762c7933f216185228f2f0d5158a0e74c52ecfe9455510a98efa398127"
     },
     {
@@ -65,7 +65,7 @@
       "pair_invariants": 5,
       "chain_invariants": 3,
       "anchors_to": "draft-hopley-x402-compliance-receipt",
-      "cross_validated": "8-impl direct (2026-05-24, 2026-05-25)",
+      "cross_validated": "10-impl direct (2026-05-24, 2026-05-25 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
       "sha256": "sha256:33af2ea0ab1d358f90b38a63c4778af93836b677466fb16ab7b90fb8196c922d"
     },
     {
@@ -73,7 +73,7 @@
       "primary_file": "composite_trust_query_v1.json",
       "vector_count": 8,
       "anchors_to": "draft-hopley-x402-composite-trust-query",
-      "cross_validated": "8-impl direct (2026-05-25)",
+      "cross_validated": "10-impl direct (2026-05-25 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
       "sha256": "sha256:0180d2a8a1423145d4abe3ce8c37351fe409104e284c0fe8c5ce82a8ce243918"
     },
     {
@@ -113,7 +113,7 @@
       "primary_file": "pef_v1.json",
       "vector_count": 8,
       "anchors_to": "draft-hopley-x402-payment-evidence-frame",
-      "cross_validated": "8-impl direct (2026-05-30)",
+      "cross_validated": "10-impl direct (2026-05-30 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
       "sha256": "sha256:7c797cf6695f7d03c9a8d74fed14842145c65c0fd1fc6eeb4e77b4ac322df0df"
     },
     {
@@ -135,7 +135,7 @@
       "primary_file": "refund_receipt_v1.json",
       "vector_count": 8,
       "anchors_to": "draft-hopley-x402-refund-receipt",
-      "cross_validated": "8-impl direct (2026-05-25)",
+      "cross_validated": "10-impl direct (2026-05-25 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
       "sha256": "sha256:a4329fb1775549544627566a98253732fc67f574c50957d5e6f23dcad16c49e6"
     },
     {
@@ -144,7 +144,7 @@
       "vector_count": 3,
       "chain_invariants": 3,
       "anchors_to": "draft-hopley-x402-retention-chain-02",
-      "cross_validated": "8-impl direct (2026-06-16)",
+      "cross_validated": "10-impl direct (2026-06-16 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
       "sha256": "sha256:a1c8a3a591980917f2a5706097094a988715b5b674bd8a0837b5a5db74269da8"
     },
     {
@@ -215,7 +215,7 @@
       "primary_file": "settlement_attestation_v1.json",
       "vector_count": 8,
       "anchors_to": "draft-hopley-x402-settlement-attestation",
-      "cross_validated": "8-impl direct (2026-05-25)",
+      "cross_validated": "10-impl direct (2026-05-25 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
       "sha256": "sha256:bfd2838c9cdd5fd83cf1bd27e73e32a9bca2ac3de7464ccb89451bfd78bfdd08"
     },
     {

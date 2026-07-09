@@ -14,6 +14,19 @@ substrate anchor sets used by agentic-payment receipts, settlement attestations,
 across eight independent JCS implementations in eight programming languages
 (cumulative as of 2026-06-18; see the cross-implementation validation matrix). Authoritative anchor-set and vector counts live in `manifest.json`.
 
+**2026-07-09 update:** Elixir (`jcs`, pzingg/jcs on hex.pm) and Kotlin/JVM
+(`java-json-canonicalization`) were added and directly executed against **9 of the
+8-lang anchor sets** (`retention_chain_v1`, `retention_chain_v0`,
+`compliance_receipt_v1`, `settlement_attestation_v1`, `cancellation_receipt_v1`,
+`refund_receipt_v1`, `composite_trust_query_v1`, `action_ref_exactly_once_v1`,
+`pef_v1`), each independently byte-for-byte verified against the existing expected
+hashes — see [`_attestations/2026-07-09-elixir-9th-language.md`](./_attestations/2026-07-09-elixir-9th-language.md),
+[`_attestations/2026-07-09-kotlin-10th-language.md`](./_attestations/2026-07-09-kotlin-10th-language.md),
+and [`_attestations/2026-07-09-elixir-kotlin-corpus-extension.md`](./_attestations/2026-07-09-elixir-kotlin-corpus-extension.md).
+`epi_interop_v0` and `epi_pqc_v0` remain at 8 languages (different vector shape,
+not yet extended). The cumulative 880/880 figure above predates this addition and
+is not yet recomputed to include it.
+
 This repository is the AlgoVoi-authored reference test corpus that downstream
 implementations of x402, AP2, A2A and MPP receipts can validate against. The
 [`compliance_receipt_v1`](./vectors/compliance_receipt_v1/) anchor set is the
