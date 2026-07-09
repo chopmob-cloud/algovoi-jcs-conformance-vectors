@@ -68,16 +68,26 @@ Cross-validated across **8 implementations in 8 programming languages**, live-ru
 | Rust | `serde_jcs@0.2.0` + `sha2@0.10` | 14/14 |
 | Java 17 | `java-json-canonicalization 1.1` + `MessageDigest("SHA-256")` | 14/14 |
 | .NET 9 | `Baqhub.Packages.JsonCanonicalization 1.0.1` + `SHA256.HashData` | 14/14 |
+| Elixir | `jcs 0.2.0` ([pzingg/jcs](https://github.com/pzingg/jcs), hex.pm) + stdlib `:crypto` | 14/14 |
+| Kotlin (JVM) | `java-json-canonicalization 1.1` + `MessageDigest("SHA-256")` | 14/14 |
+
+**10 implementations in 10 programming languages** for this set, live-run 2026-07-09 for
+both Elixir and Kotlin (see [`_attestations/2026-07-09-elixir-9th-language.md`](../../_attestations/2026-07-09-elixir-9th-language.md)
+and [`_attestations/2026-07-09-kotlin-10th-language.md`](../../_attestations/2026-07-09-kotlin-10th-language.md)).
+This 10-language result is specific to `retention_chain_v1` — it does not apply to the
+corpus's other anchor sets until each gets its own executed Elixir and Kotlin runners
+(including `retention_chain_v0`, where a Kotlin runner was written earlier but never run).
 
 ## Run
 
 ```bash
-bash run_all.sh                          # all 8 runners
+bash run_all.sh                          # all runners
 python runner_python.py retention_chain_v1.json   # pip install rfc8785
 node   runner_node.js  retention_chain_v1.json    # npm install (canonicalize)
 go run runner_go.go    retention_chain_v1.json
 ruby   runner_ruby.rb  retention_chain_v1.json    # gem install json-canonicalization
 php    runner_php.php  retention_chain_v1.json    # requires ext-sodium
+elixir runner_elixir.exs retention_chain_v1.json  # Mix.install fetches jcs+jason on first run
 ```
 
 Each prints `N/14 PASS` and exits 0 on success.

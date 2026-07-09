@@ -156,7 +156,7 @@
       "part_b": "4 multi-issuer isolation vectors (issuer_a + issuer_b, seq 0-1 each)",
       "part_c": "4 seq-gap adversarial pair (proper seq2 vs gap seq2 -- chain_ref differs)",
       "anchors_to": "draft-hopley-x402-retention-chain-02",
-      "cross_validated": "8-impl direct (2026-06-17)",
+      "cross_validated": "10-impl direct (2026-06-17 for 8; Elixir + Kotlin added 2026-07-09; see _attestations/2026-07-09-elixir-9th-language.md and 2026-07-09-kotlin-10th-language.md)",
       "sha256": "sha256:7db074ad0737468c29fcfad71d5d7e70354d3710a377603585e1a899d195602a"
     },
     {
