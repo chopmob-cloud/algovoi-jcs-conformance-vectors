@@ -40,6 +40,23 @@ java -cp "runner.jar;<jars>" RunnerKt ../retention_chain_v1.json
 
 Exit 0, reproduced on a second run.
 
+## Independent byte-for-byte verification (not just the runner's internal PASS)
+
+Same rigor applied as for Elixir: a separate verbose runner printed the raw
+computed `sha256:` hash per vector, bypassing the pass/fail assertion in
+`Runner.kt` entirely, then diffed against `retention_chain_v1.json`'s own
+`expected_chain_ref` values — and, separately, against the Elixir-computed hashes
+from the same session:
+
+```
+diff expected_chain_ref vs Kotlin-computed hash   -> IDENTICAL, 0 diff lines (14/14)
+diff Elixir-computed    vs Kotlin-computed hash    -> IDENTICAL, 0 diff lines (14/14)
+```
+
+This is a genuine three-way cross-implementation agreement (expected / Elixir /
+Kotlin), not two runners independently trusting the same pre-computed answer key
+without anyone checking the raw bytes.
+
 ## What this changes
 
 `retention_chain_v1` now has **10 directly-executed, byte-for-byte-agreeing

@@ -33,6 +33,20 @@ elixir runner_elixir.exs retention_chain_v1.json
 
 Exit 0. Re-run after dependency cache was warm: identical result, exit 0.
 
+## Independent byte-for-byte verification (not just the runner's internal PASS)
+
+`14/14 PASS` only proves the runner's own comparison logic passed — it does not
+rule out a bug where the runner's assertion always succeeds. To verify
+independently, a separate script printed the raw computed `sha256:` hash for each
+of the 14 vectors (bypassing the pass/fail assertion entirely), and the output was
+diffed byte-for-byte against `retention_chain_v1.json`'s own `expected_chain_ref`
+values:
+
+```
+diff <(expected_chain_ref per vector) <(Elixir-computed hash per vector)
+IDENTICAL — zero diff lines across all 14 vectors
+```
+
 ## What this changes
 
 `retention_chain_v1`'s README previously documented 8 directly-executed languages
