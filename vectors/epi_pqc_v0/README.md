@@ -50,3 +50,9 @@ python runner_python.py
 
 Recomputes every `frame_id` from the input, verifies the Falcon-1024 signature anchor and the
 key-lineage anchor against their published public keys, and asserts they match. No AlgoVoi code.
+
+The JCS canonicalisation vectors (not the Falcon-1024 / key-lineage parts, which
+are a separate cryptographic claim) are cross-validated across 10 independent
+implementations (8 direct 2026-06-16, Elixir + Kotlin added 2026-07-09) via
+`composition/generic_runner_elixir.exs` and `composition/GenericRunner.kt` — see
+[`_attestations/2026-07-09-epi-elixir-kotlin.md`](../../_attestations/2026-07-09-epi-elixir-kotlin.md).

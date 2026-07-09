@@ -53,6 +53,12 @@ python runner_python.py
 The runner recomputes `frame_id` and the JCS bytes from each `input` and asserts
 they match the published values.
 
+The underlying JCS canonicalisation layer is separately cross-validated across
+10 independent implementations (8 direct 2026-06-16, Elixir + Kotlin added
+2026-07-09) via `composition/generic_runner_elixir.exs` and
+`composition/GenericRunner.kt` — see
+[`_attestations/2026-07-09-epi-elixir-kotlin.md`](../../_attestations/2026-07-09-epi-elixir-kotlin.md).
+
 ## Provenance
 
 Cross-validation thread:

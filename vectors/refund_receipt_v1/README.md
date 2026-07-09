@@ -136,11 +136,13 @@ byte-identical canonical bytes and hashes for every fixture.
 ## Cross-implementation matrix
 
 The JCS RFC 8785 canonicalisation layer underneath this format is
-attested across **eight independent JCS implementations in eight
-programming languages** per
-[`_attestations/2026-05-24-8-impl-cross-validation.md`](../../_attestations/2026-05-24-8-impl-cross-validation.md).
+attested across **ten independent JCS implementations in ten
+programming languages** — the original eight per
+[`_attestations/2026-05-24-8-impl-cross-validation.md`](../../_attestations/2026-05-24-8-impl-cross-validation.md),
+plus Elixir and Kotlin added 2026-07-09 and independently byte-verified,
+see [`_attestations/2026-07-09-elixir-kotlin-corpus-extension.md`](../../_attestations/2026-07-09-elixir-kotlin-corpus-extension.md).
 The refund receipt's `content_hash` and `row_content_hash` values
-reproduce byte-identical under any of those eight implementations.
+reproduce byte-identical under any of those ten implementations.
 
 ## Authorship
 

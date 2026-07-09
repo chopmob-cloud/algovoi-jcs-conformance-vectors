@@ -37,7 +37,10 @@ The three vectors cover:
 
 ## Cross-validation
 
-Cross-validated across **8 implementations in 8 programming languages** — all live-run 2026-06-16, 3/3 PASS each:
+Cross-validated across **10 implementations in 10 programming languages** —
+8 live-run 2026-06-16, Elixir + Kotlin added 2026-07-09 (see
+[`_attestations/2026-07-09-elixir-kotlin-corpus-extension.md`](../../_attestations/2026-07-09-elixir-kotlin-corpus-extension.md)),
+3/3 PASS each:
 
 | Language | Library | Result |
 |---|---|---|
@@ -49,18 +52,22 @@ Cross-validated across **8 implementations in 8 programming languages** — all 
 | Rust | `serde_jcs@0.2.0` + `sha2@0.10` | 3/3 |
 | Java 17 | `java-json-canonicalization 1.1` + `MessageDigest("SHA-256")` | 3/3 |
 | .NET 9 | `Baqhub.Packages.JsonCanonicalization 1.0.1` + `SHA256.HashData` | 3/3 |
+| Elixir | `jcs 0.2.0` ([pzingg/jcs](https://github.com/pzingg/jcs), hex.pm) + stdlib `:crypto` | 3/3 |
+| Kotlin (JVM) | `java-json-canonicalization 1.1` + `MessageDigest("SHA-256")` | 3/3 |
 
-Kotlin runner (`runner_kotlin/`) written against the same JVM library as Java; requires Gradle + Kotlin/JVM to run.
+The Kotlin runner (`runner_kotlin/`) sat written-but-unexecuted since it was
+first added; it was actually compiled and run for the first time 2026-07-09.
 
 ## Run
 
 ```bash
-bash run_all.sh                          # all 8 runners
+bash run_all.sh                          # all 10 runners
 python runner_python.py retention_chain_v0.json   # pip install rfc8785
 node   runner_node.js  retention_chain_v0.json    # npm install (canonicalize)
 go run runner_go.go    retention_chain_v0.json
 ruby   runner_ruby.rb  retention_chain_v0.json    # gem install json-canonicalization
 php    runner_php.php  retention_chain_v0.json    # requires ext-sodium
+elixir runner_elixir.exs retention_chain_v0.json  # Mix.install fetches jcs+jason on first run
 ```
 
 ## Chain invariants

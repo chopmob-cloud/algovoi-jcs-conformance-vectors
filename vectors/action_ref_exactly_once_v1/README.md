@@ -101,10 +101,12 @@ UUID / randomness) — re-running reproduces byte-identical output.
 
 ## Cross-implementation validation
 
-8 independent JCS RFC 8785 implementations reproduce all six canonical
-byte-strings and digests, **48/48 byte-for-byte** (2026-06-09): Python, Node/TS,
-Ruby, PHP, Go, Rust, Java, .NET. See
-[`_attestations/2026-06-09-action-ref-exactly-once-v1.md`](../../_attestations/2026-06-09-action-ref-exactly-once-v1.md).
+10 independent JCS RFC 8785 implementations reproduce all six canonical
+byte-strings and digests: the original **48/48 byte-for-byte** (2026-06-09) across
+Python, Node/TS, Ruby, PHP, Go, Rust, Java, .NET, plus Elixir and Kotlin added
+2026-07-09 (6/6 each, independently byte-verified). See
+[`_attestations/2026-06-09-action-ref-exactly-once-v1.md`](../../_attestations/2026-06-09-action-ref-exactly-once-v1.md)
+and [`_attestations/2026-07-09-elixir-kotlin-corpus-extension.md`](../../_attestations/2026-07-09-elixir-kotlin-corpus-extension.md).
 
 ## Provenance
 
