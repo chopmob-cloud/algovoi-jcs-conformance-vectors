@@ -369,7 +369,7 @@ To request listing as an adopter, follow the [submission process](https://docs.a
 
 This corpus and the AlgoVoi canonicalisation discipline it anchors are AlgoVoi-authored under sole authorship. The byte-for-byte cross-validation matrix is empirically possible only because of the independent JCS implementations maintained by other parties. AlgoVoi acknowledges with thanks:
 
-**Reference JCS implementations cross-validated in the matrix** (880/880 byte-for-byte agreements across eight attestation runs):
+**Reference JCS implementations cross-validated in the matrix** (880/880 byte-for-byte agreements across eight attestation runs, plus Elixir and Kotlin added 2026-07-09 across 11 of the 14 sets):
 
 - Python [`rfc8785`](https://pypi.org/project/rfc8785/) 0.1.4 -- Trail of Bits
 - JavaScript [`canonicalize`](https://www.npmjs.com/package/canonicalize) 1.0.8 -- Samuel Erdtman
@@ -379,8 +379,10 @@ This corpus and the AlgoVoi canonicalisation discipline it anchors are AlgoVoi-a
 - PHP -- inline pure-stdlib JCS implementation (~50 lines, AlgoVoi-authored, no external dependency)
 - .NET [`Baqhub.Packages.JsonCanonicalization`](https://www.nuget.org/packages/Baqhub.Packages.JsonCanonicalization) 1.0.1 -- [Baqhub](https://baqhub.io)
 - Ruby [`json-canonicalization`](https://rubygems.org/gems/json-canonicalization) 1.0.0 -- RubyGems community
+- Elixir [`jcs`](https://hex.pm/packages/jcs) 0.2.0 -- [pzingg](https://github.com/pzingg) (added 2026-07-09)
+- Kotlin (JVM) -- reuses **Anders Rundgren** and Samuel Erdtman's `java-json-canonicalization` 1.1 (added 2026-07-09)
 
-The discipline is validated by the editor of the canonicalisation standard it pins -- Anders Rundgren via the Java implementation -- and by six further independent implementations from non-overlapping authoring entities.
+The discipline is validated by the editor of the canonicalisation standard it pins -- Anders Rundgren via the Java implementation -- and by seven further independent implementations from non-overlapping authoring entities (nine, counting Elixir and Kotlin).
 
 **Independent vector-set authors** (substrate-anchored vectors AlgoVoi cross-validated against the matrix):
 
