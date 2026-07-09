@@ -81,7 +81,7 @@
       "primary_file": "epi_interop_v0.json",
       "vector_count": 5,
       "anchors_to": "draft-hopley-x402-canonicalisation-jcs-v1",
-      "cross_validated": "Python + Rust direct (2026-06-17)",
+      "cross_validated": "Python + Rust direct (2026-06-17); Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-epi-elixir-kotlin.md",
       "sha256": "sha256:03717edfa0cca566132032f1c41c761c61bf3994a597c862d12e3646b3cf7cbd"
     },
     {
@@ -89,7 +89,7 @@
       "primary_file": "epi_pqc_v0.json",
       "vector_count": 4,
       "anchors_to": "draft-hopley-x402-canonicalisation-jcs-v1",
-      "cross_validated": "Python + Rust direct (2026-06-17)",
+      "cross_validated": "Python + Rust direct (2026-06-17); Elixir + Kotlin (JCS vectors only) added 2026-07-09, see _attestations/2026-07-09-epi-elixir-kotlin.md",
       "sha256": "sha256:9d81c5117a95f13123a279e549a447969ebcccf445eda996fa806b53f1ccbc36"
     },
     {
@@ -534,7 +534,7 @@
       "primary_file": "epi_interop_v0.json",
       "vector_count": 5,
       "category": "interop",
-      "cross_validated": "8-impl direct JCS (2026-06-16); original 2-impl interop (AlgoVoi rfc8785@0.1.4 + EPI Recorder, 2026-06-11)",
+      "cross_validated": "10-impl direct JCS (2026-06-16 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-epi-elixir-kotlin.md); original 2-impl interop (AlgoVoi rfc8785@0.1.4 + EPI Recorder, 2026-06-11)",
       "source": {
         "repo": "https://github.com/mohdibrahimaiml/epi-recorder",
         "file": "tests/compatibility/golden/canonical_hash_vectors.json",
@@ -552,7 +552,7 @@
       "primary_file": "epi_pqc_v0.json",
       "vector_count": 4,
       "category": "proposal",
-      "status": "PROPOSED optional post-quantum signature suite (falcon1024) + F7 key-lineage for the .epi format; JCS canonicalisation 8-impl direct (2026-06-16); Falcon-1024 + key-lineage 1-impl AlgoVoi (rfc8785 + pqcrypto)",
+      "status": "PROPOSED optional post-quantum signature suite (falcon1024) + F7 key-lineage for the .epi format; JCS canonicalisation 10-impl direct (2026-06-16 for 8; Elixir + Kotlin added 2026-07-09, JCS vectors only, see _attestations/2026-07-09-epi-elixir-kotlin.md); Falcon-1024 + key-lineage 1-impl AlgoVoi (rfc8785 + pqcrypto)",
       "source": {
         "discussion": "https://github.com/microsoft/agent-governance-toolkit/discussions/806",
         "spec": "https://epilabs.org"
