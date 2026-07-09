@@ -139,7 +139,15 @@ bytes across **eight independent JCS implementations in eight programming langua
 (784/784 agreements, cumulative as of 2026-06-18), all from non-overlapping
 authoring entities including the RFC 8785 author himself (Anders Rundgren, via the
 Java implementation). `zkp_receipt_v1` (2026-06-04) was directly executed across
-five implementations and is reported separately below, not folded into the 784:
+five implementations and is reported separately below, not folded into the 784.
+On 2026-07-09, Elixir and Kotlin were added as a 9th and 10th implementation and
+directly executed against 11 of these 14 sets (`retention_chain_v1`,
+`retention_chain_v0`, `compliance_receipt_v1`, `settlement_attestation_v1`,
+`cancellation_receipt_v1`, `refund_receipt_v1`, `composite_trust_query_v1`,
+`action_ref_exactly_once_v1`, `pef_v1`, `epi_interop_v0`, `epi_pqc_v0`) — see the
+Attestation history table below. `action_ref_namespace_v0`,
+`action_ref_transactional_v0`, and `settlement_action_binding_v1` were not part of
+that pass and remain at 8 implementations:
 
 | # | Language | Runtime | Package | Version | Author / entity |
 |---|---|---|---|---|---|
@@ -151,6 +159,8 @@ five implementations and is reported separately below, not folded into the 784:
 | 6 | PHP | PHP 8.4 | inline pure-stdlib JCS (AlgoVoi-authored, ~50 lines) | -- | AlgoVoi |
 | 7 | C# / .NET | .NET 9 | [`Baqhub.Packages.JsonCanonicalization`](https://www.nuget.org/packages/Baqhub.Packages.JsonCanonicalization) | 1.0.1 | Baqhub |
 | 8 | Ruby | Ruby 3.4 | [`json-canonicalization`](https://rubygems.org/gems/json-canonicalization) | 1.0.0 | RubyGems community |
+| 9 | Elixir | Elixir 1.20.2 / OTP 29 | [`jcs`](https://hex.pm/packages/jcs) | 0.2.0 | pzingg (independent third party) -- **11 of 14 sets**, added 2026-07-09 |
+| 10 | Kotlin (JVM) | Kotlin 2.4.0 / JDK 17 | [`erdtman/java-json-canonicalization`](https://github.com/erdtman/java-json-canonicalization) | 1.1 | **Anders Rundgren** and Samuel Erdtman -- **11 of 14 sets**, added 2026-07-09 |
 
 ### Attestation history
 
