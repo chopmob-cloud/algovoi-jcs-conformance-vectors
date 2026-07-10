@@ -353,8 +353,13 @@ assert verify_pef(frame)["valid"]
 
 ### Other
 
-- [docs.algovoi.co.uk/canonicalisation-substrate](https://docs.algovoi.co.uk/canonicalisation-substrate) -- v1 discipline reference
-- [docs.algovoi.co.uk/canonicalisation-substrate-v2](https://docs.algovoi.co.uk/canonicalisation-substrate-v2) -- v2 (PQC-aware) additive successor
+- [docs.algovoi.co.uk/canonicalisation-substrate](https://docs.algovoi.co.uk/canonicalisation-substrate) -- jcs-rfc8785-v1 discipline reference
+- [docs.algovoi.co.uk/canonicalisation-substrate-v2](https://docs.algovoi.co.uk/canonicalisation-substrate-v2) -- jcs-rfc8785-v2, the PQC-aware additive successor
+- [Verifiable x402 receipts](https://docs.algovoi.co.uk/verifiable-x402-receipt) -- how the discipline produces a byte-deterministic, offline-verifiable receipt chain for x402 payments
+- [Offline-verifiable agent payment receipts](https://docs.algovoi.co.uk/offline-verifiable-receipts) -- the offline verification method (preimage derivation, Ed25519 check, optional Falcon-1024 layer)
+- [Settlement attestation format](https://docs.algovoi.co.uk/settlement-attestation) -- the settlement attestation x402 anchor set this corpus validates
+- [Agentic payment receipts](https://docs.algovoi.co.uk/agentic-payment-receipts) -- receipt formats across the x402, AP2, A2A, and MPP protocols
+- [The Keystone](https://docs.algovoi.co.uk/keystone) -- the agentic payment lifecycle trust chain built on this discipline, with audit chain verification end to end
 ## Adopters
 
 Parties pinning `canon_version: jcs-rfc8785-v1` in publicly-citable artefacts are recorded in the [Substrate Adopters Registry](https://docs.algovoi.co.uk/adopters). Current adopters:
