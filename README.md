@@ -6,11 +6,11 @@
 
 [![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
 [![Vectors](https://img.shields.io/badge/vectors-300-brightgreen)](#anchor-sets)
-[![Cross-validated](https://img.shields.io/badge/cross--validated-1096%2F1096-brightgreen)](#cross-implementation-validation-matrix)
+[![Cross-validated](https://img.shields.io/badge/cross--validated-1196%2F1196-brightgreen)](#cross-implementation-validation-matrix)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
-substrate anchor sets used by agentic-payment receipts, settlement attestations, and offline-verifiable x402 compliance receipts, covering the full **agentic lifecycle** from identity to settlement: `passport_ref -> mandate_ref -> policy_bound_ref -> decision_ref -> execution_ref -> trust_query_ref`. **1096/1096 byte-for-byte agreements directly executed**
+substrate anchor sets used by agentic-payment receipts, settlement attestations, and offline-verifiable x402 compliance receipts, covering the full **agentic lifecycle** from identity to settlement: `passport_ref -> mandate_ref -> policy_bound_ref -> decision_ref -> execution_ref -> trust_query_ref`. **1196/1196 byte-for-byte agreements directly executed**
 across ten independent JCS implementations in ten programming languages
 (the eight-language base cumulative as of 2026-06-18; Elixir and Kotlin extended to all sets by 2026-07-19; see the cross-implementation validation matrix). Authoritative anchor-set and vector counts live in `manifest.json`.
 
@@ -25,9 +25,10 @@ only]), and the remaining 3 on 2026-07-19 on a clean-box VM
 (`action_ref_namespace_v0`, `action_ref_transactional_v0`,
 `settlement_action_binding_v1`), each independently byte-for-byte verified against
 the existing expected hashes -- see the 2026-07-09 and 2026-07-19 attestations
-linked in the matrix below. The combined directly-executed total is 1096/1096
+linked in the matrix below. The combined directly-executed total is 1196/1196
 byte-for-byte agreements: 880 across the eight-language base through 2026-06-18,
-plus 172 on 2026-07-09 and 44 on 2026-07-19 for Elixir and Kotlin.
+plus 172 on 2026-07-09 and 44 on 2026-07-19 for Elixir and Kotlin, and 100 for the
+jcs_edge_v1 edge-case set validated across all ten implementations on 2026-07-19.
 
 This repository is the AlgoVoi-authored reference test corpus that downstream
 implementations of x402, AP2, A2A and MPP receipts can validate against. The
@@ -60,6 +61,7 @@ underneath is specified in IETF Internet-Draft
 | [`vectors/retention_chain_v1/`](./vectors/retention_chain_v1/) | 14 | **Retention Chain Substrate v1 -- extended conformance**. Part A: 6-link extended chain (`algovoi:compliance`, seq 0-5). Part B: 4 multi-issuer isolation vectors (`issuer_a` + `issuer_b`, seq 0-1 each -- same receipt, different chain_ref). Part C: 4 seq-gap adversarial pair (proper `seq2` vs gap `seq2` -- same `receipt_hash`, wrong `prev_receipt_hash`, different `chain_ref`). Normative spec: `draft-hopley-x402-retention-chain-02`. |
 | [`vectors/action_ref_exactly_once_v1/`](./vectors/action_ref_exactly_once_v1/) | 6 | **action_ref exactly-once lifecycle**. Superset of `action_ref_transactional_v0`. Pins the full `PENDING → COMMITTED → REVERSED` vocabulary, the SKIP-on-retry idempotency invariant (vector 005 == 003 byte-for-byte), and the `action_ref` replay-binding invariant (vector 006 ≠ 003). 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7. |
 | [`vectors/adversarial_isolation_v1/`](./vectors/adversarial_isolation_v1/) | 12 | **Failure-isolation adversarial set**. 1 control + 11 isolated rejection vectors - each mutates exactly one field to confirm a named substrate check rejects it. Claim 1 (input bytes): 8-lang byte-identical. Claim 2 (rejection): reference-impl PoR only (not a JCS byte claim). Normative spec: `draft-hopley-x402-retention-chain-02` §7.5 + §8.8. |
+| [`vectors/jcs_edge_v1/`](./vectors/jcs_edge_v1/) | 10 | **JCS canonicalisation edge cases**. Pins U+2028/U+2029 as literal UTF-8 (RFC 8785 section 3.2.4), supplementary-plane key ordering by UTF-16 code units (section 3.2.3), 1.0 vs 1 (section 3.2.2.3), plus the mandatory short escapes and literal solidus / and- / less-than / greater-than -- the cases ad-hoc canonicalisers and single-SDK self-checks miss. 10-impl byte-for-byte; caught and patched the inline PHP U+2028/float gap. 2 pair invariants. |
 | [`vectors/settlement_action_binding_v1/`](./vectors/settlement_action_binding_v1/) | 6 | **Post-settlement accountability binding**. Binds `action_ref` + COMMITTED `transition_hash` (`action_ref_exactly_once_v1`) + `settlement_ref` (`settlement_attestation_v1`) + `retention_chain_ref` (`retention_chain_v1`) into one `binding_ref = "sha256:" + SHA-256(JCS({...}))`. Pins settlement-, action-, state- and chain-binding distinctness + stability. 5 pair invariants. Normative spec: `draft-hopley-x402-retention-chain-02` §7 + `draft-hopley-x402-settlement-attestation-00`. |
 | [`vectors/agent_passport_lite_v1/`](./vectors/agent_passport_lite_v1/) | 11 | **Agent Passport (lite)**. `passport_ref = "sha256:" + SHA-256(JCS({agent_id, issuer, scope, validity_window}))` content-addresses an agent identity; it is the `agent_ref` the decision chain binds. Python + TypeScript byte-for-byte. |
 | [`vectors/payment_mandate_lite_v1/`](./vectors/payment_mandate_lite_v1/) | 11 | **Payment Mandate (lite)**. `mandate_ref = "sha256:" + SHA-256(JCS({cap, payer, period, revocation_state}))` content-addresses a spend authority; it is the `mandate_ref` the decision chain binds. Python + TypeScript byte-for-byte. |
@@ -142,7 +144,7 @@ added as the 9th and 10th implementations and executed against all 14
 directly-executed sets -- 11 on 2026-07-09 and the final 3
 (`action_ref_namespace_v0`, `action_ref_transactional_v0`,
 `settlement_action_binding_v1`) on 2026-07-19 on a clean-box VM -- bringing the
-combined directly-executed total to 1096/1096. `zkp_receipt_v1` (2026-06-04) was
+combined directly-executed total to 1096/1096; the jcs_edge_v1 edge-case set adds 100 more (10 vectors across all ten implementations, 2026-07-19) for a combined 1196/1196. `zkp_receipt_v1` (2026-06-04) was
 directly executed across five implementations and is reported separately below, not
 folded into the cumulative:
 
@@ -175,7 +177,8 @@ folded into the cumulative:
 | 2026-06-18 | `settlement_action_binding_v1` (post-settlement accountability binding: `action_ref` + `transition_hash` + `settlement_ref` + `retention_chain_ref` → `binding_ref`) | 6 × 8 | **48/48** | [`_attestations/2026-06-18-settlement-action-binding-v1.md`](./_attestations/2026-06-18-settlement-action-binding-v1.md) |
 | 2026-07-09 | Elixir + Kotlin added to all 11 previously-8-lang anchor sets (`retention_chain_v1`, `retention_chain_v0`, `compliance_receipt_v1`, `settlement_attestation_v1`, `cancellation_receipt_v1`, `refund_receipt_v1`, `composite_trust_query_v1`, `action_ref_exactly_once_v1`, `pef_v1`, `epi_interop_v0`, `epi_pqc_v0` JCS-only) | 86 × 2 | **172/172**, plus independent 3-way byte diff on every set | [`_attestations/2026-07-09-elixir-9th-language.md`](./_attestations/2026-07-09-elixir-9th-language.md), [`_attestations/2026-07-09-kotlin-10th-language.md`](./_attestations/2026-07-09-kotlin-10th-language.md), [`_attestations/2026-07-09-elixir-kotlin-corpus-extension.md`](./_attestations/2026-07-09-elixir-kotlin-corpus-extension.md), [`_attestations/2026-07-09-epi-elixir-kotlin.md`](./_attestations/2026-07-09-epi-elixir-kotlin.md) |
 | 2026-07-19 | Elixir + Kotlin extended to the remaining 3 previously-8-lang sets (`action_ref_namespace_v0`, `action_ref_transactional_v0`, `settlement_action_binding_v1`) on a clean-box VM (Docker: Elixir 1.20.2/OTP 29 + `jcs` 0.2.0; `java-json-canonicalization` 1.1 on temurin 17) | 22 × 2 | **44/44** | [`_attestations/2026-07-19-elixir-kotlin-remaining-3-sets.md`](./_attestations/2026-07-19-elixir-kotlin-remaining-3-sets.md) |
-| **Cumulative (directly executed, all ten implementations)** | **14 distinct vector sets** | **(110 × 8) + (86 × 2) + (22 × 2)** | **1096/1096** | Eight-language base 880 through 2026-06-18, plus Elixir + Kotlin: 172 on 2026-07-09 (11 sets) and 44 on 2026-07-19 (final 3 sets). All 14 directly-executed sets now ten-impl. |
+| 2026-07-19 | `jcs_edge_v1` -- RFC 8785 edge cases (U+2028/U+2029 literal UTF-8, non-BMP key ordering by UTF-16 code units, 1.0 vs 1) across all ten implementations; caught and patched the inline PHP U+2028/float gap | 10 × 10 | **100/100** | [`_attestations/2026-07-19-jcs-edge-v1-ten-impl.md`](./_attestations/2026-07-19-jcs-edge-v1-ten-impl.md) |
+| **Cumulative (directly executed, all ten implementations)** | **15 distinct vector sets** | **(110 × 8) + (86 × 2) + (22 × 2) + (10 × 10)** | **1196/1196** | Eight-language base 880 through 2026-06-18, plus Elixir + Kotlin: 172 on 2026-07-09 (11 sets) and 44 on 2026-07-19 (final 3 sets); plus jcs_edge_v1 100 on 2026-07-19 (10 vectors across all ten from inception). |
 | 2026-06-04 | `zkp_receipt_v1` (5 impls directly executed; remaining 3 asserted by transitivity -- primitive-only payload covered by the 2026-05-25 run) | 8 × 5 direct | **40/40 direct** (+24 by transitivity, *not* added to cumulative) | [`_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md`](./_attestations/2026-06-04-zkp-receipt-v1-cross-validation.md) |
 
 Two separate signature-survival fixtures are tracked apart from the JCS byte-agreement total:
@@ -372,7 +375,7 @@ To request listing as an adopter, follow the [submission process](https://docs.a
 
 This corpus and the AlgoVoi canonicalisation discipline it anchors are AlgoVoi-authored under sole authorship. The byte-for-byte cross-validation matrix is empirically possible only because of the independent JCS implementations maintained by other parties. AlgoVoi acknowledges with thanks:
 
-**Reference JCS implementations cross-validated in the matrix** (1096/1096 byte-for-byte agreements: 880 across the eight-language base through 2026-06-18, plus Elixir and Kotlin across all 14 sets -- 172 on 2026-07-09 and 44 on 2026-07-19):
+**Reference JCS implementations cross-validated in the matrix** (1196/1196 byte-for-byte agreements: 880 across the eight-language base through 2026-06-18, plus Elixir and Kotlin across all 14 sets -- 172 on 2026-07-09 and 44 on 2026-07-19, plus jcs_edge_v1 100 across all ten on 2026-07-19):
 
 - Python [`rfc8785`](https://pypi.org/project/rfc8785/) 0.1.4 -- Trail of Bits
 - JavaScript [`canonicalize`](https://www.npmjs.com/package/canonicalize) 1.0.8 -- Samuel Erdtman
@@ -403,7 +406,7 @@ These roles describe validation, mirror, and discussion work relative to the Alg
 
 When citing in a spec PR, paper, or implementation README, please use:
 
-> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-21. 223 vectors across 28 anchor sets, 1096/1096 byte-for-byte agreements directly executed across ten independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`, Elixir `jcs`, Kotlin/JVM `java-json-canonicalization`), cumulative through 2026-07-19.
+> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-21. 223 vectors across 28 anchor sets, 1196/1196 byte-for-byte agreements directly executed across ten independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`, Elixir `jcs`, Kotlin/JVM `java-json-canonicalization`), cumulative through 2026-07-19.
 
 ## Licence
 
