@@ -406,7 +406,7 @@ These roles describe validation, mirror, and discussion work relative to the Alg
 
 When citing in a spec PR, paper, or implementation README, please use:
 
-> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-06-21. 223 vectors across 28 anchor sets, 1196/1196 byte-for-byte agreements directly executed across ten independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`, Elixir `jcs`, Kotlin/JVM `java-json-canonicalization`), cumulative through 2026-07-19.
+> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-07-19. 344 vectors across 42 anchor sets, 1196/1196 byte-for-byte agreements directly executed across ten independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`, Elixir `jcs`, Kotlin/JVM `java-json-canonicalization`), cumulative through 2026-07-19.
 
 ## Licence
 
