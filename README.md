@@ -4,10 +4,10 @@
 
 # algovoi-jcs-conformance-vectors
 
-[![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
-[![Vectors](https://img.shields.io/badge/vectors-344-brightgreen)](#anchor-sets)
-[![Cross-validated](https://img.shields.io/badge/cross--validated-1196%2F1196-brightgreen)](#cross-implementation-validation-matrix)
-[![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
+[![IETF I-D](./assets/badges/ietf-id.svg)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
+[![Vectors](./assets/badges/vectors.svg)](#anchor-sets)
+[![Cross-validated](./assets/badges/cross-validated.svg)](#cross-implementation-validation-matrix)
+[![Apache 2.0](./assets/badges/license.svg)](./LICENSE)
 
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
 substrate anchor sets used by agentic-payment receipts, settlement attestations, and offline-verifiable x402 compliance receipts, covering the full **agentic lifecycle** from identity to settlement: `passport_ref -> mandate_ref -> policy_bound_ref -> decision_ref -> execution_ref -> trust_query_ref`. **1196/1196 byte-for-byte agreements directly executed**

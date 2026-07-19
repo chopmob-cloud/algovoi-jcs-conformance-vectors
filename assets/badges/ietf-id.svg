@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="315" height="20" role="img" aria-label="IETF I-D: draft-hopley-x402-compliance-receipt-00">
+<title>IETF I-D: draft-hopley-x402-compliance-receipt-00</title>
+<linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
+<clipPath id="r"><rect width="315" height="20" rx="3" fill="#fff"/></clipPath>
+<g clip-path="url(#r)">
+<rect width="62" height="20" fill="#555"/>
+<rect x="62" width="253" height="20" fill="#007ec6"/>
+<rect width="315" height="20" fill="url(#s)"/>
+</g>
+<g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110">
+<text aria-hidden="true" x="310.0" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="502">IETF I-D</text>
+<text x="310.0" y="140" transform="scale(.1)" fill="#fff" textLength="502">IETF I-D</text>
+<text aria-hidden="true" x="1885.0" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="2408">draft-hopley-x402-compliance-receipt-00</text>
+<text x="1885.0" y="140" transform="scale(.1)" fill="#fff" textLength="2408">draft-hopley-x402-compliance-receipt-00</text>
+</g>
+</svg>
