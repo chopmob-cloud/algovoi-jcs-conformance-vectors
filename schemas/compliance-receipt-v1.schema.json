@@ -56,7 +56,7 @@
     "canon_version": {
       "type": "string",
       "minLength": 1,
-      "description": "In-band canonicalisation rule version pin. Carries the version of the JCS canonicalisation discipline active at emission time, so a year-five re-canonicalisation against retained bytes alone knows which rule to apply. The discipline is defined in x402-foundation/x402 PR #2436 (three-voice coalition co-signed). Current value: jcs-rfc8785-v1.",
+      "description": "In-band canonicalisation rule version pin. Carries the version of the JCS canonicalisation discipline active at emission time, so a year-five re-canonicalisation against retained bytes alone knows which rule to apply. The discipline (urn:x402:canonicalisation:jcs-rfc8785-v1) is authored by AlgoVoi and specified in IETF Internet-Draft draft-hopley-x402-canonicalisation-jcs-v1. Current value: jcs-rfc8785-v1.",
       "enum": ["jcs-rfc8785-v1"],
       "examples": ["jcs-rfc8785-v1"]
     }

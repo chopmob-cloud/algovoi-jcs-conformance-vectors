@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.33.0",
+  "version": "0.34.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-07-08",
+  "updated_at": "2026-07-19",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -21,7 +21,7 @@
       "primary_file": "action_ref_namespace_v0.json",
       "vector_count": 8,
       "pair_invariants": 4,
-      "cross_validated": "8-impl direct (2026-05-24)",
+      "cross_validated": "10-impl (8-impl direct 2026-05-24; Elixir + Kotlin added 2026-07-19, see _attestations/2026-07-19-elixir-kotlin-remaining-3-sets.md)",
       "sha256": "sha256:e95bfb171cffb3ae6b7f3e842ea39b35b6e975ff6d5d31928430ab30fd08617c"
     },
     {
@@ -29,7 +29,7 @@
       "primary_file": "action_ref_transactional_v0.json",
       "vector_count": 8,
       "pair_invariants": 5,
-      "cross_validated": "8-impl direct (2026-05-24)",
+      "cross_validated": "10-impl (8-impl direct 2026-05-24; Elixir + Kotlin added 2026-07-19, see _attestations/2026-07-19-elixir-kotlin-remaining-3-sets.md)",
       "sha256": "sha256:2ee0c52f39dbfd1726fe95236a2500a505859d8a2737252991e5549ea9f57fea"
     },
     {
@@ -207,7 +207,7 @@
       "primary_file": "settlement_action_binding_v1.json",
       "vector_count": 6,
       "anchors_to": "draft-hopley-x402-retention-chain",
-      "cross_validated": "8-impl direct (2026-06-18)",
+      "cross_validated": "10-impl (8-impl direct 2026-06-18; Elixir + Kotlin added 2026-07-19, see _attestations/2026-07-19-elixir-kotlin-remaining-3-sets.md)",
       "sha256": "sha256:9b3499dcd3ed4a64fb5d82e7a04b79aa827f7ac57eab3004fcd1e3044f12c4da"
     },
     {
@@ -378,9 +378,9 @@
   ],
   "total_anchor_sets": 39,
   "total_vectors": 346,
-  "total_vectors_note": "39 sets / 346 entries (incl. task_ref_v1 + artifact_ref_v1 + composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, A2A ref chain (card_ref -> task_ref -> artifact_ref), .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 8-impl (48/48, 2026-06-18); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
+  "total_vectors_note": "39 sets / 346 entries (incl. task_ref_v1 + artifact_ref_v1 + composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, A2A ref chain (card_ref -> task_ref -> artifact_ref), .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 10-impl (8-impl 48/48 2026-06-18; Elixir + Kotlin 2026-07-19); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
   "cross_validation": {
-    "implementations": 8,
+    "implementations": 10,
     "languages": [
       "Python",
       "JavaScript",
@@ -389,10 +389,12 @@
       "Java",
       "PHP",
       "C#/.NET",
-      "Ruby"
+      "Ruby",
+      "Elixir",
+      "Kotlin/JVM"
     ],
-    "languages_note": "Eight independent, non-overlapping JCS RFC 8785 implementations, including the RFC 8785 author's own Java implementation (Anders Rundgren).",
-    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 880/880 as of 2026-06-18 (192+320+64+48+24+40+32+112+48), the final +48 being settlement_action_binding_v1 (8-impl, 2026-06-18). policy_binding_v1 and compliance_gate_lite_v1 are Python+TypeScript byte-for-byte and are NOT folded into the 8-impl directly-executed cumulative. zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity and are deliberately NOT added to the directly-executed cumulative. adversarial_isolation_v1 Claim 1 (96/96 input bytes) is counted separately and NOT folded into the positive-vector cumulative. epi_interop_v0 and epi_pqc_v0 JCS runs (2026-06-16) ARE included: they confirm the same RFC 8785 canonicalisation discipline holds over external EPI-format payloads.",
+    "languages_note": "Ten independent, non-overlapping JCS RFC 8785 implementations (Python, JavaScript, Go, Rust, Java, PHP, C#/.NET, Ruby, Elixir, Kotlin/JVM), including the RFC 8785 author's own Java implementation (Anders Rundgren); Kotlin/JVM reuses that same Java implementation.",
+    "method_note": "Agreements are reported per dated attestation run. The cumulative directly-executed JCS total is 880/880 as of 2026-06-18 (192+320+64+48+24+40+32+112+48), the final +48 being settlement_action_binding_v1 (8-impl, 2026-06-18). Elixir and Kotlin (the 9th and 10th implementations) were then executed against all 14 directly-executed sets: +172 on 2026-07-09 (11 sets, 86 x 2) and +44 on 2026-07-19 (the remaining 3 sets action_ref_namespace_v0/action_ref_transactional_v0/settlement_action_binding_v1, 22 x 2), bringing the combined directly-executed total to 1096/1096 across ten implementations. policy_binding_v1 and compliance_gate_lite_v1 are Python+TypeScript byte-for-byte and are NOT folded into the 8-impl directly-executed cumulative. zkp_receipt_v1 (2026-06-04) was directly executed across 5 implementations (40/40); the remaining 3 are asserted by transitivity and are deliberately NOT added to the directly-executed cumulative. adversarial_isolation_v1 Claim 1 (96/96 input bytes) is counted separately and NOT folded into the positive-vector cumulative. epi_interop_v0 and epi_pqc_v0 JCS runs (2026-06-16) ARE included: they confirm the same RFC 8785 canonicalisation discipline holds over external EPI-format payloads.",
     "runs": [
       {
         "date": "2026-05-24",
