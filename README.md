@@ -5,7 +5,7 @@
 # algovoi-jcs-conformance-vectors
 
 [![IETF I-D](https://img.shields.io/badge/IETF--I--D-draft--hopley--x402--compliance--receipt--00-blue)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
-[![Vectors](https://img.shields.io/badge/vectors-300-brightgreen)](#anchor-sets)
+[![Vectors](https://img.shields.io/badge/vectors-344-brightgreen)](#anchor-sets)
 [![Cross-validated](https://img.shields.io/badge/cross--validated-1196%2F1196-brightgreen)](#cross-implementation-validation-matrix)
 [![Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
 
