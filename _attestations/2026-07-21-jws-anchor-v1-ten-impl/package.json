@@ -1,0 +1,16 @@
+{
+  "name": "2026-05-30-8-impl-pef-v1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "runner_node.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "canonicalize": "^1.0.8"
+  }
+}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2026 AlgoVoi (chopmob@gmail.com). Apache-2.0.
+
+  Dependency declaration for the Java runners in this attestation directory.
+  The repository .gitignore excludes *.jar, so the jars themselves are not vendored;
+  this file pins the exact coordinates used for the 2026-07-21 run so the Java
+  results are reproducible rather than depending on whatever happens to be on disk.
+
+    mvn -q dependency:copy-dependencies -DoutputDirectory=libs
+    javac -cp "libs/*" Runner.java -d .            # JCS side (generic preimage runner)
+    javac -cp "libs/*" ../sig_runner_java/SigRunner.java -d ../sig_runner_java
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>co.uk.algovoi</groupId>
+  <artifactId>jws-anchor-v1-runners</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <!-- RFC 8785 JCS, used by the JCS-side runner. Ed25519 comes from the JDK itself
+         (java.security, Java 15+), so the signature runner needs no crypto dependency. -->
+    <dependency>
+      <groupId>io.github.erdtman</groupId>
+      <artifactId>java-json-canonicalization</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.17.0</version>
+    </dependency>
+  </dependencies>
+</project>

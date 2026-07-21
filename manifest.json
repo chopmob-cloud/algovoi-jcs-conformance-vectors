@@ -1,6 +1,6 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "published_at": "2026-05-23",
   "updated_at": "2026-07-21",
   "canon_version": "jcs-rfc8785-v1",
@@ -383,11 +383,20 @@
       "anchors_to": "AlgoVoi keystone GUARD flow point (admission-context binding; algovoi-keystone-secure-lite; commercial Keystone Secure signs the same construction)",
       "cross_validated": "Python recompute byte-for-byte from algovoi-substrate + worktree substrate2 keystone_secure (2026-07-08, 7/7)",
       "sha256": "sha256:4454638a602439ab135903477a8f808a71fd57352309d6b510b919b50042629b"
+    },
+    {
+      "name": "jws_anchor_v1",
+      "primary_file": "jws_anchor_v1.json",
+      "vector_count": 6,
+      "invariant_count": 4,
+      "anchors_to": "Signed-token anchoring rule: raw signed bytes for a JWS/SD-JWT, RFC 8785 JCS for an unsigned object. Ed25519 per RFC 8032 section 7.1.",
+      "cross_validated": "Two populations, stated separately. JCS side: 3 JCS-dependent points x 10 implementations = 30/30 (2026-07-21, VM2 clean-box; derived via derive_jcs_side.py which fails closed if it cannot reproduce the set's own values). Signature + anchoring side: 8 crypto-capable implementations pass (Python, Node, Go, Rust, Java, PHP/libsodium, .NET, Ruby), same population as rfc9421_proxy_chain_v1; Elixir and Kotlin are JCS-side only and are NOT claimed for signature verification. See _attestations/2026-07-21-jws-anchor-v1-ten-impl.md",
+      "sha256": "sha256:79d4756af4ad61461822bd21f2c10447fec054220827f241ea170093dc07bd38"
     }
   ],
-  "total_anchor_sets": 42,
-  "total_vectors": 344,
-  "total_vectors_note": "42 sets / 344 entries (incl. task_ref_v1 + artifact_ref_v1 + composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, A2A ref chain (card_ref -> task_ref -> artifact_ref), .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 10-impl (8-impl 48/48 2026-06-18; Elixir + Kotlin 2026-07-19); epi sets Python+Rust direct; see _attestations for the per-set runner matrix.",
+  "total_anchor_sets": 43,
+  "total_vectors": 350,
+  "total_vectors_note": "42 sets / 344 entries (incl. task_ref_v1 + artifact_ref_v1 + composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, A2A ref chain (card_ref -> task_ref -> artifact_ref), .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 10-impl (8-impl 48/48 2026-06-18; Elixir + Kotlin 2026-07-19); epi sets Python+Rust direct; see _attestations for the per-set runner matrix. jws_anchor_v1 is the anchoring sibling to jcs_edge_v1: it pins WHICH BYTES are hashed for a signed receipt rather than the canonicalisation of an object, so 5 of its 6 vectors carry anchor_rule signed_bytes (sha256 over the raw signed JWS/SD-JWT bytes) and only 1 is an RFC 8785 JCS anchor. Its cross-validation is therefore recorded as two separate populations, ten implementations for the JCS-dependent points and eight crypto-capable implementations for Ed25519 verification, never flattened into a single grid.",
   "cross_validation": {
     "implementations": 10,
     "languages": [

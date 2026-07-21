@@ -1,0 +1,115 @@
+{
+  "set": "jws_anchor_v1",
+  "schema_version": "1.0",
+  "description": "Signed-token anchoring conformance: which bytes an implementation must hash when it anchors a signed receipt/mandate. Sibling to jcs_edge_v1, one layer up. All tokens signed with the RFC 8032 section 7.1 Test 1 Ed25519 keypair; every anchor is reproducible.",
+  "canonicalizer": "RFC 8785 (JCS) for unsigned objects; raw signed bytes for signed tokens",
+  "signing_key": {
+    "alg": "EdDSA",
+    "curve": "Ed25519",
+    "ref": "rfc8032-7.1-test1",
+    "public_key_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+  },
+  "license": "Apache-2.0",
+  "copyright": "Copyright 2026 AlgoVoi (chopmob@gmail.com)",
+  "vectors": [
+    {
+      "vector_id": "jws-anchor-001",
+      "case": "signed_jws_anchor",
+      "description": "Anchor a signed compact JWS by hashing the token bytes as issued.",
+      "anchor_rule": "signed_bytes",
+      "input": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhbW91bnQiOnsiY3VycmVuY3kiOiJVU0QiLCJ2YWx1ZSI6IjEwMC4wMCJ9LCJpYXQiOjE3MjEwMDAwMDAsImlzcyI6ImRpZDpleGFtcGxlOmlzc3VlciIsIm1hbmRhdGVfdHlwZSI6InBheW1lbnQiLCJyZWNpcGllbnQiOiJkaWQ6ZXhhbXBsZTptZXJjaGFudCJ9.6z-LG1Lyj4xvmA2AcXmVtZyUvkfhXCFDelKmNxP02TumFlx7mawpUKxI6lMpn5zXFOT8-Du-CK358QMq5g9EBw",
+      "signing": {
+        "key_ref": "rfc8032-7.1-test1",
+        "alg": "EdDSA",
+        "public_key_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+      },
+      "expected_anchor": "sha256:7116c74ba4542ff47a89ce94fc4e26019f437e65f2e3acb167e5525af90192a1"
+    },
+    {
+      "vector_id": "jws-anchor-002",
+      "case": "recanon_negative",
+      "description": "Re-canonicalising the decoded payload (JCS) does NOT reproduce the signed-token anchor; a verifier that re-serialises binds nothing signed.",
+      "anchor_rule": "signed_bytes",
+      "ties_to": "jws-anchor-001",
+      "recanon_of_decoded_payload": "sha256:57c018cdf6fc1df6e5ac91e305f5eb7d4df0f3244f6adfb5bd12bb2ed2d71366",
+      "must_not_equal": "sha256:7116c74ba4542ff47a89ce94fc4e26019f437e65f2e3acb167e5525af90192a1"
+    },
+    {
+      "vector_id": "jws-anchor-003",
+      "case": "sd_jwt_issuer",
+      "description": "SD-JWT: the stable anchor is over the issuer-signed JWT (the segment before the first ~), which is disclosure-invariant.",
+      "anchor_rule": "signed_bytes",
+      "issuer_jwt": "eyJhbGciOiJFZERTQSIsInR5cCI6InNkLWp3dCJ9.eyJfc2QiOlsiWXRDZVdQX3R1WFRaeGlhekdFSzBrUE05SGQzZ2llTkhxMlZrR0VzT3h0cyIsInlZTnhBT284TlF0MWk5b1g4d3o3N01IWTBBNFZyUmY2VTJWN2l6WldpalUiXSwiX3NkX2FsZyI6InNoYS0yNTYiLCJpYXQiOjE3MjEwMDAwMDAsImlzcyI6ImRpZDpleGFtcGxlOmlzc3VlciIsIm1hbmRhdGVfdHlwZSI6InBheW1lbnQifQ.0kIJZmVkU1SPbTQXxIArDZ9qwYIDVlm_CFKetAg4ukR64amJ7TJrWLYxoVgk080KQmCHYA5T_7mwGYtaZLurBQ",
+      "issuance_form": "eyJhbGciOiJFZERTQSIsInR5cCI6InNkLWp3dCJ9.eyJfc2QiOlsiWXRDZVdQX3R1WFRaeGlhekdFSzBrUE05SGQzZ2llTkhxMlZrR0VzT3h0cyIsInlZTnhBT284TlF0MWk5b1g4d3o3N01IWTBBNFZyUmY2VTJWN2l6WldpalUiXSwiX3NkX2FsZyI6InNoYS0yNTYiLCJpYXQiOjE3MjEwMDAwMDAsImlzcyI6ImRpZDpleGFtcGxlOmlzc3VlciIsIm1hbmRhdGVfdHlwZSI6InBheW1lbnQifQ.0kIJZmVkU1SPbTQXxIArDZ9qwYIDVlm_CFKetAg4ukR64amJ7TJrWLYxoVgk080KQmCHYA5T_7mwGYtaZLurBQ~WyJzYWx0LWFtb3VudC0wMSIsImFtb3VudCIseyJjdXJyZW5jeSI6IlVTRCIsInZhbHVlIjoiMTAwLjAwIn1d~WyJzYWx0LXJlY2lwLTAxIiwicmVjaXBpZW50IiwiZGlkOmV4YW1wbGU6bWVyY2hhbnQiXQ~",
+      "signing": {
+        "key_ref": "rfc8032-7.1-test1",
+        "alg": "EdDSA",
+        "public_key_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+      },
+      "expected_anchor": "sha256:98f1d108ba255c542096b32d640a6ef6fdf6c924aab861d30b643375a66a1f09"
+    },
+    {
+      "vector_id": "jws-anchor-004",
+      "case": "sd_jwt_presentation",
+      "description": "A holder presentation discloses a subset, so its bytes differ from the issuance form AND from the issuer JWT. Anchor the issuer JWT, not a presentation.",
+      "anchor_rule": "signed_bytes",
+      "ties_to": "jws-anchor-003",
+      "presentation": "eyJhbGciOiJFZERTQSIsInR5cCI6InNkLWp3dCJ9.eyJfc2QiOlsiWXRDZVdQX3R1WFRaeGlhekdFSzBrUE05SGQzZ2llTkhxMlZrR0VzT3h0cyIsInlZTnhBT284TlF0MWk5b1g4d3o3N01IWTBBNFZyUmY2VTJWN2l6WldpalUiXSwiX3NkX2FsZyI6InNoYS0yNTYiLCJpYXQiOjE3MjEwMDAwMDAsImlzcyI6ImRpZDpleGFtcGxlOmlzc3VlciIsIm1hbmRhdGVfdHlwZSI6InBheW1lbnQifQ.0kIJZmVkU1SPbTQXxIArDZ9qwYIDVlm_CFKetAg4ukR64amJ7TJrWLYxoVgk080KQmCHYA5T_7mwGYtaZLurBQ~WyJzYWx0LWFtb3VudC0wMSIsImFtb3VudCIseyJjdXJyZW5jeSI6IlVTRCIsInZhbHVlIjoiMTAwLjAwIn1d~",
+      "presentation_hash": "sha256:4b1df247c084339bfb039bd4977072c0b8dbcd9181ac0b8be9235ed868b02ed1",
+      "issuance_hash": "sha256:3af3c0d9ad8767cfda5c5f5133db67694afe866c82142f71c1f406578a339138",
+      "must_not_equal": "sha256:98f1d108ba255c542096b32d640a6ef6fdf6c924aab861d30b643375a66a1f09"
+    },
+    {
+      "vector_id": "jws-anchor-005",
+      "case": "unsigned_jcs",
+      "description": "A bare unsigned object has no signed byte form, so the anchor is JCS then SHA-256 (RFC 8785) -- the jcs_edge_v1 rule.",
+      "anchor_rule": "jcs",
+      "input": {
+        "amount": {
+          "currency": "USD",
+          "value": "1"
+        },
+        "decision": "ALLOW",
+        "subject_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "expected_anchor": "sha256:ec1ea538e01d360f24303945fabf1f43cc27e88e9bdf14fd43ae0f272794a3ee"
+    },
+    {
+      "vector_id": "jws-anchor-006",
+      "case": "canon_sensitive_signed",
+      "description": "The signed-vs-recanonicalised divergence is worst exactly where jcs_edge_v1 lives: a U+2028 string and the value 1.0 both canonicalise differently than the issuer serialised them.",
+      "anchor_rule": "signed_bytes",
+      "input": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkaWQ6ZXhhbXBsZTppc3N1ZXIiLCJub3RlIjoibGluZTFcdTIwMjhsaW5lMiIsInF0eSI6MS4wfQ.Lh5Yx_BhweCuDz_pHArlWbExcGdNREn9Pf2RPYG-A375NQCKFKEZNlGgG0cEcYE2TsDman75VIo0UpW4BrxkCA",
+      "signing": {
+        "key_ref": "rfc8032-7.1-test1",
+        "alg": "EdDSA",
+        "public_key_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+      },
+      "expected_anchor": "sha256:57a54208a5ba2fa046ff330398f075653a67decec59b1232db813ca11db1bea8",
+      "recanon_of_decoded_payload": "sha256:f063381b2d9407519934004c70838961b036e3da92fecee7d53e9c98b9cfda23",
+      "must_not_equal": "sha256:57a54208a5ba2fa046ff330398f075653a67decec59b1232db813ca11db1bea8",
+      "xref": "jcs_edge_v1"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "I1",
+      "statement": "recanon(decoded payload) != signed-token anchor",
+      "check": "jws-anchor-002.recanon_of_decoded_payload != jws-anchor-001.expected_anchor"
+    },
+    {
+      "id": "I2",
+      "statement": "issuer-JWT anchor is disclosure-invariant; presentation != issuance != issuer JWT",
+      "check": "jws-anchor-004.presentation_hash != jws-anchor-004.issuance_hash != jws-anchor-003.expected_anchor"
+    },
+    {
+      "id": "I3",
+      "statement": "every signed token verifies under the RFC 8032 7.1 public key"
+    },
+    {
+      "id": "I4",
+      "statement": "canon-sensitive divergence is attributable to a jcs_edge_v1 case (U+2028, 1.0)",
+      "xref": "jcs_edge_v1"
+    }
+  ]
+}
