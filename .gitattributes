@@ -1,6 +1,15 @@
 # Normalise text to LF so the per-file sha256 anchors in manifest.json are
 # reproducible on any checkout (Windows autocrlf would otherwise change file
 # bytes and break `sha256sum <file>` verification).
+#
+# Catch-all first, so files with no extension or an unlisted one are covered too:
+# LICENSE and NOTICE carry no extension, and go.mod, go.sum, Cargo.lock, *.csproj,
+# Program.cs, requirements.txt and the SVG badges matched no rule, so all of them
+# were rewritten by core.autocrlf on a Windows checkout and no longer hashed to
+# their committed bytes. `text=auto` lets git detect and leave binary content
+# alone; the explicit rules below still win, since the last matching line applies.
+* text=auto eol=lf
+
 *.json text eol=lf
 *.md   text eol=lf
 *.sh   text eol=lf
