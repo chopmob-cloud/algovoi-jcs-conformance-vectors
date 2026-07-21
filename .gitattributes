@@ -8,3 +8,16 @@
 *.mjs  text eol=lf
 *.cjs  text eol=lf
 *.js   text eol=lf
+
+# Cross-engine runner sources and their fixture corpora. corpus.tsv in particular is
+# parsed field-by-field by every engine, so a stray CR would ride along in the final
+# column and change the bytes under test.
+*.tsv  text eol=lf
+*.go   text eol=lf
+*.rs   text eol=lf
+*.java text eol=lf
+*.php  text eol=lf
+*.rb   text eol=lf
+*.toml text eol=lf
+*.kt   text eol=lf
+*.exs  text eol=lf

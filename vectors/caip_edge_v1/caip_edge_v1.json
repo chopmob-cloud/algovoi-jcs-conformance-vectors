@@ -1,0 +1,1042 @@
+{
+  "name": "caip_edge_v1",
+  "license": "Apache-2.0",
+  "copyright": "Copyright 2026 AlgoVoi (chopmob@gmail.com)",
+  "spec": "CAIP-2 / CAIP-10 / CAIP-19 chain-agnostic identifier grammar",
+  "spec_authorship": "AlgoVoi-authored adversarial conformance set. Normative reference: ChainAgnostic/CAIPs CAIP-2, CAIP-10, CAIP-19. Negative-testing-first: it pins the malformed, whitespace, Unicode-confusable, delimiter and cross-level inputs a validator MUST reject, plus accept controls to guard against over-rejection, with the two language-dependent regex-anchor traps (Python trailing-newline; JavaScript m-flag line terminators) called out explicitly.",
+  "grammar": {
+    "chain_id": "namespace ':' reference   namespace [-a-z0-9]{3,8}  reference [-_a-zA-Z0-9]{1,32}",
+    "account_id": "chain_id ':' address     address [-.%a-zA-Z0-9]{1,128}",
+    "asset_type": "chain_id '/' ns ':' ref   ns [-a-z0-9]{3,8}  ref [-.%a-zA-Z0-9]{1,128}",
+    "asset_id": "asset_type '/' token_id     token_id [-.%a-zA-Z0-9]{1,78}"
+  },
+  "input_encoding": "input_b64 is base64 of the identifier's exact UTF-8 bytes; input_display is a Python repr for humans.",
+  "counts": {
+    "total": 102,
+    "accept": 16,
+    "reject": 86,
+    "naive_py_caret_dollar_divergences": 3
+  },
+  "vectors": [
+    {
+      "vector_id": "caip-edge-001-control",
+      "kind": "caip2",
+      "family": "control",
+      "description": "canonical CAIP-2 (spec example)",
+      "input_b64": "ZWlwMTU1OjE=",
+      "input_display": "'eip155:1'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-002-control",
+      "kind": "caip2",
+      "family": "control",
+      "description": "reference allows uppercase and underscore",
+      "input_b64": "c3RhcmtuZXQ6U05fR09FUkxJ",
+      "input_display": "'starknet:SN_GOERLI'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-003-control",
+      "kind": "caip2",
+      "family": "control",
+      "description": "mixed case + hyphens in reference",
+      "input_b64": "Y29zbW9zOkJpbmFuY2UtQ2hhaW4tVGlncmlz",
+      "input_display": "'cosmos:Binance-Chain-Tigris'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-004-control",
+      "kind": "caip2",
+      "family": "control",
+      "description": "all-digit namespace is valid",
+      "input_b64": "MTIzNDU6MQ==",
+      "input_display": "'12345:1'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-005-control",
+      "kind": "caip2",
+      "family": "control",
+      "description": "hyphen allowed in namespace",
+      "input_b64": "YS1iOjE=",
+      "input_display": "'a-b:1'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-006-control",
+      "kind": "caip2",
+      "family": "control",
+      "description": "min namespace 3, min reference 1",
+      "input_b64": "YWJjOmE=",
+      "input_display": "'abc:a'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-007-control",
+      "kind": "caip2",
+      "family": "control",
+      "description": "namespace at max length 8",
+      "input_b64": "YWJjZGVmZ2g6YQ==",
+      "input_display": "'abcdefgh:a'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-008-control",
+      "kind": "caip2",
+      "family": "control",
+      "description": "reference at max length 32",
+      "input_b64": "YWJjOmFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh",
+      "input_display": "'abc:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-009-control",
+      "kind": "caip10",
+      "family": "control",
+      "description": "canonical CAIP-10 (spec example)",
+      "input_b64": "ZWlwMTU1OjE6MHhhYjE2YTk2RDM1OWVDMjZhMTFlMkMyYjNkOGY4Qjg5NDJkNUJmY2Ri",
+      "input_display": "'eip155:1:0xab16a96D359eC26a11e2C2b3d8f8B8942d5Bfcdb'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-010-control",
+      "kind": "caip10",
+      "family": "control",
+      "description": "address permits dot and dash",
+      "input_b64": "aGVkZXJhOm1haW5uZXQ6MC4wLjEyMzQ1Njc4OTAtemJobHQ=",
+      "input_display": "'hedera:mainnet:0.0.1234567890-zbhlt'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-011-control",
+      "kind": "caip10",
+      "family": "control",
+      "description": "address permits percent (URL-encoding)",
+      "input_b64": "ZWlwMTU1OjE6YWIlMjBjZA==",
+      "input_display": "'eip155:1:ab%20cd'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-012-control",
+      "kind": "caip10",
+      "family": "control",
+      "description": "address at max length 128",
+      "input_b64": "YWJjOjE6YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE=",
+      "input_display": "'abc:1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-013-control",
+      "kind": "caip19",
+      "family": "control",
+      "description": "canonical CAIP-19 asset type (spec example)",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OjYw",
+      "input_display": "'eip155:1/slip44:60'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-014-control",
+      "kind": "caip19",
+      "family": "control",
+      "description": "asset id with token_id",
+      "input_b64": "ZWlwMTU1OjEvZXJjNzIxOjB4MDYwMTJjOGNmOTdCRWFENWRlQWUyMzcwNzBGOTU4N2Y4RTdBMjY2ZC83NzE3Njk=",
+      "input_display": "'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-015-control",
+      "kind": "caip19",
+      "family": "control",
+      "description": "asset reference permits percent",
+      "input_b64": "ZWlwMTU1OjEvZXJjMjA6YWIlMmVjZA==",
+      "input_display": "'eip155:1/erc20:ab%2ecd'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-016-control",
+      "kind": "caip19",
+      "family": "control",
+      "description": "token_id at max length 78",
+      "input_b64": "YWJjOjEvZGVmOjYwL3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dA==",
+      "input_display": "'abc:1/def:60/tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt'",
+      "expectation": "accept",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-017-len_ns",
+      "kind": "caip2",
+      "family": "len_ns",
+      "description": "namespace length 2 below min 3",
+      "input_b64": "YWI6MQ==",
+      "input_display": "'ab:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-018-len_ns",
+      "kind": "caip2",
+      "family": "len_ns",
+      "description": "namespace length 9 above max 8",
+      "input_b64": "YWJjZGVmZ2hpOjE=",
+      "input_display": "'abcdefghi:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-019-len_ref",
+      "kind": "caip2",
+      "family": "len_ref",
+      "description": "reference length 0",
+      "input_b64": "ZWlwMTU1Og==",
+      "input_display": "'eip155:'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-020-len_ref",
+      "kind": "caip2",
+      "family": "len_ref",
+      "description": "reference length 33 above max 32",
+      "input_b64": "ZWlwMTU1OmFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ==",
+      "input_display": "'eip155:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-021-len_addr",
+      "kind": "caip10",
+      "family": "len_addr",
+      "description": "address length 0",
+      "input_b64": "ZWlwMTU1OjE6",
+      "input_display": "'eip155:1:'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-022-len_addr",
+      "kind": "caip10",
+      "family": "len_addr",
+      "description": "address length 129 above max 128",
+      "input_b64": "ZWlwMTU1OjE6YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh",
+      "input_display": "'eip155:1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-023-len_asset_ns",
+      "kind": "caip19",
+      "family": "len_asset_ns",
+      "description": "asset namespace length 2 below min 3",
+      "input_b64": "ZWlwMTU1OjEvYWI6NjA=",
+      "input_display": "'eip155:1/ab:60'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-024-len_asset_ns",
+      "kind": "caip19",
+      "family": "len_asset_ns",
+      "description": "asset namespace length 9 above max 8",
+      "input_b64": "ZWlwMTU1OjEvYWJjZGVmZ2hpOjYw",
+      "input_display": "'eip155:1/abcdefghi:60'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-025-len_asset_ref",
+      "kind": "caip19",
+      "family": "len_asset_ref",
+      "description": "asset reference length 0",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0Og==",
+      "input_display": "'eip155:1/slip44:'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-026-len_asset_ref",
+      "kind": "caip19",
+      "family": "len_asset_ref",
+      "description": "asset reference length 129 above max 128",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OmFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ==",
+      "input_display": "'eip155:1/slip44:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-027-len_token",
+      "kind": "caip19",
+      "family": "len_token",
+      "description": "token_id length 0 (trailing slash)",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OjYwLw==",
+      "input_display": "'eip155:1/slip44:60/'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-028-len_token",
+      "kind": "caip19",
+      "family": "len_token",
+      "description": "token_id length 79 above max 78",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OjYwL3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHQ=",
+      "input_display": "'eip155:1/slip44:60/ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-029-charset_ns",
+      "kind": "caip2",
+      "family": "charset_ns",
+      "description": "uppercase in namespace",
+      "input_b64": "RUlQMTU1OjE=",
+      "input_display": "'EIP155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-030-charset_ns",
+      "kind": "caip2",
+      "family": "charset_ns",
+      "description": "underscore in namespace",
+      "input_b64": "ZWlwXzE1NTox",
+      "input_display": "'eip_155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-031-charset_ns",
+      "kind": "caip2",
+      "family": "charset_ns",
+      "description": "dot in namespace",
+      "input_b64": "ZWlwLjE1NTox",
+      "input_display": "'eip.155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-032-charset_ns",
+      "kind": "caip2",
+      "family": "charset_ns",
+      "description": "percent in namespace",
+      "input_b64": "ZWlwJTE1NTox",
+      "input_display": "'eip%155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-033-charset_ns",
+      "kind": "caip2",
+      "family": "charset_ns",
+      "description": "space in namespace",
+      "input_b64": "ZWlwIDE1NTox",
+      "input_display": "'eip 155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-034-charset_ns",
+      "kind": "caip2",
+      "family": "charset_ns",
+      "description": "at-sign in namespace",
+      "input_b64": "ZWlANTU6MQ==",
+      "input_display": "'ei@55:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-035-charset_ns",
+      "kind": "caip2",
+      "family": "charset_ns",
+      "description": "slash in namespace",
+      "input_b64": "ZWlwLzE1NTox",
+      "input_display": "'eip/155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-036-charset_ref",
+      "kind": "caip2",
+      "family": "charset_ref",
+      "description": "dot not in reference charset",
+      "input_b64": "ZWlwMTU1OjEuMg==",
+      "input_display": "'eip155:1.2'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-037-charset_ref",
+      "kind": "caip2",
+      "family": "charset_ref",
+      "description": "percent not in reference charset",
+      "input_b64": "ZWlwMTU1OjElMg==",
+      "input_display": "'eip155:1%2'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-038-charset_ref",
+      "kind": "caip2",
+      "family": "charset_ref",
+      "description": "at-sign in reference",
+      "input_b64": "ZWlwMTU1Om5hQG1l",
+      "input_display": "'eip155:na@me'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-039-charset_ref",
+      "kind": "caip2",
+      "family": "charset_ref",
+      "description": "space in reference",
+      "input_b64": "ZWlwMTU1OmEgYg==",
+      "input_display": "'eip155:a b'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-040-charset_ref",
+      "kind": "caip2",
+      "family": "charset_ref",
+      "description": "tab in reference",
+      "input_b64": "ZWlwMTU1OmEJYg==",
+      "input_display": "'eip155:a\\tb'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-041-charset_addr",
+      "kind": "caip10",
+      "family": "charset_addr",
+      "description": "underscore not in address charset",
+      "input_b64": "ZWlwMTU1OjE6MHhfYWI=",
+      "input_display": "'eip155:1:0x_ab'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-042-charset_addr",
+      "kind": "caip10",
+      "family": "charset_addr",
+      "description": "space in address",
+      "input_b64": "ZWlwMTU1OjE6MHggYWI=",
+      "input_display": "'eip155:1:0x ab'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-043-charset_addr",
+      "kind": "caip10",
+      "family": "charset_addr",
+      "description": "at-sign in address",
+      "input_b64": "ZWlwMTU1OjE6YUBi",
+      "input_display": "'eip155:1:a@b'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-044-charset_addr",
+      "kind": "caip10",
+      "family": "charset_addr",
+      "description": "slash in address",
+      "input_b64": "ZWlwMTU1OjE6YS9i",
+      "input_display": "'eip155:1:a/b'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-045-charset_addr",
+      "kind": "caip10",
+      "family": "charset_addr",
+      "description": "extra colon in address",
+      "input_b64": "ZWlwMTU1OjE6YTpi",
+      "input_display": "'eip155:1:a:b'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-046-struct",
+      "kind": "caip2",
+      "family": "struct",
+      "description": "no colon separator",
+      "input_b64": "ZWlwMTU1",
+      "input_display": "'eip155'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-047-struct",
+      "kind": "caip2",
+      "family": "struct",
+      "description": "leading colon, empty namespace",
+      "input_b64": "OjE=",
+      "input_display": "':1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-048-struct",
+      "kind": "caip2",
+      "family": "struct",
+      "description": "double colon, reference starts with colon",
+      "input_b64": "ZWlwMTU1Ojox",
+      "input_display": "'eip155::1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-049-struct",
+      "kind": "caip2",
+      "family": "struct",
+      "description": "extra segment (this is a CAIP-10 shape)",
+      "input_b64": "ZWlwMTU1OjE6Mg==",
+      "input_display": "'eip155:1:2'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-050-struct",
+      "kind": "caip19",
+      "family": "struct",
+      "description": "missing slash before asset namespace",
+      "input_b64": "ZWlwMTU1OjFzbGlwNDQ6NjA=",
+      "input_display": "'eip155:1slip44:60'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-051-struct",
+      "kind": "caip19",
+      "family": "struct",
+      "description": "double slash before asset",
+      "input_b64": "ZWlwMTU1OjEvL3NsaXA0NDo2MA==",
+      "input_display": "'eip155:1//slip44:60'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-052-struct",
+      "kind": "caip19",
+      "family": "struct",
+      "description": "missing colon in asset",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0NjA=",
+      "input_display": "'eip155:1/slip4460'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-053-struct",
+      "kind": "caip19",
+      "family": "struct",
+      "description": "extra segment after token_id",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OjYwLzEvMg==",
+      "input_display": "'eip155:1/slip44:60/1/2'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-054-struct",
+      "kind": "caip19",
+      "family": "struct",
+      "description": "trailing slash, empty token",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OjYwLw==",
+      "input_display": "'eip155:1/slip44:60/'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-055-trail_ctrl",
+      "kind": "caip2",
+      "family": "trail_ctrl",
+      "description": "trailing 'lf' must be rejected",
+      "input_b64": "ZWlwMTU1OjEK",
+      "input_display": "'eip155:1\\n'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-056-trail_ctrl",
+      "kind": "caip2",
+      "family": "trail_ctrl",
+      "description": "trailing 'crlf' must be rejected",
+      "input_b64": "ZWlwMTU1OjENCg==",
+      "input_display": "'eip155:1\\r\\n'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-057-trail_ctrl",
+      "kind": "caip2",
+      "family": "trail_ctrl",
+      "description": "trailing 'cr' must be rejected",
+      "input_b64": "ZWlwMTU1OjEN",
+      "input_display": "'eip155:1\\r'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-058-trail_ctrl",
+      "kind": "caip2",
+      "family": "trail_ctrl",
+      "description": "trailing 'tab' must be rejected",
+      "input_b64": "ZWlwMTU1OjEJ",
+      "input_display": "'eip155:1\\t'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-059-trail_ctrl",
+      "kind": "caip2",
+      "family": "trail_ctrl",
+      "description": "trailing 'vtab' must be rejected",
+      "input_b64": "ZWlwMTU1OjEL",
+      "input_display": "'eip155:1\\x0b'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-060-trail_ctrl",
+      "kind": "caip2",
+      "family": "trail_ctrl",
+      "description": "trailing 'ff' must be rejected",
+      "input_b64": "ZWlwMTU1OjEM",
+      "input_display": "'eip155:1\\x0c'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-061-trail_ctrl",
+      "kind": "caip2",
+      "family": "trail_ctrl",
+      "description": "trailing 'nul' must be rejected",
+      "input_b64": "ZWlwMTU1OjEA",
+      "input_display": "'eip155:1\\x00'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-062-trail_ctrl",
+      "kind": "caip2",
+      "family": "trail_ctrl",
+      "description": "trailing 'sp' must be rejected",
+      "input_b64": "ZWlwMTU1OjEg",
+      "input_display": "'eip155:1 '",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-063-trail_ctrl",
+      "kind": "caip10",
+      "family": "trail_ctrl",
+      "description": "CAIP-10 trailing newline",
+      "input_b64": "ZWlwMTU1OjE6MHhhYmMK",
+      "input_display": "'eip155:1:0xabc\\n'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-064-trail_ctrl",
+      "kind": "caip19",
+      "family": "trail_ctrl",
+      "description": "CAIP-19 trailing newline",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OjYwCg==",
+      "input_display": "'eip155:1/slip44:60\\n'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "accept"
+    },
+    {
+      "vector_id": "caip-edge-065-lead_ctrl",
+      "kind": "caip2",
+      "family": "lead_ctrl",
+      "description": "leading 'lf' must be rejected",
+      "input_b64": "CmVpcDE1NTox",
+      "input_display": "'\\neip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-066-lead_ctrl",
+      "kind": "caip2",
+      "family": "lead_ctrl",
+      "description": "leading 'sp' must be rejected",
+      "input_b64": "IGVpcDE1NTox",
+      "input_display": "' eip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-067-lead_ctrl",
+      "kind": "caip2",
+      "family": "lead_ctrl",
+      "description": "leading 'tab' must be rejected",
+      "input_b64": "CWVpcDE1NTox",
+      "input_display": "'\\teip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-068-lead_ctrl",
+      "kind": "caip2",
+      "family": "lead_ctrl",
+      "description": "leading 'nul' must be rejected",
+      "input_b64": "AGVpcDE1NTox",
+      "input_display": "'\\x00eip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-069-embed_ctrl",
+      "kind": "caip2",
+      "family": "embed_ctrl",
+      "description": "embedded newline in identifier",
+      "input_b64": "ZWlwMTU1Cjox",
+      "input_display": "'eip155\\n:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-070-embed_ctrl",
+      "kind": "caip2",
+      "family": "embed_ctrl",
+      "description": "embedded NUL in namespace",
+      "input_b64": "ZWlwADE1NTox",
+      "input_display": "'eip\\x00155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-071-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "trailing u2028_lineSep must be rejected",
+      "input_b64": "ZWlwMTU1OjHigKg=",
+      "input_display": "'eip155:1\\u2028'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-072-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "trailing u2029_paraSep must be rejected",
+      "input_b64": "ZWlwMTU1OjHigKk=",
+      "input_display": "'eip155:1\\u2029'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-073-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "trailing u00a0_nbsp must be rejected",
+      "input_b64": "ZWlwMTU1OjHCoA==",
+      "input_display": "'eip155:1\\xa0'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-074-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "trailing u3000_ideoSpace must be rejected",
+      "input_b64": "ZWlwMTU1OjHjgIA=",
+      "input_display": "'eip155:1\\u3000'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-075-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "trailing u200b_zwsp must be rejected",
+      "input_b64": "ZWlwMTU1OjHigIs=",
+      "input_display": "'eip155:1\\u200b'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-076-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "trailing ufeff_bom must be rejected",
+      "input_b64": "ZWlwMTU1OjHvu78=",
+      "input_display": "'eip155:1\\ufeff'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-077-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "trailing u0085_nel must be rejected",
+      "input_b64": "ZWlwMTU1OjHChQ==",
+      "input_display": "'eip155:1\\x85'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-078-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "trailing u2003_emSpace must be rejected",
+      "input_b64": "ZWlwMTU1OjHigIM=",
+      "input_display": "'eip155:1\\u2003'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-079-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "leading BOM must be rejected",
+      "input_b64": "77u/ZWlwMTU1OjE=",
+      "input_display": "'\\ufeffeip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-080-unicode_ws",
+      "kind": "caip2",
+      "family": "unicode_ws",
+      "description": "embedded zero-width space",
+      "input_b64": "ZWlwMTU14oCLOjE=",
+      "input_display": "'eip155\\u200b:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-081-unicode_confusable",
+      "kind": "caip2",
+      "family": "unicode_confusable",
+      "description": "fullwidth digit U+FF11 is not ASCII 1",
+      "input_b64": "ZWlwMTU1Ou+8kQ==",
+      "input_display": "'eip155:\uff11'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-082-unicode_confusable",
+      "kind": "caip2",
+      "family": "unicode_confusable",
+      "description": "fullwidth e U+FF45 in namespace",
+      "input_b64": "772FaXAxNTU6MQ==",
+      "input_display": "'\uff45ip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-083-unicode_confusable",
+      "kind": "caip2",
+      "family": "unicode_confusable",
+      "description": "Cyrillic e U+0435 homoglyph in namespace",
+      "input_b64": "0LVpcDE1NTox",
+      "input_display": "'\u0435ip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-084-unicode_confusable",
+      "kind": "caip2",
+      "family": "unicode_confusable",
+      "description": "trailing combining acute U+0301",
+      "input_b64": "ZWlwMTU1OjHMgQ==",
+      "input_display": "'eip155:1\u0301'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-085-unicode_confusable",
+      "kind": "caip2",
+      "family": "unicode_confusable",
+      "description": "trailing emoji U+1F600",
+      "input_b64": "ZWlwMTU1OjHwn5iA",
+      "input_display": "'eip155:1\ud83d\ude00'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-086-unicode_confusable",
+      "kind": "caip2",
+      "family": "unicode_confusable",
+      "description": "non-ASCII letter e-acute in namespace",
+      "input_b64": "Y2Fmw6k6MQ==",
+      "input_display": "'caf\u00e9:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-087-unicode_confusable",
+      "kind": "caip2",
+      "family": "unicode_confusable",
+      "description": "superscript two U+00B2 is not a digit here",
+      "input_b64": "ZWlwMTU1OsKy",
+      "input_display": "'eip155:\u00b2'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-088-xlevel",
+      "kind": "caip2",
+      "family": "xlevel",
+      "description": "a CAIP-10 is not a CAIP-2",
+      "input_b64": "ZWlwMTU1OjE6MHhhYmM=",
+      "input_display": "'eip155:1:0xabc'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-089-xlevel",
+      "kind": "caip2",
+      "family": "xlevel",
+      "description": "a CAIP-19 is not a CAIP-2",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OjYw",
+      "input_display": "'eip155:1/slip44:60'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-090-xlevel",
+      "kind": "caip10",
+      "family": "xlevel",
+      "description": "a CAIP-2 is not a CAIP-10",
+      "input_b64": "ZWlwMTU1OjE=",
+      "input_display": "'eip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-091-xlevel",
+      "kind": "caip10",
+      "family": "xlevel",
+      "description": "a CAIP-19 is not a CAIP-10",
+      "input_b64": "ZWlwMTU1OjEvc2xpcDQ0OjYw",
+      "input_display": "'eip155:1/slip44:60'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-092-xlevel",
+      "kind": "caip19",
+      "family": "xlevel",
+      "description": "a CAIP-2 is not a CAIP-19",
+      "input_b64": "ZWlwMTU1OjE=",
+      "input_display": "'eip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-093-xlevel",
+      "kind": "caip19",
+      "family": "xlevel",
+      "description": "a CAIP-10 is not a CAIP-19",
+      "input_b64": "ZWlwMTU1OjE6MHhhYmM=",
+      "input_display": "'eip155:1:0xabc'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-094-injection",
+      "kind": "caip2",
+      "family": "injection",
+      "description": "trailing dollar metacharacter",
+      "input_b64": "ZWlwMTU1OjEk",
+      "input_display": "'eip155:1$'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-095-injection",
+      "kind": "caip2",
+      "family": "injection",
+      "description": "leading caret",
+      "input_b64": "XmVpcDE1NTox",
+      "input_display": "'^eip155:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-096-injection",
+      "kind": "caip2",
+      "family": "injection",
+      "description": "dot-star, dot not in reference",
+      "input_b64": "ZWlwMTU1Oi4q",
+      "input_display": "'eip155:.*'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-097-injection",
+      "kind": "caip2",
+      "family": "injection",
+      "description": "pipe not in reference",
+      "input_b64": "ZWlwMTU1OjF8eA==",
+      "input_display": "'eip155:1|x'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-098-injection",
+      "kind": "caip2",
+      "family": "injection",
+      "description": "dot-dot namespace",
+      "input_b64": "Li46MQ==",
+      "input_display": "'..:1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-099-injection",
+      "kind": "caip2",
+      "family": "injection",
+      "description": "newline plus payload",
+      "input_b64": "ZWlwMTU1OjEKPHNjcmlwdD4=",
+      "input_display": "'eip155:1\\n<script>'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-100-injection",
+      "kind": "caip2",
+      "family": "injection",
+      "description": "NUL truncation with trailing bytes",
+      "input_b64": "ZWlwMTU1OjEAZXh0cmE=",
+      "input_display": "'eip155:1\\x00extra'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-101-injection",
+      "kind": "caip2",
+      "family": "injection",
+      "description": "sql-flavored payload with spaces",
+      "input_b64": "ZWlwMTU1OjEgT1IgMT0x",
+      "input_display": "'eip155:1 OR 1=1'",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    },
+    {
+      "vector_id": "caip-edge-102-empty",
+      "kind": "caip2",
+      "family": "empty",
+      "description": "empty string",
+      "input_b64": "",
+      "input_display": "''",
+      "expectation": "reject",
+      "naive_py_caret_dollar": "reject"
+    }
+  ]
+}

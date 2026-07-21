@@ -1,0 +1,16 @@
+[package]
+name = "caip-edge-rust-regex"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+# The sibling engines/runner.rs is a deliberate no-regex hand parser. This crate is the
+# regex-engine counterpart: it exercises the Rust `regex` crate's anchor semantics directly,
+# so the cross-language anchor claim is demonstrated for Rust rather than merely reasoned.
+[dependencies]
+regex = "1"
+
+[[bin]]
+name = "caip_edge_rust_regex"
+path = "src/main.rs"
