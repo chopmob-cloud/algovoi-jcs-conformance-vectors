@@ -112,14 +112,30 @@ def main() -> int:
     checks.append((gate_refer == tw["gate_refer"] and gate_refer != gate_ref,
                    "tamper: REFER verdict diverges gate_ref (decision bound to the ALLOW verdict)", "divergent"))
 
-    # Regression vector: a substituted execution member must diverge even when the
-    # substituting trace is internally consistent with itself.
-    forged = list(derived)
-    forged[5] = "sha256:" + ("deadbeef" * 8)
-    forged_cap = _ref({"subject_refs": forged, "trust_outcome": cap["trust_outcome"]})
-    checks.append((forged_cap != span_cap and forged != derived,
-                   "tamper: a substituted execution member diverges the cap (not accepted on trust)",
-                   "divergent"))
+    # Negative fixture: compliance_gate_keystone_trace.tampered.json substitutes the
+    # execution member and recomputes the trace's own expected_trust_query_ref so the
+    # forgery agrees with itself. Two things are asserted against real data:
+    #
+    #   a) the forgery IS self-consistent, so hashing its own members reproduces its
+    #      own expected value. This is what the pre-fix verifier compared, and why it
+    #      accepted the substitution.
+    #   b) independent derivation still rejects it.
+    #
+    # Note on scope: no in-file check can prove this verifier derives from raw fields
+    # rather than from the trace, since it would be judging itself. What this fixture
+    # proves is that the comparison rejects real substituted data. Deliberate
+    # regression of the derivation is caught by running this verifier against the
+    # fixture and requiring a non-zero exit, not by any assertion inside it.
+    tam = json.loads((HERE / "compliance_gate_keystone_trace.tampered.json").read_text(encoding="utf-8"))
+    t_cap = tam["compliance_cap"]
+    forgery_self_consistent = (_ref({"subject_refs": t_cap["subject_refs"],
+                                     "trust_outcome": t_cap["trust_outcome"]})
+                               == t_cap["expected_trust_query_ref"])
+    derivation_rejects = derived != t_cap["subject_refs"]
+    checks.append((forgery_self_consistent and derivation_rejects,
+                   "negative fixture: a self-consistent execution substitution is rejected by derivation "
+                   "(and would have been accepted by a trace-trusting verifier)",
+                   f"self_consistent={forgery_self_consistent} rejected={derivation_rejects}"))
 
     print("=" * 74)
     print("COMPLIANCE GATE KEYSTONE -- composition proof (compliance verdict binds the decision)")

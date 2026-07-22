@@ -77,13 +77,23 @@ const gateRefer = ref({ payer_ref: g.payer_ref, subject_ref: g.subject_ref, verd
 checks.push([gateRefer === tw.gate_refer && gateRefer !== gateRef,
   'tamper: REFER verdict diverges gate_ref (decision bound to ALLOW)', 'divergent']);
 
-// Regression vector: a substituted execution member must diverge even when the
-// substituting trace is internally consistent with itself.
-const forged = derived.slice();
-forged[5] = 'sha256:' + 'deadbeef'.repeat(8);
-const forgedCap = ref({ subject_refs: forged, trust_outcome: cap.trust_outcome });
-checks.push([forgedCap !== spanCap,
-  'tamper: a substituted execution member diverges the cap (not accepted on trust)', 'divergent']);
+// Negative fixture: compliance_gate_keystone_trace.tampered.json substitutes the
+// execution member and recomputes the trace's own expected_trust_query_ref so the
+// forgery agrees with itself. Asserts (a) the forgery IS self-consistent, which is
+// what the pre-fix verifier compared and why it accepted the substitution, and
+// (b) independent derivation still rejects it.
+//
+// No in-file check can prove this verifier derives from raw fields rather than from
+// the trace, since it would be judging itself. Deliberate regression is caught by
+// running this verifier against the fixture and requiring a non-zero exit.
+const tam = JSON.parse(readFileSync(join(HERE, 'compliance_gate_keystone_trace.tampered.json'), 'utf8'));
+const tCap = tam.compliance_cap;
+const forgerySelfConsistent = ref({ subject_refs: tCap.subject_refs, trust_outcome: tCap.trust_outcome })
+  === tCap.expected_trust_query_ref;
+const derivationRejects = derived.some((r, i) => r !== tCap.subject_refs[i]);
+checks.push([forgerySelfConsistent && derivationRejects,
+  'negative fixture: a self-consistent execution substitution is rejected by derivation (and would have been accepted by a trace-trusting verifier)',
+  `self_consistent=${forgerySelfConsistent} rejected=${derivationRejects}`]);
 
 console.log('='.repeat(74));
 console.log('COMPLIANCE GATE KEYSTONE -- composition proof (Node == Python)');

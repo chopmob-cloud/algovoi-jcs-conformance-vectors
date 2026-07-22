@@ -1,0 +1,36 @@
+{
+  "set": "compliance_gate_keystone_v1__tampered",
+  "title": "NEGATIVE FIXTURE -- execution member substituted, trace made self-consistent",
+  "canon_version": "jcs-rfc8785-v1",
+  "summary": "Negative vector. subject_refs[5] (execution) is replaced with a fabricated digest and expected_trust_query_ref is recomputed so the trace agrees with itself. A verifier that hashes the trace's own members and compares to the trace's own expected value accepts this. A verifier that derives each member from raw fields rejects it. Loaded by verify_compliance_gate_keystone.{py,mjs}; the run FAILS if this fixture is ever accepted.",
+  "decision": {
+    "agent_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+    "mandate_ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+    "policy_bound_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+    "verdict": "ALLOW",
+    "expected_decision_ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+  },
+  "compliance_gate": {
+    "payer_ref": "sha256:8637798158677e9aa7d218d81713db9af656e2f28a5bcce97b4f2a73286f5765",
+    "subject_ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+    "verdict": "ALLOW",
+    "expected_gate_ref": "sha256:43d8d8cb0ba6ccbd3c36167a28075a3fd5b8858ce0414f6871a22a96f86f96a5",
+    "binds": "subject_ref == decision.policy_bound_ref"
+  },
+  "compliance_cap": {
+    "subject_refs": [
+      "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35",
+      "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21",
+      "sha256:43d8d8cb0ba6ccbd3c36167a28075a3fd5b8858ce0414f6871a22a96f86f96a5",
+      "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97",
+      "sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+    ],
+    "trust_outcome": "TRUSTED",
+    "expected_trust_query_ref": "sha256:47279ace0a5af92f144e530f563479d024b0f900f7b8299ddb41def1c50f7717"
+  },
+  "tamper": {
+    "gate_refer": "sha256:9a25b3d9d9c1ff4ba1c9c1da66668c59caf8164d4a081df30826c007d9b6b845",
+    "note": "a REFER verdict over the same payer + policy diverges gate_ref; the admitted decision is bound to the ALLOW verdict specifically."
+  }
+}
