@@ -133,7 +133,31 @@ def main() -> int:
         REG["retention_chain_ref"],
     ))
 
-    # 5: recompute the binding from the composed (traced) values using the
+    # 5: the published lifecycle_trace.json manifest must agree with the vectors it
+    # cites. The manifest was previously not read by this runner at all, so every
+    # value in it was carried: it could name any digest, for any step, and nothing
+    # here would notice. Each entry declares its own source_set and source_field, so
+    # the check is generic rather than hardcoded.
+    trace = json.loads((HERE / "lifecycle_trace.json").read_text(encoding="utf-8"))
+    bad_steps = []
+    for entry in trace["chain"]:
+        published = {
+            v[entry["source_field"]]
+            for v in _load(entry["source_set"])["vectors"]
+            if entry["source_field"] in v
+        }
+        if entry["value"] not in published:
+            bad_steps.append(f'step {entry["step"]} ({entry["primitive"]})')
+    manifest_ok = not bad_steps and trace["binding_ref"] == expected_binding
+    checks.append((
+        "lifecycle_trace manifest: every step value is the published output of the set it cites, "
+        "and binding_ref is the published reference",
+        manifest_ok,
+        "all 5 steps traced" if manifest_ok else f"unverified: {bad_steps or ['binding_ref']}",
+        "manifest integrity (the published chain description is itself checked)",
+    ))
+
+    # 6: recompute the binding from the composed (traced) values using the
     # released package, and match the published reference byte-for-byte.
     recomputed = settlement_action_binding(
         action_ref=pre["action_ref"],

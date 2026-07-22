@@ -24,14 +24,27 @@ const refByRole = { execution: 'execution_ref', settlement: 'settlement_ref', re
 
 for (const f of frames) {
   const rh = 'sha256:' + h(f.preimage.receipt);
-  const ok = rh === carries[refByRole[f.role]] && rh === f.preimage.receipt_hash && frameId(f.preimage) === f.frame_id;
+  // f.receipt_hash (outside the preimage) must agree too; previously only the preimage copy was checked
+  const ok = rh === carries[refByRole[f.role]] && rh === f.preimage.receipt_hash && rh === f.receipt_hash && frameId(f.preimage) === f.frame_id;
   checks.push([ok, `frame[${f.role}] receipt_hash == ${refByRole[f.role]} and frame_id recomputes (pef_v1)`, f.frame_id]);
 }
+
+// the execution tier's raw fields must produce the execution_ref the first frame carries.
+// This block was present in the trace but never read, so every value in it was carried.
+const exr = t.execution;
+const executionRef = 'sha256:' + h({ decision_ref: exr.decision_ref, action_type: exr.action_type,
+  scope: exr.scope, outcome: exr.outcome, executed_at_ms: exr.executed_at_ms });
+checks.push([executionRef === exr.expected_execution_ref && executionRef === carries.execution_ref,
+  'execution_ref recomputes from raw execution fields and is the ref the execution frame carries',
+  executionRef]);
 
 const r1 = rowHash(frames[0].frame_id, ZERO, 1);
 const r2 = rowHash(frames[1].frame_id, r1, 2);
 const r3 = rowHash(frames[2].frame_id, r2, 3);
-const chainOk = chain[0].row.prev_hash === ZERO && r1 === chain[0].expected_row_hash
+// each row's content_hash must BE the frame it anchors; row hashes are computed from
+// frames[i].frame_id directly, so without this the rows' content_hash fields were carried
+const rowsAnchorFrames = [0,1,2].every((i) => chain[i].row.content_hash === frames[i].frame_id);
+const chainOk = rowsAnchorFrames && chain[0].row.prev_hash === ZERO && r1 === chain[0].expected_row_hash
   && chain[1].row.prev_hash === r1 && r2 === chain[1].expected_row_hash
   && chain[2].row.prev_hash === r2 && r3 === chain[2].expected_row_hash;
 checks.push([chainOk, 'frames link into an audit chain (prev_hash == prior row hash; genesis 64 zeros)', r3]);

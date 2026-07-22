@@ -57,15 +57,33 @@ def main() -> int:
         rh = "sha256:" + _h(f["preimage"]["receipt"])
         ok = (rh == carries[ref_by_role[role]]
               and rh == f["preimage"]["receipt_hash"]
+              # the frame's own receipt_hash field, outside the preimage, must agree too:
+              # previously only the preimage copy was checked, so this one was carried
+              and rh == f["receipt_hash"]
               and recomputed_id == f["frame_id"])
         checks.append((ok, f"frame[{role}] receipt_hash == {ref_by_role[role]} and frame_id recomputes (pef_v1)",
                        f["frame_id"]))
+
+    # the execution tier's raw fields must produce the execution_ref the first frame carries.
+    # This block was present in the trace but never read, so every value in it was carried.
+    exr = t["execution"]
+    execution_ref = "sha256:" + _h({"decision_ref": exr["decision_ref"], "action_type": exr["action_type"],
+                                    "scope": exr["scope"], "outcome": exr["outcome"],
+                                    "executed_at_ms": exr["executed_at_ms"]})
+    checks.append((execution_ref == exr["expected_execution_ref"] and execution_ref == carries["execution_ref"],
+                   "execution_ref recomputes from raw execution fields and is the ref the execution frame carries",
+                   execution_ref))
 
     # chain linkage
     r1 = _row_hash(frames[0]["frame_id"], ZERO, 1)
     r2 = _row_hash(frames[1]["frame_id"], r1, 2)
     r3 = _row_hash(frames[2]["frame_id"], r2, 3)
-    chain_ok = (chain[0]["row"]["prev_hash"] == ZERO
+    # each row's own content_hash must BE the frame it claims to anchor. The row hashes
+    # above are computed from frames[i]["frame_id"] directly, so without this the rows'
+    # content_hash fields were carried and could name a different frame entirely.
+    rows_anchor_frames = all(chain[i]["row"]["content_hash"] == frames[i]["frame_id"] for i in range(3))
+    chain_ok = (rows_anchor_frames
+                and chain[0]["row"]["prev_hash"] == ZERO
                 and r1 == chain[0]["expected_row_hash"]
                 and chain[1]["row"]["prev_hash"] == r1 and r2 == chain[1]["expected_row_hash"]
                 and chain[2]["row"]["prev_hash"] == r2 and r3 == chain[2]["expected_row_hash"])

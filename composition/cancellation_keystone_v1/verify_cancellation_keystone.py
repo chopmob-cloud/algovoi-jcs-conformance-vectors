@@ -15,7 +15,8 @@ import hashlib, json, sys
 from pathlib import Path
 import rfc8785
 
-TRACE = Path(__file__).parent / "cancellation_keystone_trace.json"
+HERE = Path(__file__).resolve().parent
+TRACE = HERE / "cancellation_keystone_trace.json"
 def _h(o): return hashlib.sha256(rfc8785.dumps(o)).hexdigest()
 def _ref(o): return "sha256:" + _h(o)
 def cancellation_ref(reason, mandate_ref):
@@ -32,6 +33,24 @@ def main() -> int:
 
     checks.append((c["mandate_ref"] == t["mandate_ref"],
                    "cancellation mandate_ref IS the keystone mandate (closes the exact authority used)", c["mandate_ref"]))
+
+    # execution_ref must BE the keystone execution, derived from keystone_v1 raw fields.
+    # It was previously only used in the inequality below, which holds for any value, so
+    # this trace could name an execution unrelated to the authority being cancelled.
+    ks = json.loads((HERE.parent / "keystone_v1" / "keystone_trace.json").read_text(encoding="utf-8"))
+    st, kd, kx = ks["steps"], ks["decision"], ks["execution"]
+    _passport = _ref(st["passport_ref"]["inputs"])
+    _mandate = _ref(st["mandate_ref"]["inputs"])
+    _pol = st["policy_bound_ref"]
+    _policy_bound = _ref({"policy_ref": _ref(_pol["policy"]), "subject_ref": _pol["subject_ref"]})
+    _decision = _ref({"agent_ref": _passport, "mandate_ref": _mandate,
+                      "policy_bound_ref": _policy_bound, "verdict": kd["verdict"]})
+    execution_ref = _ref({"decision_ref": _decision, "action_type": kx["action_type"],
+                          "scope": kx["scope"], "outcome": kx["outcome"],
+                          "executed_at_ms": kx["executed_at_ms"]})
+    checks.append((execution_ref == t["execution_ref"] and _mandate == t["mandate_ref"],
+                   "execution_ref and mandate_ref recompute from keystone_v1 raw fields (this IS that keystone)",
+                   execution_ref))
 
     checks.append((t["mandate_ref"] != t["execution_ref"],
                    "mirror of refund: cancellation binds the authority (pre-execution), refund binds execution (post)", "authority vs execution"))

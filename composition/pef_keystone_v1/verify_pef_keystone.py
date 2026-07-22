@@ -68,13 +68,20 @@ def main() -> int:
     checks.append((receipt_hash == frame["expected_receipt_hash"],
                    "receipt_hash recomputes (PEF pins the keystone payload; pef_v1 shape)", receipt_hash))
 
-    # 5. frame_id commits to the frame (must equal the recomputed receipt_hash inside the preimage)
-    pre = dict(frame["preimage"])
-    pre["receipt_hash"] = receipt_hash
-    pre["receipt"] = rc
+    # 5. frame_id commits to the frame, computed over the preimage AS PUBLISHED.
+    #
+    # This previously overwrote pre["receipt"] and pre["receipt_hash"] with the values
+    # verified above before hashing, which discarded the published copies: the receipt
+    # nested in the preimage, and its receipt_hash, were never compared to anything and
+    # could carry different references entirely while frame_id still matched.
+    pre = frame["preimage"]
+    checks.append((pre.get("receipt") == rc and pre.get("receipt_hash") == receipt_hash,
+                   "the preimage's own receipt and receipt_hash are the verified ones (not a second, unchecked copy)",
+                   pre.get("receipt_hash")))
+
     frame_id = "sha256:" + _h(pre)
     checks.append((frame_id == frame["expected_frame_id"],
-                   "frame_id recomputes over the preimage (PEF frame_id; byte-identical to pef_v1)", frame_id))
+                   "frame_id recomputes over the preimage as published (PEF frame_id; byte-identical to pef_v1)", frame_id))
 
     # 6. tamper diverges
     tampered_receipt = dict(rc, binding_ref="sha256:" + "f" * 64)

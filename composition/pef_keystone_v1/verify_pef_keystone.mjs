@@ -40,10 +40,18 @@ const receiptHash = 'sha256:' + h(rc);
 checks.push([receiptHash === frame.expected_receipt_hash,
   'receipt_hash recomputes (PEF pins the keystone payload; pef_v1 shape)', receiptHash]);
 
-const pre = { ...frame.preimage, receipt: rc, receipt_hash: receiptHash };
+// frame_id is computed over the preimage AS PUBLISHED. This previously spread the
+// verified receipt and receipt_hash over frame.preimage before hashing, discarding
+// the published copies: the receipt nested in the preimage, and its receipt_hash,
+// were never compared to anything and could carry different references entirely.
+const pre = frame.preimage;
+checks.push([JSON.stringify(pre.receipt) === JSON.stringify(rc) && pre.receipt_hash === receiptHash,
+  "the preimage's own receipt and receipt_hash are the verified ones (not a second, unchecked copy)",
+  pre.receipt_hash]);
+
 const frameId = 'sha256:' + h(pre);
 checks.push([frameId === frame.expected_frame_id,
-  'frame_id recomputes over the preimage (PEF frame_id; byte-identical to pef_v1)', frameId]);
+  'frame_id recomputes over the preimage as published (PEF frame_id; byte-identical to pef_v1)', frameId]);
 
 const tampered = { ...rc, binding_ref: 'sha256:' + 'f'.repeat(64) };
 const tRh = 'sha256:' + h(tampered);
