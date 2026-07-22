@@ -11,6 +11,8 @@ static-path check against them, or run this to confirm the set is internally sou
     python3 verify.py            # verifies svm_create_ata_v0.json in this dir
 """
 import json, sys, base64
+from pathlib import Path as _Path
+_HERE = _Path(__file__).resolve().parent  # fixtures resolve from the script, not the caller's cwd
 
 ATA_PROGRAM = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
 SYSTEM_PROGRAM = "11111111111111111111111111111111"
@@ -31,7 +33,8 @@ def evaluate(instr, ctx):
     if at(5) != ctx["transfer_token_program"]:        fails.append("account[5] == transfer_token_program")
     return fails
 
-def main(path="svm_create_ata_v0.json"):
+def main(path=None):
+    path = path or (_HERE / "svm_create_ata_v0.json")
     with open(path, "rb") as fh:
         d = json.loads(fh.read().decode("utf-8"))
     ctx = d["context"]

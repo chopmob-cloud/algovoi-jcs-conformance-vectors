@@ -10,6 +10,8 @@ import json
 import sys
 import base64
 import hashlib
+from pathlib import Path as _Path
+_HERE = _Path(__file__).resolve().parent  # fixtures resolve from the script, not the caller's cwd
 
 try:
     from nacl.signing import SigningKey
@@ -57,7 +59,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        with open("fixture.json") as f:
+        with open(_HERE / "fixture.json") as f:
             fixture = json.load(f)
         print("[OK] Loaded fixture.json")
     except Exception as e:
