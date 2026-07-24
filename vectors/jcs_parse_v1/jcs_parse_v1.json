@@ -1,0 +1,96 @@
+{
+  "set": "jcs_parse_v1",
+  "schema_version": "1.0.0",
+  "license": "Apache-2.0",
+  "copyright": "Copyright 2026 AlgoVoi (chopmob@gmail.com)",
+  "spec": "RFC 8259 section 4 (object member uniqueness), as a parse-layer precondition for RFC 8785 canonicalisation",
+  "spec_authorship": "AlgoVoi-authored conformance set. RFC 8785 canonicalises an already-parsed value, so duplicate member names cannot be represented in a parsed-input vector set: the duplicate is gone before the canonicaliser runs. This set carries raw input bytes and pins the verdict a conforming parser must reach first. Normative reference: RFC 8259 section 4.",
+  "canon_version": "jcs-rfc8785-v1",
+  "description": "Parse-layer preconditions for canonicalisation. Inputs are raw UTF-8 bytes (base64) because the defect being pinned does not survive parsing. Each vector states whether a conforming parser accepts the bytes or rejects them with a named code, BEFORE any canonical form is computed.",
+  "reject_codes": [
+    "REJECT_DUPLICATE_MEMBER"
+  ],
+  "accept": [
+    {
+      "id": "ok-control",
+      "description": "All member names unique at every level. Baseline that must parse.",
+      "input_b64": "eyJhbW91bnQiOjEwMDAwMDAsInR5cGUiOiJzcGVuZF9kZWNpc2lvbiJ9",
+      "input_sha256": "c823d28892317694de92c9926403d3f653b638bd4f2c0e42045897ddd8cc974d"
+    },
+    {
+      "id": "ok-same-name-in-sibling-objects",
+      "description": "The same member name appearing in two DIFFERENT objects is legal and must not be rejected. Guards against a checker that flattens paths or tracks names globally instead of per object.",
+      "input_b64": "eyJhIjp7ImlkIjoieCJ9LCJiIjp7ImlkIjoieSJ9fQ==",
+      "input_sha256": "52bd947e55444761aed85d15870bca317cae5458f498329e633c3c6f9022fd3c"
+    },
+    {
+      "id": "ok-name-repeated-across-array-elements",
+      "description": "The same member name in successive array elements is legal. Guards against a checker that walks members without resetting per object.",
+      "input_b64": "eyJpdGVtcyI6W3siaWQiOiJ4In0seyJpZCI6InkifV19",
+      "input_sha256": "0d70067d86c3cfa1744d37f8aa95e73cf3c762b8dfc50cfdf5ec137d27071390"
+    }
+  ],
+  "reject": [
+    {
+      "id": "rj-duplicate-top-level",
+      "description": "Duplicate member name at the top level.",
+      "expected_code": "REJECT_DUPLICATE_MEMBER",
+      "why": "RFC 8259 section 4: names within an object SHOULD be unique, and when they are not the behaviour of receiving software is unpredictable.",
+      "input_b64": "eyJhIjoxLCJhIjoyfQ==",
+      "input_sha256": "1c53ee0df7b12fd4d65b976120c7fa6b847dc41dffd7f0331c3237a1ceab1756"
+    },
+    {
+      "id": "rj-duplicate-nested",
+      "description": "Duplicate member name inside a nested object.",
+      "expected_code": "REJECT_DUPLICATE_MEMBER",
+      "why": "A top-level-only check misses this; the rule is per object at every depth.",
+      "input_b64": "eyJvdXRlciI6eyJiIjoxLCJiIjoyfX0=",
+      "input_sha256": "31e2b5cab5fcc1d0a3f0ee69e8d672abfd68403f93af6b3c7372d55f110078b1"
+    },
+    {
+      "id": "rj-duplicate-in-array-element",
+      "description": "Duplicate member name inside an object nested in an array.",
+      "expected_code": "REJECT_DUPLICATE_MEMBER",
+      "why": "Array traversal must still apply the per-object uniqueness rule.",
+      "input_b64": "eyJpdGVtcyI6W3siYyI6MSwiYyI6Mn1dfQ==",
+      "input_sha256": "f9716c6e5ff29c5129bdcac681b77381b5b239cfbdc47a3cfedb5d146cea41f0"
+    },
+    {
+      "id": "rj-duplicate-identical-values",
+      "description": "Duplicate member name whose two values are identical. Still rejected: the rule is structural, not value-based.",
+      "expected_code": "REJECT_DUPLICATE_MEMBER",
+      "why": "A de-duplicating check that compares values would accept this and then silently accept the divergent case too once values differ.",
+      "input_b64": "eyJhIjoxLCJhIjoxfQ==",
+      "input_sha256": "e0921f1cf7632d7464378881cc0d323779c1f0812953b740093128741b4fb94d"
+    },
+    {
+      "id": "rj-duplicate-divergent-evidence",
+      "description": "The evidence case. Raw bytes carry two different values for one name, so a first-wins reader and a last-wins reader disagree about what the document says while any signature over the parsed value still verifies.",
+      "expected_code": "REJECT_DUPLICATE_MEMBER",
+      "why": "RFC 8259 section 4 records all three real behaviours: last-only, parse error, and report-all. A signed artifact whose meaning depends on which parser opens it is not evidence.",
+      "input_b64": "eyJ0YXNrX3R5cGUiOiJkZWNveSIsInRhc2tfdHlwZSI6InByaXZhdGVfbWF0dGVyIn0=",
+      "input_sha256": "db6daf0299dfd812ff5d69a8f091df7eb97a3dbe3694ea9b55330b07f7a223d8"
+    }
+  ],
+  "invariants": [
+    {
+      "name": "duplicates_are_invisible_after_parsing",
+      "relation": "parse_layer_only",
+      "why": "json.loads('{\"a\":1,\"a\":2}') yields {'a': 2}. Canonicalising that parsed value produces valid canonical bytes for a document the raw input did not unambiguously state. No canonicalisation vector can detect this, which is why the check belongs at parse."
+    },
+    {
+      "name": "structural_not_value_based",
+      "a": "rj-duplicate-identical-values",
+      "b": "rj-duplicate-divergent-evidence",
+      "relation": "both_reject",
+      "why": "Rejection must not depend on whether the duplicated values differ. A value-comparing check passes the identical case and establishes a code path that later accepts the divergent one."
+    },
+    {
+      "name": "per_object_not_global",
+      "a": "ok-same-name-in-sibling-objects",
+      "b": "rj-duplicate-nested",
+      "relation": "accept_then_reject",
+      "why": "Uniqueness is scoped to a single object. A checker tracking names globally raises a false positive on the accept vector; one checking only the top level misses the reject vector."
+    }
+  ]
+}

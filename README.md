@@ -123,6 +123,29 @@ Or run every vector set and every composition at once:
 python composition/verify_corpus.py
 ```
 
+## Parse-layer sets (verdict over raw bytes, not canonical bytes)
+
+Parse sets pin accept/reject verdicts over **raw input bytes**, for defects that do not
+survive parsing. RFC 8785 canonicalises an already-parsed value, so a duplicate object
+member is gone before the canonicaliser ever runs:
+
+```python
+json.loads('{"a":1,"a":2}')   # -> {'a': 2}
+```
+
+The canonical bytes of that parsed value are perfectly valid, and a signature over them
+verifies, for a document the raw input never unambiguously stated. No canonicalisation
+vector can detect it, which is why the check belongs at parse.
+
+These sets carry no per-vector canonical-bytes recompute, so following the same claim
+separation as the grammar sets they are **not** folded into the anchor-set or vector
+totals above. The conformance signal is verdict agreement over pinned input bytes,
+reference-implementation proof-of-record. See `manifest.json` (`parse_sets`).
+
+| Parse set | Vectors | What it exercises |
+|---|---|---|
+| [`vectors/jcs_parse_v1/`](./vectors/jcs_parse_v1/) | 8 | **Object member uniqueness** (RFC 8259 section 4). 3 accept + 5 reject, one code (`REJECT_DUPLICATE_MEMBER`). The accept vectors are false-positive guards: a name may legitimately repeat across sibling objects and successive array elements, so uniqueness is scoped per object, not per document. Reject vectors cover top level, nested, inside an array element, identical duplicated values (rejection is structural, not value-based), and the divergent-value evidence case where a first-wins and a last-wins reader disagree about the record while a signature over the parsed value still verifies. RFC 8259 section 4 records all three real behaviours: last-only, parse error, and report-all. Reference-impl PoR (Python `object_pairs_hook`); not cross-validated. |
+
 ## Proposal sets (single-implementation, published for standards discussion)
 
 Proposal sets are single-implementation AlgoVoi fixtures published for a standards

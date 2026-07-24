@@ -1,8 +1,8 @@
 {
   "name": "AlgoVoi JCS Conformance Vectors",
-  "version": "0.37.0",
+  "version": "0.38.0",
   "published_at": "2026-05-23",
-  "updated_at": "2026-07-21",
+  "updated_at": "2026-07-24",
   "canon_version": "jcs-rfc8785-v1",
   "hash_note": "Per-file sha256 is computed over LF-normalised bytes; .gitattributes pins eol=lf so `sha256sum <file>` on a fresh checkout reproduces these values. The authoritative conformance signal is the per-vector canonical-bytes recompute carried inside each vector file (line-ending independent); the file hash is a convenience integrity check.",
   "anchor_sets": [
@@ -629,5 +629,23 @@
   ],
   "total_grammar_sets": 1,
   "total_grammar_vectors": 102,
-  "grammar_note": "Grammar sets pin identifier-level accept/reject verdicts for a chain-agnostic identifier grammar. They are NOT JCS canonicalisation vectors: they carry no per-vector canonical-bytes recompute, so they are NOT folded into total_anchor_sets / total_vectors. The conformance signal is verdict agreement across independent implementations over byte-identical inputs (corpus.tsv hex and caip_edge_v1.json base64 decode to the same bytes). Claim separation follows the adversarial-set rule: the input bytes are pinned, and the rejection verdicts are reference-implementation proof-of-record across the listed engines, not a canonical-byte claim."
+  "grammar_note": "Grammar sets pin identifier-level accept/reject verdicts for a chain-agnostic identifier grammar. They are NOT JCS canonicalisation vectors: they carry no per-vector canonical-bytes recompute, so they are NOT folded into total_anchor_sets / total_vectors. The conformance signal is verdict agreement across independent implementations over byte-identical inputs (corpus.tsv hex and caip_edge_v1.json base64 decode to the same bytes). Claim separation follows the adversarial-set rule: the input bytes are pinned, and the rejection verdicts are reference-implementation proof-of-record across the listed engines, not a canonical-byte claim.",
+  "parse_sets": [
+    {
+      "name": "jcs_parse_v1",
+      "primary_file": "jcs_parse_v1.json",
+      "vector_count": 8,
+      "accept": 3,
+      "reject": 5,
+      "reject_codes": [
+        "REJECT_DUPLICATE_MEMBER"
+      ],
+      "anchors_to": "RFC 8259 section 4 (object member uniqueness)",
+      "cross_validated": "reference-implementation proof-of-record only (Python); not cross-validated",
+      "sha256": "sha256:eaa1d8179cafc5740ce04e9ea10668cd4b16ec5727e37bf57221239bfc51e78b"
+    }
+  ],
+  "total_parse_sets": 1,
+  "total_parse_vectors": 8,
+  "parse_note": "Parse sets pin accept/reject verdicts over RAW INPUT BYTES for defects that do not survive parsing, so they carry no per-vector canonical-bytes recompute and are NOT folded into total_anchor_sets / total_vectors. Same claim separation as grammar_sets. RFC 8785 canonicalises an already-parsed value, so a duplicate object member is gone before the canonicaliser runs: json.loads('{\"a\":1,\"a\":2}') yields {'a': 2}, and the canonical bytes of that parsed value verify for a document the raw input never unambiguously stated. RFC 8259 section 4 records three real divergent behaviours (last-only, parse error, report-all), which is why the check belongs at parse and why the verdict, not a canonical byte string, is the conformance signal. Reference-impl proof-of-record (Python object_pairs_hook); not cross-validated."
 }
