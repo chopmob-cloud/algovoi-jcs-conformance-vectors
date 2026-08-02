@@ -1,0 +1,279 @@
+{
+  "set": "revocation_ref_v1",
+  "schema_version": "1",
+  "description": "Fail-closed revocation-link ref + hash-linked chain integrity. A malformed revocation is rejected (fail-closed-critical), and a tampered/reordered chain fails to verify.",
+  "rule_source": "substrate2/src/substrate2/keystone_secure.py revocation_ref / verify_revocation_chain",
+  "reason_codes": [
+    "USER_REQUESTED",
+    "COMPLIANCE_TRIGGERED",
+    "EXPIRED",
+    "KEY_COMPROMISE",
+    "SUPERSEDED",
+    "ADMIN"
+  ],
+  "status_values": [
+    "active",
+    "suspended",
+    "revoked",
+    "inactive"
+  ],
+  "vectors": [
+    {
+      "id": "rev-genesis",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": 1716490000000,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "expected_revocation_ref": "sha256:a8d740e1feda004c21b4f6c6bdcf252ff979e6b0240a8d7da30376c6655a701b"
+    },
+    {
+      "id": "rev-link1",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": 1716490500000,
+      "reason_code": "SUPERSEDED",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "revoked",
+      "new_status": "inactive",
+      "seq": 1,
+      "prev_revocation_ref": "sha256:a8d740e1feda004c21b4f6c6bdcf252ff979e6b0240a8d7da30376c6655a701b",
+      "expected_revocation_ref": "sha256:ed003e55d14953d1979b5da257c2367fc3ee1fef60b20ab0ead3ac14ef94002e"
+    }
+  ],
+  "negatives": [
+    {
+      "id": "rev-neg-unknown-reason",
+      "family": "reason_code",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": 1716490000000,
+      "reason_code": "NOPE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "must": "reject"
+    },
+    {
+      "id": "rev-neg-unknown-prev-status",
+      "family": "prev_status",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": 1716490000000,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "banned",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "must": "reject"
+    },
+    {
+      "id": "rev-neg-unknown-new-status",
+      "family": "new_status",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": 1716490000000,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "banned",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "must": "reject"
+    },
+    {
+      "id": "rev-neg-malformed-subject",
+      "family": "subject_ref",
+      "subject_ref": "not-a-ref",
+      "revoked_at_ms": 1716490000000,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "must": "reject"
+    },
+    {
+      "id": "rev-neg-string-ms",
+      "family": "revoked_at_ms",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": "1716490000000",
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "must": "reject"
+    },
+    {
+      "id": "rev-neg-bool-ms",
+      "family": "revoked_at_ms",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": true,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "must": "reject"
+    },
+    {
+      "id": "rev-neg-negative-ms",
+      "family": "revoked_at_ms",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": -1,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "must": "reject"
+    },
+    {
+      "id": "rev-neg-empty-issuer",
+      "family": "issuer_did",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": 1716490000000,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "must": "reject"
+    },
+    {
+      "id": "rev-neg-malformed-prev-ref",
+      "family": "prev_revocation_ref",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": 1716490000000,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 1,
+      "prev_revocation_ref": "bad",
+      "must": "reject"
+    }
+  ],
+  "tamper": [
+    {
+      "id": "rev-tamper-claimed",
+      "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "revoked_at_ms": 1716490000000,
+      "reason_code": "KEY_COMPROMISE",
+      "issuer_did": "did:algo:issuer1",
+      "prev_status": "active",
+      "new_status": "revoked",
+      "seq": 0,
+      "prev_revocation_ref": null,
+      "claimed_revocation_ref": "sha256:b8d740e1feda004c21b4f6c6bdcf252ff979e6b0240a8d7da30376c6655a701b",
+      "must": "differ"
+    }
+  ],
+  "chain_valid": [
+    {
+      "id": "rev-chain-ok",
+      "links": [
+        {
+          "canon_version": "jcs-rfc8785-v1",
+          "type": "revocation_link",
+          "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "revoked_at_ms": 1716490000000,
+          "reason_code": "KEY_COMPROMISE",
+          "issuer_did": "did:algo:issuer1",
+          "prev_status": "active",
+          "new_status": "revoked",
+          "seq": 0,
+          "prev_revocation_ref": null
+        },
+        {
+          "canon_version": "jcs-rfc8785-v1",
+          "type": "revocation_link",
+          "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "revoked_at_ms": 1716490500000,
+          "reason_code": "SUPERSEDED",
+          "issuer_did": "did:algo:issuer1",
+          "prev_status": "revoked",
+          "new_status": "inactive",
+          "seq": 1,
+          "prev_revocation_ref": "sha256:a8d740e1feda004c21b4f6c6bdcf252ff979e6b0240a8d7da30376c6655a701b"
+        }
+      ]
+    }
+  ],
+  "chain_invalid": [
+    {
+      "id": "rev-chain-broken-link",
+      "links": [
+        {
+          "canon_version": "jcs-rfc8785-v1",
+          "type": "revocation_link",
+          "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "revoked_at_ms": 1716490000000,
+          "reason_code": "KEY_COMPROMISE",
+          "issuer_did": "did:algo:issuer1",
+          "prev_status": "active",
+          "new_status": "revoked",
+          "seq": 0,
+          "prev_revocation_ref": null
+        },
+        {
+          "canon_version": "jcs-rfc8785-v1",
+          "type": "revocation_link",
+          "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "revoked_at_ms": 1716490500000,
+          "reason_code": "SUPERSEDED",
+          "issuer_did": "did:algo:issuer1",
+          "prev_status": "revoked",
+          "new_status": "inactive",
+          "seq": 1,
+          "prev_revocation_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "note": "prev_revocation_ref does not match prior link"
+    },
+    {
+      "id": "rev-chain-wrong-seq",
+      "links": [
+        {
+          "canon_version": "jcs-rfc8785-v1",
+          "type": "revocation_link",
+          "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "revoked_at_ms": 1716490000000,
+          "reason_code": "KEY_COMPROMISE",
+          "issuer_did": "did:algo:issuer1",
+          "prev_status": "active",
+          "new_status": "revoked",
+          "seq": 5,
+          "prev_revocation_ref": null
+        }
+      ],
+      "note": "seq must be 0..n-1"
+    },
+    {
+      "id": "rev-chain-genesis-has-prev",
+      "links": [
+        {
+          "canon_version": "jcs-rfc8785-v1",
+          "type": "revocation_link",
+          "subject_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "revoked_at_ms": 1716490000000,
+          "reason_code": "KEY_COMPROMISE",
+          "issuer_did": "did:algo:issuer1",
+          "prev_status": "active",
+          "new_status": "revoked",
+          "seq": 0,
+          "prev_revocation_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ],
+      "note": "genesis prev_revocation_ref must be null"
+    }
+  ]
+}

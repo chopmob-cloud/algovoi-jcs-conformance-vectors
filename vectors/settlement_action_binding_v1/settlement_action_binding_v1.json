@@ -14,6 +14,7 @@
       "Action-binding: changing action_ref changes binding_ref (an action cannot claim another identity's settlement).",
       "State-binding: changing transition_hash changes binding_ref -- only the exact COMMITTED transition binds; a PENDING/REVERSED transition_hash produces a distinct binding.",
       "Chain-binding: changing retention_chain_ref changes binding_ref (the tamper-evident chain position recording the record is load-bearing).",
+      "Round-binding: a round-bearing settlement attestation (one carrying settlement_round) has a different content_hash, hence a different settlement_ref, hence a different binding_ref -- enabling round emission produces a distinct, byte-checkable binding rather than silently drifting the existing one.",
       "Lineage-binding: action_ref and transition_hash derive from epoch-millisecond-integer preimages (Substrate Rule 2); an RFC 3339 string timestamp upstream yields a different action_ref, hence a different binding -- a non-conformant lineage cannot reproduce the binding bytes."
     ],
     "spec_authorship": "AlgoVoi-authored. Composes the action_ref lifecycle (action_ref_exactly_once_v1), settlement attestation (settlement_attestation_v1), and retention chain (retention_chain_v1) into a single post-settlement accountability binding. No new hashing primitive is introduced."
@@ -123,6 +124,24 @@
       "different_hash_from": [
         "sab-v1-001"
       ]
+    },
+    {
+      "vector_id": "sab-v1-007",
+      "description": "Round-binding: identical action/transition/chain but settlement_ref is the round-bearing attestation content_hash (settlement-attestation-v1-009, which adds settlement_round). Produces a different binding_ref from 001 -- so once round emission is enabled the binding recomputes to a distinct, byte-checkable value rather than silently drifting.",
+      "pair_group": "settlement-round",
+      "expectation": "reference",
+      "preimage": {
+        "action_ref": "7528529a8be2044488e603b7913efaa4f83620dbcc63010d4a1478cf7e9a473c",
+        "transition_hash": "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f",
+        "settlement_ref": "644682837e8f4ba4ef3e9550e1a7b611523b416e4e0112f3015805452ac4bfa1",
+        "retention_chain_ref": "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f"
+      },
+      "expected_jcs_bytes_b64": "eyJhY3Rpb25fcmVmIjoiNzUyODUyOWE4YmUyMDQ0NDg4ZTYwM2I3OTEzZWZhYTRmODM2MjBkYmNjNjMwMTBkNGExNDc4Y2Y3ZTlhNDczYyIsInJldGVudGlvbl9jaGFpbl9yZWYiOiJzaGEyNTY6ZDIzYWViMDA2YzVmM2RiOWRkOTYzMTU5MTY0MTAzOTM5MDRmNTZjNGM4NzE1OTMwNjVlYjczYjc4M2ZmZjM1ZiIsInNldHRsZW1lbnRfcmVmIjoiNjQ0NjgyODM3ZThmNGJhNGVmM2U5NTUwZTFhN2I2MTE1MjNiNDE2ZTRlMDExMmYzMDE1ODA1NDUyYWM0YmZhMSIsInRyYW5zaXRpb25faGFzaCI6ImY0OWZhYTdjNGY4MmJkODQyNzA1Mzc0MzExZjVmNmFmMDczODI2NTM5ZDUxOWQwYjY1ZGUzMjYzMjU4ZWFjNWYifQ==",
+      "expected_content_sha256": "5e2b13a9251bb24422123ab26ff6da95429ee44db7d22c57db0c2745e7cf6345",
+      "expected_binding_ref": "sha256:5e2b13a9251bb24422123ab26ff6da95429ee44db7d22c57db0c2745e7cf6345",
+      "different_hash_from": [
+        "sab-v1-001"
+      ]
     }
   ],
   "pair_invariants": [
@@ -160,6 +179,13 @@
       "description": "chain-binding: a different retention_chain_ref diverges",
       "left": "sab-v1-001",
       "right": "sab-v1-006"
+    },
+    {
+      "id": "pair-sab-006",
+      "type": "different_hash_from",
+      "description": "round-binding: the round-bearing settlement attestation (settlement_round added) yields a different settlement_ref, hence a different binding_ref",
+      "left": "sab-v1-001",
+      "right": "sab-v1-007"
     }
   ]
 }

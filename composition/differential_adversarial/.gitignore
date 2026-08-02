@@ -1,0 +1,10 @@
+# build + run artifacts (source-only in git; every impl rebuilds from source)
+out/
+java/libs/
+java/*.class
+rust/target/
+rust/Cargo.lock
+dotnet/bin/
+dotnet/obj/
+kotlin/*.jar
+go/go.sum.bak

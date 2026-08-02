@@ -37,24 +37,44 @@ EXTERNAL = {
 }
 
 # The core corpus needs only algovoi-substrate (JCS + SHA-256). These sets
-# additionally verify cryptographic signatures, so they need extra libraries.
+# additionally need a library beyond algovoi-substrate: most verify a
+# cryptographic signature; execution_ref_v1 needs the execution_ref helper.
 # All are on PyPI; `pip install -r requirements.txt` enables full coverage.
-# Map: set -> [(import_name, pip_name), ...].
+# Map: set -> [(import_name, pip_name), ...]. import_name may be a tuple of
+# alternatives; the requirement is met if ANY of them imports, matching a
+# runner that falls back across module locations.
 SIGNATURE_DEPS = {
     "epi_pqc_v0": [("pqcrypto", "pqcrypto")],
     "multichain_ed25519_substrate_v0": [("nacl", "PyNaCl")],
     "rfc9421_proxy_chain_v0": [("algovoi_rfc9421_verifier", "algovoi-rfc9421-verifier")],
     "rfc9421_proxy_chain_v1": [("nacl", "PyNaCl")],
+    # runner tries algovoi_substrate.execution_ref (native in substrate 1.0.0+),
+    # then the standalone algovoi-execution-ref package; either satisfies it.
+    "execution_ref_v1": [
+        (("algovoi_substrate.execution_ref", "algovoi_execution_ref"),
+         "algovoi-execution-ref"),
+    ],
 }
 
 
+def _importable(name: str) -> bool:
+    """True if `name` can be located as a module/submodule here."""
+    try:
+        return importlib.util.find_spec(name) is not None
+    except ModuleNotFoundError:
+        # A submodule whose parent exists but which is itself absent.
+        return False
+
+
 def _missing_deps(set_name: str) -> list[str]:
-    """pip names of any required signature library not importable here."""
-    return [
-        pip_name
-        for import_name, pip_name in SIGNATURE_DEPS.get(set_name, [])
-        if importlib.util.find_spec(import_name) is None
-    ]
+    """pip names of any required library not importable here. An import_name
+    may be a tuple of alternatives; the requirement is met if ANY imports."""
+    missing = []
+    for import_name, pip_name in SIGNATURE_DEPS.get(set_name, []):
+        alts = (import_name,) if isinstance(import_name, str) else tuple(import_name)
+        if not any(_importable(a) for a in alts):
+            missing.append(pip_name)
+    return missing
 
 
 def _runner(set_dir: Path) -> str | None:
@@ -234,7 +254,7 @@ def main() -> int:
         print(f"\nALL {npass} RUN SETS + COMPOSITION KEYSTONE REPRODUCE BYTE-FOR-BYTE.")
         print("Your implementation is conformant with the AlgoVoi L1 substrate.")
     if deps_skipped:
-        print(f"\n{ndeps} signature set(s) skipped (need crypto libs): "
+        print(f"\n{ndeps} set(s) skipped (need an extra library): "
               f"{' '.join(deps_skipped)}")
         print("For full 24/24 coverage:  pip install -r requirements.txt")
     print("(external = verified against a third-party service, outside this corpus.)")

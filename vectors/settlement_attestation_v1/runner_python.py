@@ -26,6 +26,15 @@ from algovoi_substrate import canonicalize
 VECTORS_FILE = Path(__file__).parent / "settlement_attestation_v1.json"
 
 
+def _round_ok(value: object) -> bool:
+    """settlement_round rule, reimplemented from the contract (see SCHEMA.md).
+
+    Present -> MUST be a positive integer; bool is an int subclass and is
+    rejected. Mirrors substrate2.receipts._common.require_positive_int.
+    """
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
 def main() -> int:
     data = json.loads(VECTORS_FILE.read_text(encoding="utf-8"))
     vectors = {v["vector_id"]: v for v in data["vectors"]}
@@ -57,6 +66,12 @@ def main() -> int:
             failures.append(f"{vid}: SHA-256 mismatch ({label})")
             print(f"  {vid}: FAIL (SHA-256 mismatch)")
             continue
+
+        if "receipt" in v and "settlement_round" in v["receipt"]:
+            if not _round_ok(v["receipt"]["settlement_round"]):
+                failures.append(f"{vid}: positive vector carries invalid settlement_round")
+                print(f"  {vid}: FAIL (invalid settlement_round in positive vector)")
+                continue
 
         if "receipt" in v:
             sr = v["receipt"]["settlement_result"]
@@ -107,6 +122,18 @@ def main() -> int:
                 )
 
     print()
+    reject_vectors = data.get("settlement_round_reject_vectors", [])
+    for rv in reject_vectors:
+        vid = rv["vector_id"]
+        bad = rv["receipt"].get("settlement_round")
+        # A conformant verifier MUST refuse this settlement_round before emitting.
+        if _round_ok(bad):
+            failures.append(f"{vid}: reject vector was ACCEPTED (escape): {bad!r}")
+            print(f"  {vid}: FAIL (accepted bad settlement_round {bad!r})")
+        else:
+            print(f"  {vid}: PASS  refused settlement_round={bad!r} ({rv.get('bad_kind')})")
+
+    print()
     if failures:
         print(f"FAILED: {len(failures)} issue(s)")
         for f in failures:
@@ -115,7 +142,9 @@ def main() -> int:
 
     print(
         f"PASS: {len(vectors)} vectors + {len(data['pair_invariants'])} pair invariants "
-        f"+ {len(data['chain_invariants'])} chain invariants validated against algovoi-substrate."
+        f"+ {len(data['chain_invariants'])} chain invariants "
+        f"+ {len(reject_vectors)} settlement_round reject vectors "
+        f"validated against algovoi-substrate."
     )
     return 0
 

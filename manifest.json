@@ -647,5 +647,14 @@
   ],
   "total_parse_sets": 1,
   "total_parse_vectors": 8,
-  "parse_note": "Parse sets pin accept/reject verdicts over RAW INPUT BYTES for defects that do not survive parsing, so they carry no per-vector canonical-bytes recompute and are NOT folded into total_anchor_sets / total_vectors. Same claim separation as grammar_sets. RFC 8785 canonicalises an already-parsed value, so a duplicate object member is gone before the canonicaliser runs: json.loads('{\"a\":1,\"a\":2}') yields {'a': 2}, and the canonical bytes of that parsed value verify for a document the raw input never unambiguously stated. RFC 8259 section 4 records three real divergent behaviours (last-only, parse error, report-all), which is why the check belongs at parse and why the verdict, not a canonical byte string, is the conformance signal. Reference-impl proof-of-record (Python object_pairs_hook); not cross-validated."
+  "parse_note": "Parse sets pin accept/reject verdicts over RAW INPUT BYTES for defects that do not survive parsing, so they carry no per-vector canonical-bytes recompute and are NOT folded into total_anchor_sets / total_vectors. Same claim separation as grammar_sets. RFC 8785 canonicalises an already-parsed value, so a duplicate object member is gone before the canonicaliser runs: json.loads('{\"a\":1,\"a\":2}') yields {'a': 2}, and the canonical bytes of that parsed value verify for a document the raw input never unambiguously stated. RFC 8259 section 4 records three real divergent behaviours (last-only, parse error, report-all), which is why the check belongs at parse and why the verdict, not a canonical byte string, is the conformance signal. Reference-impl proof-of-record (Python object_pairs_hook); not cross-validated.",
+  "companion_sets": {
+    "settlement_evidence_binding_v1": {
+      "repo": "avm-proofpack",
+      "path": "vectors/settlement_evidence_binding/",
+      "canon": "NON-JCS: bundle_sha256 = SHA-256(dump_bundle indent-2/sort_keys bytes); attestation_content_hash IS JCS",
+      "binds": "a captured avm-proofpack bundle to the round-bearing settlement_attestation_v1 (settlement-attestation-v1-009) via settled_payment_ref + settlement_round",
+      "note": "the raw on-chain anchor + its 17 tamper negatives live in avm-proofpack vectors/positive and vectors/negative"
+    }
+  }
 }

@@ -232,7 +232,7 @@ def main() -> None:
         },
         "vectors": VEC,
     }
-    OUT.write_text(json.dumps(doc, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    OUT.write_text(json.dumps(doc, indent=2, ensure_ascii=True) + "\n", encoding="utf-8", newline="\n")
     fams = {}
     for v in VEC:
         fams[v["family"]] = fams.get(v["family"], 0) + 1

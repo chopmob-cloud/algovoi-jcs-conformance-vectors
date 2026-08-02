@@ -1,0 +1,86 @@
+# Keystone L3 gauntlet — multi-implementation fail-closed attestation
+
+**Vector set:** `keystone_decision_audit_v1` (2 positive + 4 negative + 2 invariant = 8 checks/impl)
+**Rule:** `decision_audit_ref = "sha256:" + SHA-256(JCS({decision_ref, passport_credential_ref, mandate_ref, policy_bound_ref, [screen_binding_ref]}))`, `sha256:` ref-form enforced.
+
+## Why this exists
+
+The published corpus validates the L1 substrate across 8 implementations and the
+`adversarial_gauntlet` closes fail-closed rejection (Claim 2) for the three
+substrate-1 checks across 8 languages. The **L3 keystone tier** (decision-audit)
+was validated by the reference implementation only. This gauntlet extends
+fail-closed parity to the keystone tier: independent reimplementations, each
+using a **different JCS library**, all accept every positive, fail-close on every
+negative (policy-rotation, passport swap, screen omission, malformed ref), and
+hold both invariants (screen presence is bound; malformed ref rejected).
+
+## Result (live-run 2026-08-02)
+
+| Implementation | JCS library | Verdicts | Platform |
+|---|---|---|---|
+| Python | `rfc8785` | 8/8 | local + VM2 |
+| Node | `canonicalize` | 8/8 | local + VM2 |
+| Go | `gowebpki/jcs` | 8/8 | local |
+| PHP | inline RFC 8785 | 8/8 | local |
+| Ruby | `json-canonicalization` | 8/8 | local |
+| Java 17 | `erdtman/java-json-canonicalization` | 8/8 | local |
+| Rust | `serde_jcs` | 8/8 | local |
+| .NET 9 | `Baqhub.JsonCanonicalization` | 8/8 | local |
+
+**TOTAL: 64/64 across 8 independent implementations (local); python + node also 16/16 on VM2.** All green.
+Eight distinct JCS libraries agree on both positives and fail-close on every negative + invariant.
+
+## Run
+
+```
+bash run_keystone_gauntlet.sh
+python gauntlet_python.py ../../vectors/keystone_decision_audit_v1/keystone_decision_audit_v1.json
+node   gauntlet_node.mjs   ../../vectors/keystone_decision_audit_v1/keystone_decision_audit_v1.json
+go run gauntlet_go.go      ../../vectors/keystone_decision_audit_v1/keystone_decision_audit_v1.json
+```
+
+## guard_context (live-run 2026-08-02)
+
+`keystone_guard_context_v1` (1 positive + 4 negative + 2 invariant = 7 checks/impl),
+`guard_context_ref = "sha256:" + SHA-256(JCS({canon_version, type, guard_timestamp_ms,
+policy_ref, mandate_ref, passport_credential_ref}))`, non-negative-integer timestamp
+enforced. Same 8 implementations, each fail-closing on timestamp/ref tamper and the
+two invariants (moment-distinctness; non-integer guard_timestamp_ms rejected):
+
+**56/56 across 8 implementations (local).** Run: `bash run_guard_context_gauntlet.sh`.
+
+The keystone L3 tier (both decision_audit and guard_context) is now fully 8-impl
+fail-closed: **120/120** combined.
+
+## settlement_round validity (live-run 2026-08-02)
+
+`require_positive_int` (Substrate Rule 2) reimplemented in all 8 languages against
+`settlement_attestation_v1`'s 4 reject vectors (zero, negative, boolean, numeric
+string) + the valid round-bearing vector. Every impl rejects all 4 bad kinds and
+accepts the valid round: **40/40** (8 impls x 5). Run: `bash run_settlement_round_gauntlet.sh`.
+
+## L2/L3 rule-family gauntlets (live-run 2026-08-02, all 8-impl)
+
+Beyond the two keystone sets, the same 8-impl fail-closed discipline now covers
+every existing + newly-authored L2/L3 rule:
+
+| Rule set | checks/impl | 8-impl total | run script |
+|---|---|---|---|
+| keystone_decision_audit | 8 | 80/80 | run_keystone_gauntlet.sh |
+| keystone_guard_context | 7 | 70/70 | run_guard_context_gauntlet.sh |
+| settlement_round (require_positive_int) | 5 | 50/50 | run_settlement_round_gauntlet.sh |
+| trust_gate (deny table) | 15 | 150/150 | run_trust_gate_gauntlet.sh |
+| revocation_ref (fail-closed + chain) | 16 | 160/160 | run_revocation_gauntlet.sh |
+
+All **ten** independent implementations (python, node, go, php, ruby, java, rust,
+dotnet, kotlin, elixir) agree on every positive and fail-close on every negative
++ invariant. Full 10-impl live-run on VM2 (Linux) 2026-08-02: python/rfc8785,
+node/canonicalize, go/gowebpki-jcs, php inline, ruby/json-canonicalization,
+java + kotlin/erdtman-JCS, rust/serde_jcs, dotnet/Baqhub, elixir/jcs-hex.
+
+## Extension path
+
+php, ruby, rust, java, dotnet each already have a proven JCS+SHA-256 runner in
+`vectors/retention_chain_v1/`; adding them here is a mechanical port of
+`decisionAuditRef` (same construction, different fields). `keystone_guard_context_v1`
+follows the same pattern.

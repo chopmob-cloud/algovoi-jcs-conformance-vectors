@@ -9,15 +9,23 @@ spend_decision_v1 (the keystone composes: decision_ref -> execution_ref). This
 set is the post-decision execution-evidence tier: it proves the executed action
 is consistent with the exact decision that authorized it.
 
-    pip install algovoi-substrate>=0.5.0
+    pip install algovoi-substrate>=0.5.0 algovoi-execution-ref
     python generate.py
+
+The execution_ref helper ships natively in algovoi-substrate 1.0.0+; until then
+(and on any substrate version) the standalone algovoi-execution-ref package
+provides it. The import below falls back to it, matching runner_python.py, so a
+clean environment can regenerate this set byte-for-byte.
 """
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-from algovoi_substrate import execution_ref
+try:  # native in substrate 1.0.0+, else the standalone package provides it
+    from algovoi_substrate import execution_ref
+except ImportError:
+    from algovoi_execution_ref import execution_ref
 
 # decision_ref values reused verbatim from spend_decision_v1 (cross-set composition).
 DEC_ALLOW = "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
@@ -143,7 +151,7 @@ def main() -> None:
     }
 
     out = here / "execution_ref_v1.json"
-    out.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+    out.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"wrote {out} ({len(vectors)} vectors, {len(negatives)} negatives)")
 
 

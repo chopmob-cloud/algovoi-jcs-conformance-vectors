@@ -23,7 +23,6 @@ import base64
 import hashlib
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 from algovoi_substrate import canonicalize
@@ -37,7 +36,23 @@ BASELINE_PROVIDER_DID = "did:example:settlement-provider-1"
 BASELINE_TIMESTAMP_MS = 1716494400000
 BASELINE_AMOUNT = {"amount_minor": "100000", "asset_id": "USDC.6"}
 BASELINE_CHAIN = "ethereum:8453"  # Base mainnet by chainId
+BASELINE_ROUND = 39250000  # confirmed round/block of the settling transaction
 ZERO_PREV_HASH = "0" * 64
+
+
+def _round_ok(value: object) -> bool:
+    """settlement_round rule, reimplemented from the written contract.
+
+    When present, ``settlement_round`` MUST be a positive integer. ``bool`` is
+    an ``int`` subclass and is rejected (Substrate Rule 2). Mirrors
+    substrate2.receipts._common.require_positive_int. Only the JSON-representable
+    reject shapes (0, negative, boolean, string) are shipped as vectors; the
+    float / wrong-type rejections are a language-binding concern covered by the
+    reference implementation's unit tests (substrate2 test_settlement_round.py),
+    not by a JCS vector, because RFC 8785 collapses ``39250000.0`` to the same
+    number as ``39250000``.
+    """
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
 
 def sha256_jcs_hex(payload: dict) -> tuple[str, str]:
@@ -221,7 +236,72 @@ def main() -> int:
         ),
     )
 
-    vectors = [v001, v002, v003, v004, v005, v006, v007, v008]
+    # -------- Vector 009: SETTLED carrying settlement_round (additive field)
+    # All fields identical to vector 001 plus settlement_round. Proves the
+    # confirmed round/block is byte-load-bearing and sorts (RFC 8785 key order)
+    # between settlement_result and settlement_timestamp_ms. This is the golden
+    # vector for the round-bearing attestation: without it, enabling round
+    # emission silently changes content_hash -> settlement_ref -> binding_ref
+    # with nothing to byte-check against.
+    v009_receipt = dict(v001_receipt)
+    v009_receipt["settlement_round"] = BASELINE_ROUND
+    assert _round_ok(v009_receipt["settlement_round"])
+    v009 = build_receipt_vector(
+        "settlement-attestation-v1-009",
+        "SETTLED attestation carrying settlement_round (the confirmed "
+        "round/block of the settling transaction). All fields identical to "
+        "vector 001 plus settlement_round, added additively so a round-less "
+        "attestation still serialises byte-for-byte as before. Under RFC 8785 "
+        "key ordering settlement_round sorts between settlement_result and "
+        "settlement_timestamp_ms. This binds an attestation to chain state-proof "
+        "evidence (e.g. an avm-proofpack bundle) whose confirmed round MUST "
+        "match this value.",
+        "settlement-round",
+        v009_receipt,
+        ["settlement-attestation-v1-001"],
+    )
+
+    vectors = [v001, v002, v003, v004, v005, v006, v007, v008, v009]
+
+    # -------- Reject vectors: settlement_round validity (fail-closed)
+    # Each is the SETTLED baseline (vector 001 shape) with an invalid
+    # settlement_round. A conformant verifier MUST refuse to emit / accept the
+    # attestation before hashing. Reimplement the rule (_round_ok) from the
+    # contract; do not read a published verdict back.
+    def reject_vector(vid: str, bad_round: object, bad_kind: str, description: str) -> dict:
+        receipt = dict(v001_receipt)
+        receipt["settlement_round"] = bad_round
+        assert not _round_ok(bad_round), f"{vid}: rule wrongly accepts {bad_round!r}"
+        return {
+            "vector_id": vid,
+            "description": description,
+            "expectation": "reject",
+            "reject_rule": "settlement_round_positive_int",
+            "bad_kind": bad_kind,
+            "receipt": receipt,
+        }
+
+    settlement_round_reject_vectors = [
+        reject_vector(
+            "settlement-attestation-v1-r01", 0, "zero",
+            "settlement_round = 0 is refused: round 0 is the genesis allocation "
+            "and can never carry a settlement.",
+        ),
+        reject_vector(
+            "settlement-attestation-v1-r02", -1, "negative",
+            "settlement_round = -1 is refused: a negative round is nonsensical.",
+        ),
+        reject_vector(
+            "settlement-attestation-v1-r03", True, "boolean",
+            "settlement_round = true is refused: JSON boolean is not a round "
+            "(bool is an int subclass and must be rejected, Substrate Rule 2).",
+        ),
+        reject_vector(
+            "settlement-attestation-v1-r04", str(BASELINE_ROUND), "string",
+            "settlement_round = \"39250000\" is refused: an epoch/round is an "
+            "integer, not a string (RFC 3339-style string coercion is rejected).",
+        ),
+    ]
 
     pair_invariants = [
         {
@@ -259,6 +339,16 @@ def main() -> int:
             "right": "settlement-attestation-v1-005",
             "rationale": "canon_version pin byte-load-bearing",
         },
+        {
+            "id": "pair-settle-001-009",
+            "type": "different_hash_from",
+            "left": "settlement-attestation-v1-001",
+            "right": "settlement-attestation-v1-009",
+            "rationale": "settlement_round presence byte-load-bearing: a "
+                         "round-bearing attestation content_hash diverges from "
+                         "the round-less one, so it drives a distinct "
+                         "settlement_ref / binding_ref downstream",
+        },
     ]
 
     chain_invariants = [
@@ -293,7 +383,9 @@ def main() -> int:
     payload = {
         "schema_version": "1.0",
         "artefact_id": "settlement-attestation-v1-conformance",
-        "published_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        # Fixed (not clock-derived) so the set regenerates byte-for-byte; the
+        # timestamp is provenance metadata, not part of any hashed preimage.
+        "published_at": "2026-08-02T00:00:00Z",
         "canonicalizer": (
             "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / "
             "gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / "
@@ -334,6 +426,13 @@ def main() -> int:
                 "Audit chain rows link via prev_hash. Row N's prev_hash "
                 "MUST equal row N-1's row_content_hash; row 1's prev_hash "
                 "MUST be 64 zero hex characters.",
+                "settlement_round is an additive optional field (the confirmed "
+                "round/block of the settling transaction). Present, it is a "
+                "positive integer emitted as its own key and sorts between "
+                "settlement_result and settlement_timestamp_ms; absent, the "
+                "body serialises byte-for-byte as before the field existed. "
+                "A settlement_round of 0, a negative round, a boolean, or a "
+                "string is refused before the attestation is emitted.",
             ],
             "spec_authorship": (
                 "AlgoVoi-authored. The receipt format and canonicalisation "
@@ -398,16 +497,19 @@ def main() -> int:
         "vectors": vectors,
         "pair_invariants": pair_invariants,
         "chain_invariants": chain_invariants,
+        "settlement_round_reject_vectors": settlement_round_reject_vectors,
     }
 
     OUTPUT_FILE.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     print(f"wrote {OUTPUT_FILE.name}")
     print(
         f"  {len(vectors)} vectors + {len(pair_invariants)} pair invariants + "
-        f"{len(chain_invariants)} chain invariants"
+        f"{len(chain_invariants)} chain invariants + "
+        f"{len(settlement_round_reject_vectors)} settlement_round reject vectors"
     )
     print()
     print("vector content_hashes:")

@@ -1,0 +1,31 @@
+{
+  "catalog_version": "1",
+  "framework": "KAF",
+  "notes": "Hermetic runtime cell catalog. A cell is (language, runtime version, libc/platform variant). Images are pinned by tag here; the exact digest is recorded per run in cells.lock.json at pull time and embedded in the sealed receipt. status=active cells execute today; status=pending-vendor cells are defined and pinned but need an offline dependency vendoring step (compilers, package caches) before they can run with --network=none.",
+  "cells": [
+    { "id": "py310-slim",    "image": "python:3.10-slim-bookworm", "lang": "python", "libc": "glibc", "status": "active", "suites": ["verify_corpus", "first_principles", "adversarial_jcs", "matrix:python"] },
+    { "id": "py311-slim",    "image": "python:3.11-slim-bookworm", "lang": "python", "libc": "glibc", "status": "active", "suites": ["verify_corpus", "first_principles", "adversarial_jcs", "matrix:python"] },
+    { "id": "py312-slim",    "image": "python:3.12-slim-bookworm", "lang": "python", "libc": "glibc", "status": "active", "suites": ["verify_corpus", "first_principles", "adversarial_jcs", "mutation_fuzz", "matrix:python"] },
+    { "id": "py313-slim",    "image": "python:3.13-slim-bookworm", "lang": "python", "libc": "glibc", "status": "active", "suites": ["verify_corpus", "first_principles", "adversarial_jcs", "matrix:python"] },
+    { "id": "py310-alpine",  "image": "python:3.10-alpine",        "lang": "python", "libc": "musl",  "status": "active", "suites": ["verify_corpus", "first_principles", "adversarial_jcs", "matrix:python"] },
+    { "id": "py312-alpine",  "image": "python:3.12-alpine",        "lang": "python", "libc": "musl",  "status": "active", "suites": ["verify_corpus", "first_principles", "adversarial_jcs", "mutation_fuzz", "matrix:python"] },
+    { "id": "node18-slim",   "image": "node:18-bookworm-slim",     "lang": "node",   "libc": "glibc", "status": "active", "suites": ["matrix:node"] },
+    { "id": "node20-slim",   "image": "node:20-bookworm-slim",     "lang": "node",   "libc": "glibc", "status": "active", "suites": ["matrix:node"] },
+    { "id": "node22-slim",   "image": "node:22-bookworm-slim",     "lang": "node",   "libc": "glibc", "status": "active", "suites": ["matrix:node"] },
+    { "id": "node18-alpine", "image": "node:18-alpine",            "lang": "node",   "libc": "musl",  "status": "active", "suites": ["matrix:node"] },
+    { "id": "node20-alpine", "image": "node:20-alpine",            "lang": "node",   "libc": "musl",  "status": "active", "suites": ["matrix:node"] },
+    { "id": "node22-alpine", "image": "node:22-alpine",            "lang": "node",   "libc": "musl",  "status": "active", "suites": ["matrix:node"] },
+    { "id": "php83-cli",     "image": "php:8.3-cli-bookworm",      "lang": "php",    "libc": "glibc", "status": "active", "suites": ["matrix:php"] },
+    { "id": "ruby33-slim",   "image": "ruby:3.3-slim-bookworm",    "lang": "ruby",   "libc": "glibc", "status": "active", "suites": ["matrix:ruby"] },
+    { "id": "elixir117",     "image": "elixir:1.17-slim",          "lang": "elixir", "libc": "glibc", "status": "active", "suites": ["matrix:elixir"] },
+    { "id": "py311-alpine",  "image": "python:3.11-alpine",        "lang": "python", "libc": "musl",  "status": "active", "suites": ["verify_corpus", "first_principles", "adversarial_jcs", "matrix:python"] },
+    { "id": "py313-alpine",  "image": "python:3.13-alpine",        "lang": "python", "libc": "musl",  "status": "active", "suites": ["verify_corpus", "first_principles", "adversarial_jcs", "matrix:python"] },
+    { "id": "php83-alpine",  "image": "php:8.3-cli-alpine",        "lang": "php",    "libc": "musl",  "status": "active", "suites": ["matrix:php"] },
+    { "id": "go126",         "image": "golang:1.26-bookworm",      "lang": "go",     "libc": "glibc", "status": "active", "suites": ["matrix:go"], "vendor": "GOMODCACHE warmed during provisioning, GOPROXY=off at execution (default -mod=readonly). Corpus go.mod requires go >= 1.26.1 with GOTOOLCHAIN=local, so older images are structurally excluded" },
+    { "id": "go126-alpine",  "image": "golang:1.26-alpine",        "lang": "go",     "libc": "musl",  "status": "active", "suites": ["matrix:go"], "vendor": "GOMODCACHE warmed during provisioning, GOPROXY=off at execution (default -mod=readonly)" },
+    { "id": "rust179",       "image": "rust:1.79-slim-bookworm",   "lang": "rust",   "libc": "glibc", "status": "pending-vendor", "suites": ["matrix:rust"], "vendor": "cargo fetch during provisioning, --offline at execution" },
+    { "id": "dotnet8",       "image": "mcr.microsoft.com/dotnet/sdk:8.0", "lang": "dotnet", "libc": "glibc", "status": "pending-vendor", "suites": ["matrix:dotnet"], "vendor": "dotnet restore during provisioning, --no-restore at execution" },
+    { "id": "temurin17-kotlin", "image": "eclipse-temurin:17-jdk", "lang": "kotlin", "libc": "glibc", "status": "pending-vendor", "suites": ["gauntlet:tier"], "vendor": "kotlinc + GenericRunner.jar staged during provisioning" },
+    { "id": "temurin21-kotlin", "image": "eclipse-temurin:21-jdk", "lang": "kotlin", "libc": "glibc", "status": "pending-vendor", "suites": ["gauntlet:tier"], "vendor": "kotlinc + GenericRunner.jar staged during provisioning" }
+  ]
+}

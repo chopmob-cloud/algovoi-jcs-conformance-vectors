@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "artefact_id": "settlement-attestation-v1-conformance",
-  "published_at": "2026-05-24T22:03:29Z",
+  "published_at": "2026-08-02T00:00:00Z",
   "canonicalizer": "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / serde_jcs@0.2.0 (Rust) / root23/php-json-canonicalization (PHP) / Baqhub.Packages.JsonCanonicalization (.NET) / json-canonicalization (Ruby)",
   "hash": "SHA-256, lowercase hex",
   "anchored_to": {
@@ -15,7 +15,8 @@
       "settlement_timestamp_ms is an epoch-millisecond integer (Substrate Rule 2). RFC 3339 string forms are rejected.",
       "settlement_amount is a sub-object {amount_minor: string, asset_id: string}; JCS sorts the sub-object's keys lexicographically.",
       "settlement_chain is a flat string identifier (<chain_family> or <chain_family>:<network>); JCS canonicalises the string as opaque bytes without decomposition.",
-      "Audit chain rows link via prev_hash. Row N's prev_hash MUST equal row N-1's row_content_hash; row 1's prev_hash MUST be 64 zero hex characters."
+      "Audit chain rows link via prev_hash. Row N's prev_hash MUST equal row N-1's row_content_hash; row 1's prev_hash MUST be 64 zero hex characters.",
+      "settlement_round is an additive optional field (the confirmed round/block of the settling transaction). Present, it is a positive integer emitted as its own key and sorts between settlement_result and settlement_timestamp_ms; absent, the body serialises byte-for-byte as before the field existed. A settlement_round of 0, a negative round, a boolean, or a string is refused before the attestation is emitted."
     ],
     "spec_authorship": "AlgoVoi-authored. The receipt format and canonicalisation discipline are specified in draft-hopley-x402-settlement-attestation-00 (companion to the compliance receipt and refund receipt I-Ds).",
     "composes_with": "compliance_receipt_v1 (via settled_payment_ref linkage); refund_receipt_v1 (a refund receipt's original_payment_ref MAY equal a settlement attestation content_hash)"
@@ -229,6 +230,34 @@
       },
       "expected_jcs_bytes_b64": "eyJjb250ZW50X2hhc2giOiI0YzVmZWQ3YWIxYmNmYjZjYmIwMjU5OWQ1MmRlMDM0NDQ2NTgyMDA3ZGZlNjZmMjhlNWE5YjA3MTU0MDVjMTJlIiwicHJldl9oYXNoIjoiZDdhZGY2MGM4ODMzNDUwZWY5MTc5YTdkZDE0NzU5MzdmOTA5YTU2NGJiZjZiZjIyNTM5NmZjZTA1ZWIwMGUxZCIsInJvd19udW1iZXIiOjN9",
       "expected_row_content_hash": "8d11bb5d54e856115a04745ff06855549d1750fdaf58e4bb14477c37c62c7dda"
+    },
+    {
+      "vector_id": "settlement-attestation-v1-009",
+      "description": "SETTLED attestation carrying settlement_round (the confirmed round/block of the settling transaction). All fields identical to vector 001 plus settlement_round, added additively so a round-less attestation still serialises byte-for-byte as before. Under RFC 8785 key ordering settlement_round sorts between settlement_result and settlement_timestamp_ms. This binds an attestation to chain state-proof evidence (e.g. an avm-proofpack bundle) whose confirmed round MUST match this value.",
+      "pair_group": "settlement-round",
+      "expectation": "reference",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "SETTLED",
+        "settlement_timestamp_ms": 1716494400000,
+        "settlement_round": 39250000
+      },
+      "expected_jcs_bytes_b64": "eyJjYW5vbl92ZXJzaW9uIjoiamNzLXJmYzg3ODUtdjEiLCJqdXJpc2RpY3Rpb25fZmxhZ3MiOlsiVUsiLCJFVSJdLCJzZXR0bGVkX3BheW1lbnRfcmVmIjoic2hhMjU2OjBkZDVkMGI3NmM5YjkyODFmZGViMjUwOWFkMzhhYjEzMmIxNmExNzM4NWNhMDFkOTc2ZmY5ZTZlMTI1NjNhMGYiLCJzZXR0bGVtZW50X2Ftb3VudCI6eyJhbW91bnRfbWlub3IiOiIxMDAwMDAiLCJhc3NldF9pZCI6IlVTREMuNiJ9LCJzZXR0bGVtZW50X2NoYWluIjoiZXRoZXJldW06ODQ1MyIsInNldHRsZW1lbnRfcHJvdmlkZXJfZGlkIjoiZGlkOmV4YW1wbGU6c2V0dGxlbWVudC1wcm92aWRlci0xIiwic2V0dGxlbWVudF9yZXN1bHQiOiJTRVRUTEVEIiwic2V0dGxlbWVudF9yb3VuZCI6MzkyNTAwMDAsInNldHRsZW1lbnRfdGltZXN0YW1wX21zIjoxNzE2NDk0NDAwMDAwfQ==",
+      "expected_content_hash": "644682837e8f4ba4ef3e9550e1a7b611523b416e4e0112f3015805452ac4bfa1",
+      "different_hash_from": [
+        "settlement-attestation-v1-001"
+      ]
     }
   ],
   "pair_invariants": [
@@ -266,6 +295,13 @@
       "left": "settlement-attestation-v1-001",
       "right": "settlement-attestation-v1-005",
       "rationale": "canon_version pin byte-load-bearing"
+    },
+    {
+      "id": "pair-settle-001-009",
+      "type": "different_hash_from",
+      "left": "settlement-attestation-v1-001",
+      "right": "settlement-attestation-v1-009",
+      "rationale": "settlement_round presence byte-load-bearing: a round-bearing attestation content_hash diverges from the round-less one, so it drives a distinct settlement_ref / binding_ref downstream"
     }
   ],
   "chain_invariants": [
@@ -294,6 +330,104 @@
       "right_vector": "settlement-attestation-v1-007",
       "right_field": "expected_row_content_hash",
       "rationale": "Chain row 3's prev_hash equals row 2's row_content_hash"
+    }
+  ],
+  "settlement_round_reject_vectors": [
+    {
+      "vector_id": "settlement-attestation-v1-r01",
+      "description": "settlement_round = 0 is refused: round 0 is the genesis allocation and can never carry a settlement.",
+      "expectation": "reject",
+      "reject_rule": "settlement_round_positive_int",
+      "bad_kind": "zero",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "SETTLED",
+        "settlement_timestamp_ms": 1716494400000,
+        "settlement_round": 0
+      }
+    },
+    {
+      "vector_id": "settlement-attestation-v1-r02",
+      "description": "settlement_round = -1 is refused: a negative round is nonsensical.",
+      "expectation": "reject",
+      "reject_rule": "settlement_round_positive_int",
+      "bad_kind": "negative",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "SETTLED",
+        "settlement_timestamp_ms": 1716494400000,
+        "settlement_round": -1
+      }
+    },
+    {
+      "vector_id": "settlement-attestation-v1-r03",
+      "description": "settlement_round = true is refused: JSON boolean is not a round (bool is an int subclass and must be rejected, Substrate Rule 2).",
+      "expectation": "reject",
+      "reject_rule": "settlement_round_positive_int",
+      "bad_kind": "boolean",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "SETTLED",
+        "settlement_timestamp_ms": 1716494400000,
+        "settlement_round": true
+      }
+    },
+    {
+      "vector_id": "settlement-attestation-v1-r04",
+      "description": "settlement_round = \"39250000\" is refused: an epoch/round is an integer, not a string (RFC 3339-style string coercion is rejected).",
+      "expectation": "reject",
+      "reject_rule": "settlement_round_positive_int",
+      "bad_kind": "string",
+      "receipt": {
+        "canon_version": "jcs-rfc8785-v1",
+        "jurisdiction_flags": [
+          "UK",
+          "EU"
+        ],
+        "settled_payment_ref": "sha256:0dd5d0b76c9b9281fdeb2509ad38ab132b16a17385ca01d976ff9e6e12563a0f",
+        "settlement_amount": {
+          "amount_minor": "100000",
+          "asset_id": "USDC.6"
+        },
+        "settlement_chain": "ethereum:8453",
+        "settlement_provider_did": "did:example:settlement-provider-1",
+        "settlement_result": "SETTLED",
+        "settlement_timestamp_ms": 1716494400000,
+        "settlement_round": "39250000"
+      }
     }
   ]
 }

@@ -1,0 +1,26 @@
+{
+  "pillar": "hazard",
+  "description": "Inputs at RFC 8785's genuinely divergent edges. We do NOT assert agreement here -- we MAP where independent canonicalizers split, then forbid these shapes from any AlgoVoi preimage at the substrate/schema layer. Proving where the hazard is (not merely avoiding it by luck) is the '100% by design' guarantee.",
+  "cases": [
+    {"id": "haz-int-above-2p53",   "expect": "document", "raw": "{\"n\":9007199254740993}",     "note": "integer just above 2^53: double-based parsers round, arbitrary-precision parsers do not -> hash split. Substrate rule: large counters MUST be string-encoded."},
+    {"id": "haz-int-huge",         "expect": "document", "raw": "{\"n\":123456789012345678901234567890}", "note": "30-digit integer: precision loss varies by runtime."},
+    {"id": "haz-float-simple",     "expect": "document", "raw": "{\"n\":1.5}",                    "note": "some impls (strict inline PHP) reject floats; others serialize. Substrate rule: no floats in preimages."},
+    {"id": "haz-float-tenth",      "expect": "document", "raw": "{\"n\":0.1}",                    "note": "0.1 has no exact double; formatting of the shortest round-trip can differ."},
+    {"id": "haz-neg-zero",         "expect": "document", "raw": "{\"n\":-0}",                     "note": "negative zero: -0 vs 0 handling differs (ECMAScript prints 0)."},
+    {"id": "haz-exponent",         "expect": "document", "raw": "{\"n\":1e3}",                    "note": "exponent form: normalized to 1000 by some, preserved by others."},
+    {"id": "haz-exp-overflow",     "expect": "document", "raw": "{\"n\":1e400}",                  "note": "overflows IEEE754 double to Infinity in most runtimes -> reject or divergence."},
+    {"id": "haz-nan",              "expect": "document", "raw": "{\"n\":NaN}",                    "note": "NaN is not valid JSON; lenient parsers (Python) accept it -> split vs strict parsers."},
+    {"id": "haz-infinity",         "expect": "document", "raw": "{\"n\":Infinity}",              "note": "Infinity is not valid JSON; lenient parsers accept -> split."},
+    {"id": "haz-duplicate-keys",   "expect": "document", "raw": "{\"a\":1,\"a\":2}",             "note": "duplicate keys: last-wins vs error varies by parser. Substrate rule: reject duplicate keys before hashing."},
+    {"id": "haz-unicode-decomp",   "expect": "document", "raw": "{\"k\":\"cafe\u0301\"}",        "note": "decomposed e+combining-acute vs precomposed é: JCS does NOT normalize, so visually equal strings hash differently. Substrate rule: NFC-normalize identifiers before binding."},
+    {"id": "haz-lone-surrogate",   "expect": "document", "raw": "{\"k\":\"\\ud800\"}",           "note": "lone high surrogate: some encoders emit replacement char, some error."},
+    {"id": "haz-leading-zero",     "expect": "document", "raw": "{\"n\":01}",                     "note": "leading zero is invalid JSON per RFC 8259, but Go/Java/.NET canonicalizers ACCEPT and normalize it while Python/Node/Ruby/Rust/PHP reject -> real accept/reject split. Substrate rule: reject leading-zero numbers before hashing."},
+    {"id": "haz-plus-number",      "expect": "document", "raw": "{\"n\":+1}",                      "note": "leading plus is invalid JSON; lenient number parsers may accept -> split."},
+    {"id": "haz-hex-number",       "expect": "document", "raw": "{\"n\":0x10}",                    "note": "hex literal is invalid JSON; some parsers accept -> split."},
+    {"id": "haz-leading-dot",      "expect": "document", "raw": "{\"n\":.5}",                      "note": "leading decimal point invalid; lenient parsers accept -> split."},
+    {"id": "haz-trailing-dot",     "expect": "document", "raw": "{\"n\":1.}",                      "note": "trailing decimal point invalid; lenient parsers accept -> split."},
+    {"id": "haz-float-trailing-zero","expect": "document","raw": "{\"n\":1.0}",                    "note": "1.0 vs integer 1: number normalization differs (ECMAScript prints 1). Substrate rule: no floats in preimages."},
+    {"id": "haz-uppercase-exp",    "expect": "document", "raw": "{\"n\":1E2}",                     "note": "uppercase exponent: normalization to 100 vs 1E2 vs 1e2 varies."},
+    {"id": "haz-plus-exp",         "expect": "document", "raw": "{\"n\":1e+3}",                    "note": "explicit + in exponent: normalization varies."}
+  ]
+}

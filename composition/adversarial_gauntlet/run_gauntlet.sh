@@ -12,16 +12,19 @@ set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 VEC="$(cd "$HERE/../../vectors/adversarial_isolation_v1" && pwd)/adversarial_isolation_v1.json"
 LANGS=(python node ruby php go rust java dotnet)
+SEP=";"; case "$(uname -s 2>/dev/null)" in Linux|Darwin) SEP=":" ;; esac
+PY="$(command -v python3 || command -v python)"
 
 run_lang() {
   case "$1" in
-    python) python "$HERE/gauntlet_python.py" "$VEC" ;;
+    python) "$PY" "$HERE/gauntlet_python.py" "$VEC" ;;
     node)   node "$HERE/gauntlet_node.cjs" "$VEC" ;;
     ruby)   ruby "$HERE/gauntlet_ruby.rb" "$VEC" ;;
     php)    php "$HERE/gauntlet_php.php" "$VEC" ;;
     go)     ( cd "$HERE" && GO111MODULE=off go run gauntlet_go.go "$VEC" ) ;;
-    rust)   ( cd "$HERE/rust" && cargo +stable-x86_64-pc-windows-gnu run --release --quiet -- "$VEC" ) ;;
-    java)   ( cd "$HERE/java" && java -cp ".;libs/*" Runner "$VEC" ) ;;
+    rust)   ( cd "$HERE/rust" && cargo +stable-x86_64-pc-windows-gnu run --release --quiet -- "$VEC" 2>/dev/null \
+              || cargo run --release --quiet -- "$VEC" ) ;;
+    java)   ( cd "$HERE/java" && java -cp ".${SEP}libs/*" Runner "$VEC" ) ;;
     dotnet) ( cd "$HERE/dotnet" && dotnet run -c Release --verbosity quiet -- "$VEC" ) ;;
   esac
 }

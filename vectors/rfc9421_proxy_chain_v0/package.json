@@ -8,6 +8,6 @@
     "verify": "node runner_node.js"
   },
   "dependencies": {
-    "@algovoi/rfc9421-verifier": "^0.1.0"
+    "@algovoi/rfc9421-verifier": "^0.3.3"
   }
 }
