@@ -25,6 +25,10 @@ const result = await verifyRequest({
   headers: req.headers,
   body: new Uint8Array(),
   publicKey: fix.keypair.public_key_hex,
+  // This fixture set is signed in the legacy algovoi-v0 base format.
+  // verifier >=0.3.2 defaults to mode "rfc9421" (python parity), so the
+  // mode must be explicit here, matching runner_python.py.
+  mode: "algovoi-v0",
 });
 
 if (!result.valid) {

@@ -27,7 +27,13 @@ OPTDEP["execution_ref_v1:node"]="@algovoi/execution-ref unpublished; @algovoi/su
 # genuine divergence between our own implementations at the same version. Named,
 # counted separately, reported -- never hidden, never forced green.
 declare -A DIVERGENCE
-DIVERGENCE["rfc9421_proxy_chain_v0:node"]="@algovoi/rfc9421-verifier@0.3.1 on @noble/ed25519@2.3.0 REJECTS request.fixture.json that python algovoi-rfc9421-verifier@0.3.1 (PyNaCl) VERIFIES. node inputs correct (empty-body GET, content-digest of empty). Node-side Ed25519 verification divergence (likely noble v2 strictness vs libsodium)."
+# RESOLVED 2026-08-02: rfc9421_proxy_chain_v0:node was a real finding, root-caused
+# to @algovoi/rfc9421-verifier <=0.3.1 on Node 18: @noble/ed25519 v2 verifyAsync
+# requires globalThis.crypto (absent in Node 18 module code), threw
+# "crypto.subtle must be defined", and verifySignature's bare catch reported the
+# throw as a bad signature. Fixed in 0.3.3 (WebCrypto shim + setup errors
+# surfaced as VerifyError). The entry is removed so any future failure counts
+# as a hard FAIL, not a known finding.
 
 tally() { # <lang> <label> <rc> <lastline>
   local lang="$1" label="$2" rc="$3" last="$4"
