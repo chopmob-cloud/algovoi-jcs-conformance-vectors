@@ -13,7 +13,6 @@ import base64
 import hashlib
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 from algovoi_substrate import canonicalize
@@ -213,7 +212,7 @@ def main() -> int:
     payload = {
         "schema_version": "1.0",
         "artefact_id": "cancellation-receipt-v1-conformance",
-        "published_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "published_at": "2026-05-24T22:25:35Z",  # frozen (was clock-derived) so the set regenerates byte-for-byte
         "canonicalizer": (
             "rfc8785@0.1.4 (Python) / canonicalize@3.0.0 (TypeScript) / "
             "gowebpki/jcs v1.0.1 (Go) / cyberphone/json-canonicalization (Java) / "
@@ -281,6 +280,7 @@ def main() -> int:
     OUTPUT_FILE.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     print(f"wrote {OUTPUT_FILE.name}")
     print(

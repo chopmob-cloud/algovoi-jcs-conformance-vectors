@@ -25,6 +25,13 @@ function getNested(obj, path) {
   return path.split(".").reduce((acc, k) => acc?.[k], obj);
 }
 
+// settlement_round rule, reimplemented from the contract (see SCHEMA.md).
+// Present -> MUST be a positive integer; JSON boolean/string are rejected.
+// Mirrors substrate2.receipts._common.require_positive_int.
+function roundOk(value) {
+  return typeof value === "number" && Number.isInteger(value) && value > 0;
+}
+
 function main() {
   const data = JSON.parse(readFileSync(VECTORS_FILE, "utf-8"));
   const vectors = Object.fromEntries(data.vectors.map((v) => [v.vector_id, v]));
@@ -56,6 +63,14 @@ function main() {
       failures.push(`${v.vector_id}: SHA-256 mismatch (${label})`);
       console.log(`  ${v.vector_id}: FAIL (SHA-256 mismatch)`);
       continue;
+    }
+
+    if (v.receipt && "settlement_round" in v.receipt) {
+      if (!roundOk(v.receipt.settlement_round)) {
+        failures.push(`${v.vector_id}: positive vector carries invalid settlement_round`);
+        console.log(`  ${v.vector_id}: FAIL (invalid settlement_round in positive vector)`);
+        continue;
+      }
     }
 
     if (v.receipt) {
@@ -111,6 +126,18 @@ function main() {
   }
   console.log();
 
+  const rejectVectors = data.settlement_round_reject_vectors ?? [];
+  for (const rv of rejectVectors) {
+    const bad = rv.receipt?.settlement_round;
+    if (roundOk(bad)) {
+      failures.push(`${rv.vector_id}: reject vector was ACCEPTED (escape): ${JSON.stringify(bad)}`);
+      console.log(`  ${rv.vector_id}: FAIL (accepted bad settlement_round ${JSON.stringify(bad)})`);
+    } else {
+      console.log(`  ${rv.vector_id}: PASS  refused settlement_round=${JSON.stringify(bad)} (${rv.bad_kind})`);
+    }
+  }
+  console.log();
+
   if (failures.length > 0) {
     console.log(`FAILED: ${failures.length} issue(s)`);
     for (const f of failures) console.log(`  - ${f}`);
@@ -118,7 +145,7 @@ function main() {
   }
 
   console.log(
-    `PASS: ${data.vectors.length} vectors + ${data.pair_invariants.length} pair invariants + ${data.chain_invariants.length} chain invariants validated against @algovoi/substrate.`,
+    `PASS: ${data.vectors.length} vectors + ${data.pair_invariants.length} pair invariants + ${data.chain_invariants.length} chain invariants + ${rejectVectors.length} settlement_round reject vectors validated against @algovoi/substrate.`,
   );
 }
 

@@ -49,8 +49,11 @@ ACTION_REF_BETA = "57e861cb0929fe602823a15e2bc5a5587f0b9c3bd39147baa49819dd014c5
 TH_COMMITTED = "f49faa7c4f82bd842705374311f5f6af073826539d519d0b65de3263258eac5f"      # eo-v1-003 COMMITTED
 TH_PENDING = "0957638b64c790292c11d90e9ae15576a6454f37f23a0aade222acf9e2ea18b0"        # eo-v1-002 PENDING
 # settlement_ref -- settlement_attestation_v1 content_hash
-SETTLEMENT_REF_A = "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3"  # settlement-attestation-v1-001
+SETTLEMENT_REF_A = "0ead75bfe7fc74cc0421124903e56cb5c5006d02c393231a1d5f260fa87e96d3"  # settlement-attestation-v1-001 (round-less)
 SETTLEMENT_REF_B = "e7777a9a77a9c3f02339594395bfb2620e07edc62d3dcb48c4f2e82a8c37a1c4"  # settlement-attestation-v1-002
+# round-bearing sibling of REF_A: settlement-attestation-v1-009 content_hash (adds settlement_round).
+# Enabling round emission changes the attestation content_hash, hence settlement_ref, hence binding_ref.
+SETTLEMENT_REF_A_ROUND = "644682837e8f4ba4ef3e9550e1a7b611523b416e4e0112f3015805452ac4bfa1"  # settlement-attestation-v1-009
 # retention_chain_ref -- retention_chain_v1 chain_ref ("sha256:"-prefixed)
 RETENTION_CHAIN_REF_A = "sha256:d23aeb006c5f3db9dd96315916410393904f56c4c871593065eb73b783fff35f"  # retention-chain-v1-001
 RETENTION_CHAIN_REF_B = "sha256:43f888f00ea70e38fb8e38c205219b3fff51a90c62197d890b9f270f0f81fe42"  # retention-chain-v1-002
@@ -142,6 +145,19 @@ def main() -> None:
         "chain", ACTION_REF, TH_COMMITTED, SETTLEMENT_REF_A, RETENTION_CHAIN_REF_B,
         different_hash_from=["sab-v1-001"])
 
+    # 007 -- round-binding: the round-bearing settlement attestation
+    #        (settlement-attestation-v1-009) yields a different settlement_ref, hence a
+    #        different binding_ref. This is the golden vector proving that enabling
+    #        settlement_round does not silently break the binding: the drift is covered.
+    add("sab-v1-007",
+        "Round-binding: identical action/transition/chain but settlement_ref is the "
+        "round-bearing attestation content_hash (settlement-attestation-v1-009, which "
+        "adds settlement_round). Produces a different binding_ref from 001 -- so once "
+        "round emission is enabled the binding recomputes to a distinct, byte-checkable "
+        "value rather than silently drifting.",
+        "settlement-round", ACTION_REF, TH_COMMITTED, SETTLEMENT_REF_A_ROUND, RETENTION_CHAIN_REF_A,
+        different_hash_from=["sab-v1-001"])
+
     pair_invariants = [
         {"id": "pair-sab-001", "type": "same_hash_as",
          "description": "binding stability: re-derivation with identical inputs reproduces the "
@@ -159,6 +175,11 @@ def main() -> None:
         {"id": "pair-sab-005", "type": "different_hash_from",
          "description": "chain-binding: a different retention_chain_ref diverges",
          "left": "sab-v1-001", "right": "sab-v1-006"},
+        {"id": "pair-sab-006", "type": "different_hash_from",
+         "description": "round-binding: the round-bearing settlement attestation "
+                        "(settlement_round added) yields a different settlement_ref, "
+                        "hence a different binding_ref",
+         "left": "sab-v1-001", "right": "sab-v1-007"},
     ]
 
     out = {
@@ -177,6 +198,7 @@ def main() -> None:
                 "Action-binding: changing action_ref changes binding_ref (an action cannot claim another identity's settlement).",
                 "State-binding: changing transition_hash changes binding_ref -- only the exact COMMITTED transition binds; a PENDING/REVERSED transition_hash produces a distinct binding.",
                 "Chain-binding: changing retention_chain_ref changes binding_ref (the tamper-evident chain position recording the record is load-bearing).",
+                "Round-binding: a round-bearing settlement attestation (one carrying settlement_round) has a different content_hash, hence a different settlement_ref, hence a different binding_ref -- enabling round emission produces a distinct, byte-checkable binding rather than silently drifting the existing one.",
                 "Lineage-binding: action_ref and transition_hash derive from epoch-millisecond-integer preimages (Substrate Rule 2); an RFC 3339 string timestamp upstream yields a different action_ref, hence a different binding -- a non-conformant lineage cannot reproduce the binding bytes.",
             ],
             "spec_authorship": "AlgoVoi-authored. Composes the action_ref lifecycle (action_ref_exactly_once_v1), settlement attestation (settlement_attestation_v1), and retention chain (retention_chain_v1) into a single post-settlement accountability binding. No new hashing primitive is introduced.",
