@@ -3,9 +3,9 @@
 #
 # Each language's canon probe emits "<id>\t<verdict>" for every case; the driver
 # then requires FULL N-way consensus on the agree/reject corpora and MAPS every
-# divergence in the hazard corpus. A 2-implementation corpus (e.g. Concordia's
-# Python+JS) structurally cannot express N-way cross-language consensus; this is
-# the property, grounded entirely in AlgoVoi's own 10-language substrate.
+# divergence in the hazard corpus. A 2-implementation corpus (a single
+# Python+JS pair) structurally cannot express N-way cross-language consensus;
+# this is the property, grounded entirely in AlgoVoi's own 10-language substrate.
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PY="$(command -v python3 || command -v python)"

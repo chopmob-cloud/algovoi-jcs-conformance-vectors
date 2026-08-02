@@ -58,8 +58,8 @@ UTF-8; `é` → raw é; supplementary keys sort by UTF-16 code unit.
   denial-of-availability concern, not a canonicalization-divergence one, and
   belongs in an isolated one-input-per-process harness. Documented, not run here.
 - **Signature layer (Ed25519) is out of scope for this framework.** It is covered
-  by `execution_ref`/settlement vectors and by the Concordia interop check (our
-  JCS reproduces their hash and our verifier validates their signature).
+  by `execution_ref`/settlement vectors and by external interop checks (our JCS
+  reproduces an external party's hash and our verifier validates their signature).
 - **17 of 38 agree cases carry KAT anchors.** The remainder are consensus-only;
   the tricky-escape cases were left un-pinned because a hand-derived anchor is
   error-prone under the corpus double-parse (a mismatch was caught and excluded

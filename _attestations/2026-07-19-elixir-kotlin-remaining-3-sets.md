@@ -1,7 +1,7 @@
 # Attestation: Elixir + Kotlin extended to the final 3 anchor sets (ten-impl complete)
 
 **Date:** 2026-07-19
-**Box:** VM2 clean-box (77.68.52.226), Docker 29.6.2.
+**Box:** VM2 clean-box, Docker 29.6.2.
 **Scope:** the three previously-8-lang directly-executed anchor sets not covered by the
 2026-07-09 pass: `action_ref_namespace_v0` (8 vectors), `action_ref_transactional_v0`
 (8 vectors), `settlement_action_binding_v1` (6 vectors).

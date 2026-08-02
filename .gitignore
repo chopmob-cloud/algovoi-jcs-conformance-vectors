@@ -12,3 +12,11 @@ Thumbs.db
 .vscode/
 .idea/
 .cargo/
+venv/
+.venv/
+*.egg-info/
+.coverage
+htmlcov/
+# KAF harness runtime output (created on the runner, never committed)
+cellenv/
+runs/
