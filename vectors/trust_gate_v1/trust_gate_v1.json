@@ -1,0 +1,122 @@
+{
+  "set": "trust_gate_v1",
+  "schema_version": "1",
+  "description": "Trust-gate deny decision table: verdict x mode -> allow/deny, with fail-open-on-mode edges. Behavioural conformance (not JCS).",
+  "rule_source": "gateway/app/routers/verify.py:_TRUST_GATE_DENY / _trust_gate_blocks",
+  "verdicts": [
+    "TRUSTED",
+    "PROVISIONAL",
+    "INSUFFICIENT_EVIDENCE",
+    "UNTRUSTED"
+  ],
+  "modes": [
+    "off",
+    "block_untrusted",
+    "require_trusted"
+  ],
+  "deny_sets": {
+    "block_untrusted": [
+      "UNTRUSTED"
+    ],
+    "require_trusted": [
+      "INSUFFICIENT_EVIDENCE",
+      "PROVISIONAL",
+      "UNTRUSTED"
+    ]
+  },
+  "vectors": [
+    {
+      "id": "tg-off-trusted",
+      "mode": "off",
+      "verdict": "TRUSTED",
+      "expected_blocks": false
+    },
+    {
+      "id": "tg-off-provisional",
+      "mode": "off",
+      "verdict": "PROVISIONAL",
+      "expected_blocks": false
+    },
+    {
+      "id": "tg-off-insufficient_evidence",
+      "mode": "off",
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "expected_blocks": false
+    },
+    {
+      "id": "tg-off-untrusted",
+      "mode": "off",
+      "verdict": "UNTRUSTED",
+      "expected_blocks": false
+    },
+    {
+      "id": "tg-block_untrusted-trusted",
+      "mode": "block_untrusted",
+      "verdict": "TRUSTED",
+      "expected_blocks": false
+    },
+    {
+      "id": "tg-block_untrusted-provisional",
+      "mode": "block_untrusted",
+      "verdict": "PROVISIONAL",
+      "expected_blocks": false
+    },
+    {
+      "id": "tg-block_untrusted-insufficient_evidence",
+      "mode": "block_untrusted",
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "expected_blocks": false
+    },
+    {
+      "id": "tg-block_untrusted-untrusted",
+      "mode": "block_untrusted",
+      "verdict": "UNTRUSTED",
+      "expected_blocks": true
+    },
+    {
+      "id": "tg-require_trusted-trusted",
+      "mode": "require_trusted",
+      "verdict": "TRUSTED",
+      "expected_blocks": false
+    },
+    {
+      "id": "tg-require_trusted-provisional",
+      "mode": "require_trusted",
+      "verdict": "PROVISIONAL",
+      "expected_blocks": true
+    },
+    {
+      "id": "tg-require_trusted-insufficient_evidence",
+      "mode": "require_trusted",
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "expected_blocks": true
+    },
+    {
+      "id": "tg-require_trusted-untrusted",
+      "mode": "require_trusted",
+      "verdict": "UNTRUSTED",
+      "expected_blocks": true
+    },
+    {
+      "id": "tg-null-mode",
+      "mode": null,
+      "verdict": "UNTRUSTED",
+      "expected_blocks": false,
+      "note": "None mode is fail-open on the mode"
+    },
+    {
+      "id": "tg-unknown-mode",
+      "mode": "strict_maximal",
+      "verdict": "UNTRUSTED",
+      "expected_blocks": false,
+      "note": "unknown mode is fail-open on the mode"
+    },
+    {
+      "id": "tg-unknown-verdict-require-trusted",
+      "mode": "require_trusted",
+      "verdict": "UNRECOGNISED",
+      "expected_blocks": false,
+      "note": "a verdict not in the deny set is allowed"
+    }
+  ]
+}

@@ -19,3 +19,7 @@ path = "src/gc_main.rs"
 [[bin]]
 name = "sr"
 path = "src/sr_main.rs"
+
+[[bin]]
+name = "tg"
+path = "src/tg_main.rs"

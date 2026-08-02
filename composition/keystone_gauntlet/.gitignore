@@ -9,3 +9,5 @@ dotnet_gc/bin/
 dotnet_gc/obj/
 dotnet_sr/bin/
 dotnet_sr/obj/
+dotnet_tg/bin/
+dotnet_tg/obj/
