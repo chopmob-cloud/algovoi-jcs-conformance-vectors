@@ -26,8 +26,8 @@ run_lang() {
               [ -d libs ] || cp -r "$HERE/../../vectors/retention_chain_v1/runner_java/libs" libs
               [ -f Runner.class ] && [ Runner.class -nt Runner.java ] || javac -cp "libs/*" Runner.java
               java -cp ".${SEP}libs/*" Runner "$VEC" ) ;;
-    rust)   ( cd "$HERE/rust" && cargo +stable-x86_64-pc-windows-gnu run --release --quiet -- "$VEC" 2>/dev/null \
-              || cargo run --release --quiet -- "$VEC" ) ;;
+    rust)   ( cd "$HERE/rust" && cargo +stable-x86_64-pc-windows-gnu run --bin keystone_gauntlet_rust --release --quiet -- "$VEC" 2>/dev/null \
+              || cargo run --bin keystone_gauntlet_rust --release --quiet -- "$VEC" ) ;;
     dotnet) ( cd "$HERE/dotnet" && dotnet run -c Release --verbosity quiet -- "$VEC" ) ;;
   esac
 }
