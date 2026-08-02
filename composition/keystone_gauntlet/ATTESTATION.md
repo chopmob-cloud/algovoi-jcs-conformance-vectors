@@ -21,8 +21,14 @@ hold both invariants (screen presence is bound; malformed ref rejected).
 | Python | `rfc8785` | 8/8 | local + VM2 |
 | Node | `canonicalize` | 8/8 | local + VM2 |
 | Go | `gowebpki/jcs` | 8/8 | local |
+| PHP | inline RFC 8785 | 8/8 | local |
+| Ruby | `json-canonicalization` | 8/8 | local |
+| Java 17 | `erdtman/java-json-canonicalization` | 8/8 | local |
+| Rust | `serde_jcs` | 8/8 | local |
+| .NET 9 | `Baqhub.JsonCanonicalization` | 8/8 | local |
 
-**TOTAL: 24/24 local (3 impls), 16/16 VM2 (2 impls).** All green.
+**TOTAL: 64/64 across 8 independent implementations (local); python + node also 16/16 on VM2.** All green.
+Eight distinct JCS libraries agree on both positives and fail-close on every negative + invariant.
 
 ## Run
 

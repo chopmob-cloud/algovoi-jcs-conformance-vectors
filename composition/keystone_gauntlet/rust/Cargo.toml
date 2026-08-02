@@ -1,0 +1,13 @@
+[package]
+name = "keystone_gauntlet_rust"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "keystone_gauntlet_rust"
+path = "src/main.rs"
+
+[dependencies]
+serde_jcs = "0.2.0"
+serde_json = "1"
+sha2 = "0.10"
