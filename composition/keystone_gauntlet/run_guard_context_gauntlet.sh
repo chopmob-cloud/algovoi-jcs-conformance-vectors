@@ -12,7 +12,7 @@ SEP=";"; case "$(uname -s 2>/dev/null)" in Linux|Darwin) SEP=":" ;; esac
 
 run_lang() {
   case "$1" in
-    python) python "$HERE/gc_python.py" "$VEC" ;;
+    python) "$(command -v python3 || command -v python)" "$HERE/gc_python.py" "$VEC" ;;
     node)   node "$HERE/gc_node.mjs" "$VEC" ;;
     go)     ( cd "$HERE" && GO111MODULE=on go run gc_go.go "$VEC" ) ;;
     php)    php "$HERE/gc_php.php" "$VEC" ;;

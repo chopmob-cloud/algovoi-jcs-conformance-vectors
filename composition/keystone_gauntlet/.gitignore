@@ -13,3 +13,4 @@ dotnet_tg/bin/
 dotnet_tg/obj/
 dotnet_rev/bin/
 dotnet_rev/obj/
+rust/Cargo.lock

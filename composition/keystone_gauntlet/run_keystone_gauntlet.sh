@@ -17,7 +17,7 @@ case "$(uname -s 2>/dev/null)" in Linux|Darwin) SEP=":" ;; esac
 
 run_lang() {
   case "$1" in
-    python) python "$HERE/gauntlet_python.py" "$VEC" ;;
+    python) "$(command -v python3 || command -v python)" "$HERE/gauntlet_python.py" "$VEC" ;;
     node)   node "$HERE/gauntlet_node.mjs" "$VEC" ;;
     go)     ( cd "$HERE" && GO111MODULE=on go run gauntlet_go.go "$VEC" ) ;;
     php)    php "$HERE/gauntlet_php.php" "$VEC" ;;

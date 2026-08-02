@@ -9,7 +9,7 @@ LANGS=(python node go php ruby java rust dotnet)
 SEP=";"; case "$(uname -s 2>/dev/null)" in Linux|Darwin) SEP=":" ;; esac
 run_lang() {
   case "$1" in
-    python) python "$HERE/tg_python.py" "$VEC" ;;
+    python) "$(command -v python3 || command -v python)" "$HERE/tg_python.py" "$VEC" ;;
     node)   node "$HERE/tg_node.mjs" "$VEC" ;;
     go)     ( cd "$HERE" && GO111MODULE=on go run tg_go.go "$VEC" ) ;;
     php)    php "$HERE/tg_php.php" "$VEC" ;;
