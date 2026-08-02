@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
-"""KAF sealer: build and sign a run receipt (the Keystone Seal).
+"""KAF sealer: build and sign a run receipt (the Keystone Seal), v2.
 
 Consumes an orchestrated run directory (run_meta.json, cells.lock.json,
 run_summary.json, results/) and emits a sealed receipt envelope into
-kaf/receipts/. The receipt body is JCS-canonical via algovoi-substrate's
-canonicalize_bytes, cross-checked byte-for-byte against the independent
-rfc8785 implementation (a differential check inside the sealer itself).
-The seal is an RFC 9421 signature over a synthetic HTTP message whose body
-is the canonical receipt, produced by the published algovoi-rfc9421-signer
-and verifiable offline by the published algovoi-rfc9421-verifier.
+kaf/receipts/.
+
+Integrity properties (each closes a reviewed weakness):
+  - The receipt body is JCS-canonical via algovoi-substrate, cross-checked
+    byte-for-byte against a genuinely INDEPENDENT canonicalizer (kaf/_jcs_min,
+    which shares no code with rfc8785/substrate). A divergence aborts the seal.
+  - all_green and totals are RE-DERIVED from the per-cell evidence here, not
+    trusted from the summary: a run with any nonzero cell overall/suite, any
+    degraded cell, or any unpinned image digest is refused.
+  - A monotonic seq is embedded in the SIGNED body, so a verifier that knows
+    the expected count can detect tail-truncation of the chain.
+  - Seal provenance (canon engine, signer package, keyid, alg) lives INSIDE
+    the signed receipt body, so it cannot be altered on the chain head.
 
 The private seal seed lives OUTSIDE the repository and is never printed.
 """
@@ -27,9 +34,12 @@ from algovoi_rfc9421_signer import sign_request
 from algovoi_substrate import canonicalize_bytes
 import rfc8785
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _jcs_min  # independent JCS, no shared code with rfc8785/substrate
+
 AUTHORITY = "kaf.algovoi.co.uk"
 PATH = "/kaf/receipt"
-SCHEMA = "kaf-receipt-v1"
+SCHEMA = "kaf-receipt-v2"
 
 
 def _pkg_version(name: str) -> str:
@@ -39,10 +49,17 @@ def _pkg_version(name: str) -> str:
         return "unknown"
 
 
+def _canon(obj: dict) -> bytes:
+    """Canonical bytes, with a real independent differential cross-check."""
+    body = canonicalize_bytes(obj)
+    if body != rfc8785.dumps(obj):
+        raise SystemExit("FATAL: substrate and rfc8785 disagree on the bytes")
+    if body != _jcs_min.dumps(obj):
+        raise SystemExit("FATAL: independent JCS (_jcs_min) disagrees on the bytes")
+    return body
+
+
 def tree_sha256(run_dir: Path) -> str:
-    """Digest of the run evidence tree: sorted relpath + file sha256 lines.
-    The cellenv/ tree (interpreter environments) is provenance, not evidence,
-    and is excluded; provision records are copied into results/ by run_cell."""
     lines = []
     for p in sorted(run_dir.rglob("*")):
         if p.is_dir():
@@ -55,17 +72,21 @@ def tree_sha256(run_dir: Path) -> str:
     return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
 
 
-def previous_link(receipts_dir: Path, genesis_anchor: Path | None) -> dict:
-    rcpts = sorted(receipts_dir.glob("rcpt-*.json"))
+def existing_receipts(receipts_dir: Path) -> list[Path]:
+    return sorted(receipts_dir.glob("rcpt-*.json"))
+
+
+def previous_link(rcpts: list[Path], genesis_anchor: Path | None) -> tuple[dict, int]:
     if rcpts:
-        return {"kind": "receipt",
-                "name": rcpts[-1].name,
-                "sha256": hashlib.sha256(rcpts[-1].read_bytes()).hexdigest()}
+        prev_env = json.loads(rcpts[-1].read_bytes())
+        prev_seq = prev_env["receipt"]["seq"]
+        return ({"kind": "receipt", "name": rcpts[-1].name,
+                 "sha256": hashlib.sha256(rcpts[-1].read_bytes()).hexdigest()},
+                prev_seq)
     if genesis_anchor is None:
         raise SystemExit("no prior receipt and no --genesis-anchor given")
-    return {"kind": "p0-manifest",
-            "name": genesis_anchor.name,
-            "sha256": hashlib.sha256(genesis_anchor.read_bytes()).hexdigest()}
+    return ({"kind": "p0-manifest", "name": genesis_anchor.name,
+             "sha256": hashlib.sha256(genesis_anchor.read_bytes()).hexdigest()}, 0)
 
 
 def main() -> int:
@@ -87,38 +108,62 @@ def main() -> int:
     pub = json.loads(args.pub_file.read_text(encoding="utf-8"))
     seed_hex = args.seed_file.read_text(encoding="utf-8").strip()
 
-    if not summary.get("all_green", False):
-        print("REFUSING to seal: run_summary.all_green is false", file=sys.stderr)
-        return 2
-
+    # Re-derive greenness from the evidence; do not trust summary.all_green.
     cells = []
+    derived_green = True
     for cid, c in sorted(summary["cells"].items()):
         locked = next((l for l in lock["locked"] if l["cell"] == cid), None)
-        # Defence in depth: the orchestrator already sets all_green=False on any
-        # degraded cell, but the sealer independently refuses to seal a cell
-        # image whose digest was not pinned, or one flagged degraded.
         if locked is None or not locked.get("digest"):
             print(f"REFUSING to seal: cell {cid} has no pinned image digest",
                   file=sys.stderr)
             return 2
-        if c.get("degraded"):
-            print(f"REFUSING to seal: cell {cid} degraded {c['degraded']}",
-                  file=sys.stderr)
-            return 2
+        overall = c.get("overall")
+        suites = {k: int(v) for k, v in sorted(c.get("suites", {}).items())}
+        prov_failed = [s for s in c.get("provision_failed_specs", []) if s]
+        degraded = c.get("degraded", [])
+        cell_green = (overall == 0 and all(v == 0 for v in suites.values())
+                      and not prov_failed and not degraded)
+        if not cell_green:
+            derived_green = False
         cells.append({
             "id": cid,
             "image": locked["image"],
             "image_digest": locked["digest"],
             "network": "none",
             "canary": c.get("canary"),
-            "suites": {k: v for k, v in sorted(c["suites"].items())},
-            "overall": c["overall"],
-            "provision_failed_specs": c.get("provision_failed_specs", []),
+            "suites": suites,
+            "overall": overall,
+            "provision_failed_specs": prov_failed,
+            "degraded": degraded,
         })
+
+    if not derived_green:
+        print("REFUSING to seal: re-derived greenness is false (a cell is not "
+              "fully green). summary.all_green is NOT trusted.", file=sys.stderr)
+        return 2
+    if not cells:
+        print("REFUSING to seal: no cells in the run", file=sys.stderr)
+        return 2
+
+    rcpts = existing_receipts(args.receipts_dir)
+    prev, prev_seq = previous_link(rcpts, args.genesis_anchor)
+    seq = prev_seq + 1
+
+    sealer = {
+        "alg": "ed25519",
+        "keyid": pub["keyid"],
+        "canon_engine": "algovoi-substrate",
+        "canon_engine_version": _pkg_version("algovoi-substrate"),
+        "canon_cross_checks": ["rfc8785", "kaf/_jcs_min (independent)"],
+        "canon_cross_check_match": True,
+        "signer_pkg": f"algovoi-rfc9421-signer=={_pkg_version('algovoi-rfc9421-signer')}",
+        "verifier_target": "algovoi-rfc9421-verifier>=0.3.3",
+    }
 
     receipt = {
         "schema": SCHEMA,
-        "framework": {"name": "KAF", "version": "0.1.0",
+        "seq": seq,
+        "framework": {"name": "KAF", "version": "0.2.0",
                       "design": "keystone-assurance-framework-v1"},
         "run": {"id": run_meta["run_id"], "purpose": args.purpose,
                 "host": run_meta["host"], "started": run_meta["started"],
@@ -130,17 +175,12 @@ def main() -> int:
         "totals": {"cells": len(cells),
                    "suite_executions": sum(len(c["suites"]) for c in cells),
                    "all_green": True},
+        "sealer": sealer,
         "artifacts": {"results_tree_sha256": tree_sha256(args.run_dir)},
-        "prev": previous_link(args.receipts_dir, args.genesis_anchor),
+        "prev": prev,
     }
 
-    body = canonicalize_bytes(receipt)
-    cross = rfc8785.dumps(receipt)
-    if body != cross:
-        print("FATAL: substrate JCS and rfc8785 disagree on the receipt bytes",
-              file=sys.stderr)
-        return 3
-
+    body = _canon(receipt)
     created = int(time.time())
     sig = sign_request(method="POST", authority=AUTHORITY, path=PATH,
                        body=body, private_key=seed_hex,
@@ -149,7 +189,6 @@ def main() -> int:
     envelope = {
         "receipt": receipt,
         "seal": {
-            "alg": "ed25519",
             "keyid": pub["keyid"],
             "public_key_hex": pub["public_key_hex"],
             "created": created,
@@ -157,23 +196,23 @@ def main() -> int:
             "content_digest": sig.content_digest,
             "signature_input": sig.signature_input,
             "signature": sig.signature,
-            "canon": {"engine": "algovoi-substrate",
-                      "engine_version": _pkg_version("algovoi-substrate"),
-                      "cross_check": "rfc8785",
-                      "cross_check_version": _pkg_version("rfc8785"),
-                      "match": True},
-            "signer_pkg": f"algovoi-rfc9421-signer=={_pkg_version('algovoi-rfc9421-signer')}",
-            "verifier_target": "algovoi-rfc9421-verifier>=0.3.3",
         },
     }
 
-    n = len(list(args.receipts_dir.glob("rcpt-*.json"))) + 1
+    # Number by max existing index + 1 (never by count, which collides after a
+    # deletion), pad wide enough to keep lexicographic order.
+    max_idx = 0
+    for r in rcpts:
+        m = re.match(r"rcpt-(\d+)-", r.name)
+        if m:
+            max_idx = max(max_idx, int(m.group(1)))
+    n = max_idx + 1
     safe_run = re.sub(r"[^A-Za-z0-9_.-]", "_", run_meta["run_id"])
-    out = args.receipts_dir / f"rcpt-{n:04d}-{safe_run}.json"
+    out = args.receipts_dir / f"rcpt-{n:06d}-{safe_run}.json"
     args.receipts_dir.mkdir(parents=True, exist_ok=True)
-    env_bytes = canonicalize_bytes(envelope)
+    env_bytes = _canon(envelope)
     out.write_bytes(env_bytes)
-    print(f"sealed {out.name} sha256={hashlib.sha256(env_bytes).hexdigest()}")
+    print(f"sealed {out.name} seq={seq} sha256={hashlib.sha256(env_bytes).hexdigest()}")
     return 0
 
 
