@@ -1,0 +1,25 @@
+{
+  "pillar": "consensus",
+  "description": "Inputs with a single RFC 8785 canonical form (expect agree: all impls emit the same hash) or that are not valid JSON per RFC 8259 (expect reject: all impls refuse). Full N-way agreement is the property a 2-implementation corpus cannot demonstrate.",
+  "cases": [
+    {"id": "con-key-order",        "expect": "agree",  "raw": "{\"b\":1,\"a\":2}",                              "note": "object keys sorted by UTF-16 code unit"},
+    {"id": "con-nested",           "expect": "agree",  "raw": "{\"z\":{\"y\":1,\"x\":2},\"a\":[3,2,1]}",        "note": "nested sort; array order preserved"},
+    {"id": "con-unicode-nfc",      "expect": "agree",  "raw": "{\"k\":\"café\"}",                          "note": "single-codepoint accented char, byte-preserved"},
+    {"id": "con-empty-containers", "expect": "agree",  "raw": "{\"a\":{},\"b\":[]}",                            "note": "empty object and array"},
+    {"id": "con-int-zero",         "expect": "agree",  "raw": "{\"n\":0}",                                      "note": "integer zero"},
+    {"id": "con-int-neg",          "expect": "agree",  "raw": "{\"n\":-42}",                                    "note": "negative integer"},
+    {"id": "con-bool-null",        "expect": "agree",  "raw": "{\"a\":true,\"b\":false,\"c\":null}",            "note": "literals"},
+    {"id": "con-string-escapes",   "expect": "agree",  "raw": "{\"s\":\"a\\\"b\\\\c\"}",                        "note": "quote + backslash must be minimally escaped"},
+    {"id": "con-slash-unescaped",  "expect": "agree",  "raw": "{\"u\":\"http://a/b\"}",                         "note": "forward slash NOT escaped in JCS"},
+    {"id": "con-control-tab",      "expect": "agree",  "raw": "{\"s\":\"a\\tb\"}",                              "note": "tab must be \\t"},
+    {"id": "con-array-strings",    "expect": "agree",  "raw": "{\"a\":[\"b\",\"a\",\"c\"]}",                    "note": "array element order preserved, not sorted"},
+    {"id": "con-large-int-safe",   "expect": "agree",  "raw": "{\"n\":123456789}",                             "note": "integer within 2^53 safe range"},
+
+    {"id": "rej-trailing-comma",   "expect": "reject", "raw": "{\"a\":1,}",                                    "note": "trailing comma is invalid JSON"},
+    {"id": "rej-unquoted-key",     "expect": "reject", "raw": "{a:1}",                                         "note": "unquoted object key"},
+    {"id": "rej-single-quote",     "expect": "reject", "raw": "{'a':1}",                                       "note": "single-quoted key/string"},
+    {"id": "rej-bareword",         "expect": "reject", "raw": "foo",                                           "note": "top-level bareword"},
+    {"id": "rej-empty-input",      "expect": "reject", "raw": "",                                              "note": "empty document"},
+    {"id": "rej-trailing-garbage", "expect": "reject", "raw": "{\"a\":1}x",                                    "note": "trailing garbage after value"}
+  ]
+}

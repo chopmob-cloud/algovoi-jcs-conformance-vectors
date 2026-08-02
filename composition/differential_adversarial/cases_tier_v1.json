@@ -1,0 +1,42 @@
+{
+  "pillar": "tier-semantic",
+  "description": "Real AlgoVoi L2/L3 preimages (decision_audit, guard_context, revocation_link, settlement) canonicalized differentially. Each construction is tested three ways: canonical form (agree), key-order-scrambled form (must hash identically -> same_as), and one-field-tampered form (must hash differently -> differs_from). All verified across every implementation, so no single canonicalizer can be tricked into a key-order or tamper collision. Sourced from the same rules as the keystone/revocation/settlement gauntlets.",
+  "cases": [
+    {"id": "tier-da-canonical",  "expect": "agree",
+      "raw": "{\"decision_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mandate_ref\":\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"passport_credential_ref\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"policy_bound_ref\":\"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"}",
+      "note": "decision_audit preimage, keys pre-sorted"},
+    {"id": "tier-da-scrambled",  "expect": "agree", "same_as": "tier-da-canonical",
+      "raw": "{\"policy_bound_ref\":\"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"passport_credential_ref\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"decision_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"mandate_ref\":\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\"}",
+      "note": "same fields, keys scrambled -> canonicalization must erase order across all 10"},
+    {"id": "tier-da-tampered",   "expect": "agree", "differs_from": "tier-da-canonical",
+      "raw": "{\"decision_ref\":\"sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"mandate_ref\":\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"passport_credential_ref\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"policy_bound_ref\":\"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"}",
+      "note": "decision_ref flipped -> digest must change on every impl (no tamper collision)"},
+
+    {"id": "tier-gc-canonical",  "expect": "agree",
+      "raw": "{\"canon_version\":\"jcs-rfc8785-v1\",\"guard_timestamp_ms\":1720000000000,\"mandate_ref\":\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"passport_credential_ref\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"policy_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"type\":\"guard_context\"}",
+      "note": "guard_context preimage"},
+    {"id": "tier-gc-scrambled",  "expect": "agree", "same_as": "tier-gc-canonical",
+      "raw": "{\"type\":\"guard_context\",\"policy_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"passport_credential_ref\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"mandate_ref\":\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"guard_timestamp_ms\":1720000000000,\"canon_version\":\"jcs-rfc8785-v1\"}",
+      "note": "reverse key order -> same hash"},
+    {"id": "tier-gc-tampered",   "expect": "agree", "differs_from": "tier-gc-canonical",
+      "raw": "{\"canon_version\":\"jcs-rfc8785-v1\",\"guard_timestamp_ms\":1720000000001,\"mandate_ref\":\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"passport_credential_ref\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"policy_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"type\":\"guard_context\"}",
+      "note": "timestamp +1ms -> digest must change"},
+
+    {"id": "tier-rev-canonical", "expect": "agree",
+      "raw": "{\"canon_version\":\"jcs-rfc8785-v1\",\"issuer_did\":\"did:algovoi:issuer-01\",\"new_status\":\"revoked\",\"prev_revocation_ref\":null,\"prev_status\":\"active\",\"reason_code\":\"KEY_COMPROMISE\",\"revoked_at_ms\":1720000000000,\"seq\":0,\"subject_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"type\":\"revocation_link\"}",
+      "note": "revocation_link genesis preimage (prev_revocation_ref null)"},
+    {"id": "tier-rev-scrambled", "expect": "agree", "same_as": "tier-rev-canonical",
+      "raw": "{\"type\":\"revocation_link\",\"subject_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"seq\":0,\"revoked_at_ms\":1720000000000,\"reason_code\":\"KEY_COMPROMISE\",\"prev_status\":\"active\",\"prev_revocation_ref\":null,\"new_status\":\"revoked\",\"issuer_did\":\"did:algovoi:issuer-01\",\"canon_version\":\"jcs-rfc8785-v1\"}",
+      "note": "reverse key order incl. explicit null -> same hash"},
+    {"id": "tier-rev-tampered",  "expect": "agree", "differs_from": "tier-rev-canonical",
+      "raw": "{\"canon_version\":\"jcs-rfc8785-v1\",\"issuer_did\":\"did:algovoi:issuer-01\",\"new_status\":\"revoked\",\"prev_revocation_ref\":null,\"prev_status\":\"active\",\"reason_code\":\"USER_REQUESTED\",\"revoked_at_ms\":1720000000000,\"seq\":0,\"subject_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"type\":\"revocation_link\"}",
+      "note": "reason_code changed -> digest must change"},
+
+    {"id": "tier-settle-canonical", "expect": "agree",
+      "raw": "{\"canon_version\":\"jcs-rfc8785-v1\",\"settlement_round\":42,\"subject_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"type\":\"settlement_attestation\"}",
+      "note": "settlement attestation preimage with positive-integer round"},
+    {"id": "tier-settle-scrambled", "expect": "agree", "same_as": "tier-settle-canonical",
+      "raw": "{\"type\":\"settlement_attestation\",\"subject_ref\":\"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"settlement_round\":42,\"canon_version\":\"jcs-rfc8785-v1\"}",
+      "note": "reverse key order -> same hash"}
+  ]
+}
