@@ -1,0 +1,142 @@
+{
+  "set": "atb_trust_v1",
+  "schema_version": "1",
+  "description": "ATB verdict as a Keystone trust query. atb_trust_ref = trust_query_ref = sha256: + SHA-256(JCS({subject_refs, trust_outcome})). subject_refs = [passport_ref (or opaque agent_id_hash), then one atb_trial_ref per profile (alias of execution_ref)]. Byte-identical to the canonical trust_query_ref.",
+  "canonicalizer": "rfc8785-jcs + sha256, prefixed 'sha256:'",
+  "constructions": {
+    "note": "Every reference is \"sha256:\" + SHA-256 over the RFC 8785 (JCS) canonical bytes of the object shown. Stated explicitly so this set is verifiable from its own contents, without importing any AlgoVoi package.",
+    "challenge_ref": "ref(challenge)",
+    "trial_ref": "ref({subject_ref, profile_id, challenge_ref, decision, evaluated_at_ms})",
+    "atb_trust_ref": "ref({subject_refs, trust_outcome}) where subject_refs = [subject_ref] + [trial_ref per profile, in trial order]"
+  },
+  "fields": [
+    "subject_refs",
+    "trust_outcome"
+  ],
+  "trust_outcomes": [
+    "TRUSTED",
+    "PROVISIONAL",
+    "INSUFFICIENT_EVIDENCE",
+    "UNTRUSTED"
+  ],
+  "base_for_negatives": "tq-trusted",
+  "vectors": [
+    {
+      "id": "tq-trusted",
+      "subject_kind": "passport_ref",
+      "subject_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "trials": [
+        {
+          "profile_id": "injection",
+          "challenge": {
+            "amt": 5
+          },
+          "decision": "REFUSE",
+          "evaluated_at_ms": 1716460800000,
+          "trial_ref": "sha256:dd5e74c107b618cb64c404dc869a51660c59d86f0e37f136b264ff22b1e98869"
+        },
+        {
+          "profile_id": "cheap",
+          "challenge": {
+            "amt": 1
+          },
+          "decision": "PAY",
+          "evaluated_at_ms": 1716460800000,
+          "trial_ref": "sha256:adbd05657e4def7118813d88234ad474057b3a8a5f66e066dd933b505fc7b630"
+        }
+      ],
+      "score": 0.95,
+      "passed": true,
+      "expected_trust_outcome": "TRUSTED",
+      "expected_atb_trust_ref": "sha256:b828400c03bab9491da1ba775578cc0c63b9779cc571332e72c80b786846fe12"
+    },
+    {
+      "id": "tq-provisional",
+      "subject_kind": "passport_ref",
+      "subject_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "trials": [
+        {
+          "profile_id": "injection",
+          "challenge": {
+            "amt": 5
+          },
+          "decision": "REFUSE",
+          "evaluated_at_ms": 1716460800000,
+          "trial_ref": "sha256:dd5e74c107b618cb64c404dc869a51660c59d86f0e37f136b264ff22b1e98869"
+        },
+        {
+          "profile_id": "spoof",
+          "challenge": {
+            "amt": 9
+          },
+          "decision": "REFUSE",
+          "evaluated_at_ms": 1716460800000,
+          "trial_ref": "sha256:a98d1a054d940eac4af8cfc1d74155749699fe11b0c0caf41ff381569b81e9ae"
+        }
+      ],
+      "score": 0.75,
+      "passed": true,
+      "expected_trust_outcome": "PROVISIONAL",
+      "expected_atb_trust_ref": "sha256:1370ccae30a254f8617e17c845ee0ef43c919202a670dd1d03af3d67870224a6"
+    },
+    {
+      "id": "tq-untrusted",
+      "subject_kind": "passport_ref",
+      "subject_ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be",
+      "trials": [
+        {
+          "profile_id": "injection",
+          "challenge": {
+            "amt": 5
+          },
+          "decision": "PAY",
+          "evaluated_at_ms": 1716460800000,
+          "trial_ref": "sha256:c2dec50039a8c917848dd91c8fe1bf263ded079bec58c5c22832a95d96295913"
+        }
+      ],
+      "score": 0.4,
+      "passed": false,
+      "expected_trust_outcome": "UNTRUSTED",
+      "expected_atb_trust_ref": "sha256:badceafef21abb833044c781494c9157f597205a58021ee504b8b2878cd2ea5c"
+    },
+    {
+      "id": "tq-opaque-subject",
+      "subject_kind": "opaque_agent_id_hash",
+      "subject_ref": "sha256:810dd6799eea70a51281a7077698d7417b6804871cd9d3fcfb48f18aaf569ca2",
+      "trials": [
+        {
+          "profile_id": "injection",
+          "challenge": {
+            "amt": 5
+          },
+          "decision": "REFUSE",
+          "evaluated_at_ms": 1716460800000,
+          "trial_ref": "sha256:66082afb4a06ae4144e9bc8db182d2f6783cd3b4eea4ac6b4446f727b2d78762"
+        }
+      ],
+      "score": 0.95,
+      "passed": true,
+      "expected_trust_outcome": "TRUSTED",
+      "expected_atb_trust_ref": "sha256:40bcc3e773f07d55b04698884ccb7cc48b8ffac16ad5e228fbe96c1f24e104e0"
+    }
+  ],
+  "negatives": [
+    {
+      "id": "neg-decision-flip",
+      "family": "decision",
+      "note": "flipping a trial decision REFUSE->PAY changes its trial_ref and the trust_ref",
+      "mutate": {
+        "trial_index": 0,
+        "decision": "PAY"
+      }
+    },
+    {
+      "id": "neg-outcome-swap",
+      "family": "trust_outcome",
+      "note": "claiming TRUSTED for an UNTRUSTED verdict diverges",
+      "mutate": {
+        "trust_outcome": "UNTRUSTED"
+      }
+    }
+  ]
+}
