@@ -2,13 +2,21 @@
 """
 AlgoVoi multi-chain Ed25519 fixture generator.
 
-Demonstrates the same A2A payload signed with Ed25519 keys from three blockchains.
+Demonstrates the same A2A payload signed with Ed25519 keys assigned to three
+blockchain BIP44 derivation paths.
 
-Deterministic: the timestamp is frozen (was int(time.time())) so the fixture
-regenerates byte-for-byte, and files are written with LF newlines. Signatures are
-produced with the real per-chain seeds (seed_hex); the published `chains` block
-intentionally carries redacted placeholder seeds (published_seed_hex) -- the
-fixture demonstrates cross-chain signing, it is not a key-disclosure vector.
+KEYS ARE PUBLIC TEST VECTORS. Each chain uses a distinct secret key drawn
+verbatim from RFC 8032 section 7.1 (Test 1, Test 2, Test 3). These are the
+world-published Ed25519 test seeds; they are NOT real accounts and control no
+funds. Using them makes the fixture internally verifiable from published
+material alone: the seed_hex in the `chains` block IS the seed that produced
+each signature, and each derived public key is published alongside, so any
+third party can reproduce every signature (and verify it) with only
+fixture.json. There is no hidden or redacted key material anywhere in this
+vector.
+
+Deterministic: the timestamp is frozen so the fixture regenerates
+byte-for-byte, and files are written with LF newlines.
 """
 
 import json
@@ -41,42 +49,46 @@ SPEC_REFS = {
     "a2a_issue": "https://github.com/a2aproject/A2A/issues/1829"
 }
 
+# Each chain is assigned one RFC 8032 section 7.1 test secret key. Public,
+# documented, distinct, and deliberately NOT real accounts.
 CHAINS = {
     "algorand": {
         "path": "m/44'/283'/0'/0'/0'",
         "description": "Algorand Ed25519 (AVM standard)",
-        "seed_hex": "df8e966c94469b23598aafaee6c14463ad40dc6286babad3096cb413979a8116",
-        "published_seed_hex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+        "seed_source": "RFC 8032 section 7.1 Test 1 secret key",
+        "seed_hex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
     },
     "solana": {
         "path": "m/44'/501'/0'/0'",
         "description": "Solana Ed25519 (SPL standard)",
-        "seed_hex": "615666dae9d3625adaef933e4c1ed0158f657a22c2f570edcd1f7caa68e16413",
-        "published_seed_hex": "c5b1e1a2d3f4e5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9",
+        "seed_source": "RFC 8032 section 7.1 Test 2 secret key",
+        "seed_hex": "4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb",
     },
     "stellar": {
         "path": "m/44'/148'/0'",
         "description": "Stellar Ed25519 (Stellar standard)",
-        "seed_hex": "232ed6f9fabf14e3bb55392b18cfe3d0febc94d20cc6327c38a1d075d6ea118c",
-        "published_seed_hex": "d5c4b3a29f8e7d6c5b4a39f2e1d0c9b8a7f6e5d4c3b2a19f0e9d8c7b6a5f4",
+        "seed_source": "RFC 8032 section 7.1 Test 3 secret key",
+        "seed_hex": "c5aa8df43f9f837bedb7442f31dcb7b166d38535076f094b85ce3a2e0b4458f7",
     }
 }
 
 
 def sign_with_ed25519(payload_json, seed_hex, chain_name):
     if not HAS_NACL:
-        return None, None
+        return None, None, None
     try:
         seed_bytes = bytes.fromhex(seed_hex)
         if len(seed_bytes) != 32:
             raise ValueError(f"Seed must be 32 bytes, got {len(seed_bytes)}")
         signing_key = SigningKey(seed_bytes)
+        public_key_hex = signing_key.verify_key.encode().hex()
         signed_msg = signing_key.sign(payload_json.encode('utf-8'))
         signature_bytes = signed_msg.signature
-        return base64.b64encode(signature_bytes).decode('ascii'), signature_bytes.hex()
+        return (base64.b64encode(signature_bytes).decode('ascii'),
+                signature_bytes.hex(), public_key_hex)
     except Exception as e:
         print(f"[ERROR] {chain_name} signing failed: {e}")
-        return None, None
+        return None, None, None
 
 
 def generate_multichain_fixture():
@@ -84,23 +96,26 @@ def generate_multichain_fixture():
     payload_sha256 = hashlib.sha256(payload_json.encode()).hexdigest()
 
     signatures = {}
+    published_chains = {}
     for chain_name, chain_info in CHAINS.items():
-        sig_b64, sig_hex = sign_with_ed25519(payload_json, chain_info["seed_hex"], chain_name)
+        sig_b64, sig_hex, pub_hex = sign_with_ed25519(
+            payload_json, chain_info["seed_hex"], chain_name)
         signatures[chain_name] = {
             "signature_b64": sig_b64,
             "signature_hex": sig_hex,
             "derivation_path": chain_info["path"],
             "chain": chain_name,
         }
-
-    published_chains = {
-        name: {
-            "path": info["path"],
-            "description": info["description"],
-            "seed_hex": info["published_seed_hex"],
+        # The published block carries the SAME seed that produced the
+        # signature (a public RFC 8032 test key) plus its derived public key,
+        # so the fixture verifies from its own bytes with no external secret.
+        published_chains[chain_name] = {
+            "path": chain_info["path"],
+            "description": chain_info["description"],
+            "seed_source": chain_info["seed_source"],
+            "seed_hex": chain_info["seed_hex"],
+            "public_key_hex": pub_hex,
         }
-        for name, info in CHAINS.items()
-    }
 
     evidence = [f"{name}: derivation path {info['path']}" for name, info in CHAINS.items()]
 
@@ -108,6 +123,7 @@ def generate_multichain_fixture():
         "layer": "MULTICHAIN",
         "description": "A2A payload signed with Ed25519 keys from three blockchain derivation paths",
         "spec_refs": SPEC_REFS,
+        "key_material_note": "All seed_hex values are public RFC 8032 section 7.1 test keys (Test 1/2/3). They are not real accounts and control no funds; they are published so the fixture is self-verifiable.",
         "payload": PAYLOAD,
         "payload_canonical_json": payload_json,
         "payload_sha256": payload_sha256,

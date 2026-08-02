@@ -51,14 +51,23 @@ The payload is fixed across all three chains:
 
 ## Chain-derivation paths + reference signatures
 
-| Chain | BIP44 path | Signature (b64) |
-|---|---|---|
-| Algorand | `m/44'/283'/0'/0'/0'` | `fj0plkJ/UCBYSj4e9VAzVJYd+VOoTcP41rVogfBdgjDcxC//0cI+E/nua7plXEMucEvkSJHJeFaaAmhhtPfnBA==` |
-| Solana | `m/44'/501'/0'/0'` | `ytE+NFOiKWC+hMUO/i7x0hLHzI648kPfOChn9G+B3TV9YtcdGFqV4DmJxz0FVPfPiWn5/zgwqp6GWI/UrfB1Dw==` |
-| Stellar | `m/44'/148'/0'` | `6brTXQAQiyCMSlPOTetxsLxLFs9N65Hcu3II2jTpClnDiGrvt0waDNfbrT0Q0cDpv4RLsqyxYzb+mZQuHgC6CQ==` |
+| Chain | BIP44 path | Seed (public RFC 8032 test key) | Signature (b64) |
+|---|---|---|---|
+| Algorand | `m/44'/283'/0'/0'/0'` | RFC 8032 §7.1 Test 1 | `qoMbqpif7uIWTuHFyMve5JkGQMFXt+xWjO/92gYHIcUu44MeStHFUETWXsue9XE8VPTs52PXAD77nxm+/skOBg==` |
+| Solana | `m/44'/501'/0'/0'` | RFC 8032 §7.1 Test 2 | `5uNWRMQpCDdUQUSqa1k7E+bm0/4A7ZmGzXIDlnTgdceBWg3jt5pxmb++TSXPvUdQjFcbCeg17GgMx++/mZaYCw==` |
+| Stellar | `m/44'/148'/0'` | RFC 8032 §7.1 Test 3 | `VBX539//gTmivgd8VJFhxHZ5UsfytlVLX1u70A0M3f1Pza8Dqlocwp2Y8Lm7228bRTA5bxeryVvQkRV5ORyGDg==` |
 
 Each signature is the RFC 8032 reference Ed25519 signature over the
-canonical bytes of the payload, using the chain-specific derived key.
+canonical bytes of the payload, using the chain-specific key.
+
+**Key material is public.** Each chain is assigned a distinct secret key drawn
+verbatim from RFC 8032 section 7.1 (Test 1, Test 2, Test 3), the
+world-published Ed25519 test vectors. They are not real accounts and control
+no funds. They are published in `fixture.json` (with each derived public key)
+precisely so the fixture is self-verifiable: the `seed_hex` in the `chains`
+block is the seed that produced each signature, so `verify.py` reproduces and
+verifies every signature from `fixture.json` alone, with nothing hidden or
+hardcoded.
 
 ## What this fixture proves
 
@@ -85,9 +94,9 @@ canonical bytes of the payload, using the chain-specific derived key.
 | File | Purpose |
 |---|---|
 | `payload.json` | The shared payload (pretty-printed) |
-| `fixture.json` | Full fixture: canonical bytes + three signatures + per-chain derivation paths + chain seeds |
-| `generate.py` | Re-generates the three signatures from the deterministic chain seeds |
-| `verify.py` | Validates byte-match of all three signatures against the fixture |
+| `fixture.json` | Full fixture: canonical bytes + three signatures + per-chain derivation paths + public seeds + derived public keys |
+| `generate.py` | Re-generates the three signatures from the public RFC 8032 test seeds |
+| `verify.py` | Re-derives each public key and re-signs + verifies all three signatures using only fixture.json (no hardcoded key material) |
 
 ## How to validate
 
@@ -102,9 +111,9 @@ Expected output:
 [OK] Loaded fixture.json
 A2A Payload: 221 bytes
 Payload SHA-256: 4f867161a905274c1d94aaa0bd0b093c4dcbcc10db5196aa7be11b120b56267c
-[OK] ALGORAND signature byte-match
-[OK] SOLANA   signature byte-match
-[OK] STELLAR  signature byte-match
+[OK] ALGORAND pubkey + signature byte-match + verify
+[OK] SOLANA   pubkey + signature byte-match + verify
+[OK] STELLAR  pubkey + signature byte-match + verify
 === VERIFICATION COMPLETE ===
 ```
 

@@ -2,51 +2,64 @@
 """
 AlgoVoi multi-chain Ed25519 fixture verifier.
 
-Validates that the same A2A payload was signed authentically with
-three different Ed25519 keys derived from standard BIP44 paths.
+Validates that the same A2A payload was signed with three Ed25519 keys assigned
+to three BIP44 derivation paths (Algorand, Solana, Stellar).
+
+Self-contained: every input comes from fixture.json. No key material is
+hardcoded here. For each chain the verifier
+
+  1. re-derives the public key from the published seed_hex and checks it
+     matches the published public_key_hex,
+  2. re-signs the canonical payload with that seed and byte-matches the
+     published signature (determinism), and
+  3. verifies the published signature against the published public key
+     (the actual Ed25519 verification a downstream consumer would run).
+
+The seeds are public RFC 8032 test keys (see fixture.json key_material_note);
+they are published precisely so this verification needs nothing external.
 """
 
 import json
 import sys
 import base64
-import hashlib
 from pathlib import Path as _Path
 _HERE = _Path(__file__).resolve().parent  # fixtures resolve from the script, not the caller's cwd
 
 try:
-    from nacl.signing import SigningKey
+    from nacl.signing import SigningKey, VerifyKey
     HAS_NACL = True
 except ImportError:
     HAS_NACL = False
 
-CHAINS = {
-    "algorand": {"path": "m/44'/283'/0'/0'/0'", "seed_hex": "df8e966c94469b23598aafaee6c14463ad40dc6286babad3096cb413979a8116"},
-    "solana": {"path": "m/44'/501'/0'/0'", "seed_hex": "615666dae9d3625adaef933e4c1ed0158f657a22c2f570edcd1f7caa68e16413"},
-    "stellar": {"path": "m/44'/148'/0'", "seed_hex": "232ed6f9fabf14e3bb55392b18cfe3d0febc94d20cc6327c38a1d075d6ea118c"}
-}
 
-def verify_ed25519_signature(payload_json, expected_sig_b64, seed_hex, chain_name):
-    """Re-derive Ed25519 signature and compare."""
-    if not HAS_NACL:
-        return False
-
+def verify_chain(payload_json, sig_info, chain_pub, chain_name):
+    """Verify one chain entirely from published fixture material."""
+    seed_hex = chain_pub["seed_hex"]
+    published_pub = chain_pub["public_key_hex"]
+    expected_sig_b64 = sig_info["signature_b64"]
     try:
-        seed_bytes = bytes.fromhex(seed_hex)
-        signing_key = SigningKey(seed_bytes)
-        payload_bytes = payload_json.encode('utf-8')
-        signed_msg = signing_key.sign(payload_bytes)
-        signature_bytes = signed_msg.signature
-        derived_sig_b64 = base64.b64encode(signature_bytes).decode('ascii')
-
-        if derived_sig_b64 == expected_sig_b64:
-            print(f"[OK] {chain_name.upper():8} signature byte-match")
-            return True
-        else:
-            print(f"[FAIL] {chain_name.upper():8} signature mismatch")
+        signing_key = SigningKey(bytes.fromhex(seed_hex))
+        derived_pub = signing_key.verify_key.encode().hex()
+        if derived_pub != published_pub:
+            print(f"[FAIL] {chain_name.upper():8} public key mismatch")
             return False
+
+        payload_bytes = payload_json.encode('utf-8')
+        derived_sig = signing_key.sign(payload_bytes).signature
+        if base64.b64encode(derived_sig).decode('ascii') != expected_sig_b64:
+            print(f"[FAIL] {chain_name.upper():8} signature byte mismatch")
+            return False
+
+        # Independent verification against the public key (not just re-signing).
+        VerifyKey(bytes.fromhex(published_pub)).verify(
+            payload_bytes, base64.b64decode(expected_sig_b64))
+
+        print(f"[OK] {chain_name.upper():8} pubkey + signature byte-match + verify")
+        return True
     except Exception as e:
         print(f"[ERROR] {chain_name} verification failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -77,18 +90,12 @@ if __name__ == "__main__":
 
     all_valid = True
     for chain_name, sig_info in fixture["signatures"].items():
-        chain_config = CHAINS[chain_name]
-        valid = verify_ed25519_signature(
-            payload_json,
-            sig_info["signature_b64"],
-            chain_config["seed_hex"],
-            chain_name
-        )
-        all_valid = all_valid and valid
+        chain_pub = fixture["chains"][chain_name]
+        all_valid = verify_chain(payload_json, sig_info, chain_pub, chain_name) and all_valid
 
     print()
     print("=== VERIFICATION COMPLETE ===")
-    
+
     if all_valid:
         print("All three chains signed the same A2A payload authentically.")
         print("Wire-format is substrate-independent across Algorand, Solana, Stellar.")
