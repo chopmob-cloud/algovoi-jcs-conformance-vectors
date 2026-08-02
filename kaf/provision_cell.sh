@@ -76,12 +76,16 @@ case "$CELL_LANG" in
   go)
     # Warm the module cache for every go runner set so execution can build
     # with GOPROXY=off. The build cache stays cold at exec (writable /tmp).
+    # Use `go mod download` (NOT `all`): the main-module deps are fully pinned
+    # in each committed go.sum, so this needs no go.sum write, whereas
+    # `download all` reaches into dependencies' test deps whose hashes are not
+    # in our go.sum and then fails writing go.sum into the read-only /corpus.
     export GOMODCACHE=/cellenv/gomod GOPATH=/cellenv/go GOCACHE=/tmp/gocache
     mkdir -p "$GOMODCACHE" "$GOPATH"
     for m in /corpus/vectors/*/go.mod; do
       [ -f "$m" ] || continue
       d=$(dirname "$m"); s=$(basename "$d")
-      ( cd "$d" && timeout 300 go mod download all >/dev/null 2>&1 ) || {
+      ( cd "$d" && timeout 300 go mod download >/dev/null 2>&1 ) || {
         note "go mod download failed (recorded): $s"; FAILED="$FAILED $s(gomod)"; }
     done
     ;;
