@@ -5,3 +5,5 @@ java/out/
 rust/target/
 dotnet/bin/
 dotnet/obj/
+dotnet_gc/bin/
+dotnet_gc/obj/

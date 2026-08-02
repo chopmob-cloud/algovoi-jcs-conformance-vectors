@@ -39,6 +39,19 @@ node   gauntlet_node.mjs   ../../vectors/keystone_decision_audit_v1/keystone_dec
 go run gauntlet_go.go      ../../vectors/keystone_decision_audit_v1/keystone_decision_audit_v1.json
 ```
 
+## guard_context (live-run 2026-08-02)
+
+`keystone_guard_context_v1` (1 positive + 4 negative + 2 invariant = 7 checks/impl),
+`guard_context_ref = "sha256:" + SHA-256(JCS({canon_version, type, guard_timestamp_ms,
+policy_ref, mandate_ref, passport_credential_ref}))`, non-negative-integer timestamp
+enforced. Same 8 implementations, each fail-closing on timestamp/ref tamper and the
+two invariants (moment-distinctness; non-integer guard_timestamp_ms rejected):
+
+**56/56 across 8 implementations (local).** Run: `bash run_guard_context_gauntlet.sh`.
+
+The keystone L3 tier (both decision_audit and guard_context) is now fully 8-impl
+fail-closed: **120/120** combined.
+
 ## Extension path
 
 php, ruby, rust, java, dotnet each already have a proven JCS+SHA-256 runner in
