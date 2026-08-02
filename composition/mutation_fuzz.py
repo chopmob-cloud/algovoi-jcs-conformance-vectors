@@ -86,13 +86,29 @@ def fixture_of(setdir):
     js = [p for p in setdir.glob("*.json") if p.name not in ("package.json","package-lock.json")]
     return js[0] if js else None
 
+# Base dependencies every substrate runner needs. Their absence is NOT a
+# per-set signature-dep skip: it makes almost every baseline fail, which
+# previously drained the run to zero real tests while still printing green.
+# Treat a missing base dep as a hard error so the fuzzer never claims
+# "all runners reject forged evidence" from an environment that could not run
+# a single runner.
+BASE_DEPS = ("algovoi_substrate", "rfc8785")
+
 def run(setdir, fixture):
     r = subprocess.run([sys.executable, "runner_python.py", fixture.name],
                        cwd=setdir, capture_output=True, text=True, timeout=120)
     return r.returncode
 
 def main():
-    escapes, tested, skipped = [], 0, []
+    missing_base = [d for d in BASE_DEPS if not importable(d)]
+    if missing_base:
+        print(f"MUTATION FUZZ: cannot run, missing base deps: {' '.join(missing_base)}",
+              file=sys.stderr)
+        print("  (install the corpus requirements; a negative-test suite must not "
+              "report green from an environment it cannot execute in)", file=sys.stderr)
+        return 2
+
+    escapes, caught, baseline_fails, tested, skipped = [], 0, [], 0, []
     for setdir in sorted(p for p in VEC.iterdir() if p.is_dir()):
         if not (setdir / "runner_python.py").exists():
             continue
@@ -115,17 +131,32 @@ def main():
             setp(mobj, path, flip(orig))
             (dst / fx.name).write_text(json.dumps(mobj, indent=2) + "\n", encoding="utf-8", newline="\n")
             tam_rc = run(dst, dst / fx.name)
-        status = "CAUGHT" if tam_rc != 0 else "ESCAPE"
-        if base_rc != 0: status = f"BASELINE-FAIL(rc={base_rc})"
-        if status == "ESCAPE": escapes.append(setdir.name)
+        if base_rc != 0:
+            status = f"BASELINE-FAIL(rc={base_rc})"
+            baseline_fails.append(setdir.name)
+        elif tam_rc != 0:
+            status = "CAUGHT"; caught += 1
+        else:
+            status = "ESCAPE"; escapes.append(setdir.name)
         tested += 1
         print(f"  {status:16s} {setdir.name:36s} target={'/'.join(str(p) for p in path)[:48]}")
-    print(f"\nMUTATION FUZZ: tested={tested}  escapes={len(escapes)}  skipped={len(skipped)}")
+    print(f"\nMUTATION FUZZ: tested={tested}  caught={caught}  escapes={len(escapes)}"
+          f"  baseline_fails={len(baseline_fails)}  skipped={len(skipped)}")
     if skipped: print("  skipped:", " ".join(skipped))
+    # Positive-work floor: green requires that mutations were actually caught,
+    # no runner accepted a forgery, and no baseline failed. Any of these being
+    # off means the suite did not prove what its banner claims.
     if escapes:
         print("  !!! ESCAPES (accepted forged evidence):", " ".join(escapes))
         return 1
-    print("  ALL RUNNERS REJECTED TAMPERED EVIDENCE (load-bearing).")
+    if baseline_fails:
+        print("  !!! BASELINE FAILURES (runner could not pass its own fixture):",
+              " ".join(baseline_fails))
+        return 1
+    if caught == 0:
+        print("  !!! NO MUTATIONS EXERCISED (nothing was actually tested)")
+        return 1
+    print(f"  ALL {caught} TAMPERS REJECTED, 0 escapes, 0 baseline failures (load-bearing).")
     return 0
 
 if __name__ == "__main__":

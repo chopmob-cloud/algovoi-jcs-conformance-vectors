@@ -13,10 +13,26 @@ import hashlib, json, sys, unicodedata
 from pathlib import Path
 import rfc8785
 
+# The substrate API that runners actually call. Exercising it (not just the
+# rfc8785 library) is what makes these adversarial properties bind the code
+# under test. Note: within Python the substrate delegates to rfc8785, so
+# genuine cross-implementation independence is proven by the 10-way
+# cross-language differential, not here; this file proves the properties hold
+# on the substrate API surface and that substrate and rfc8785 stay consistent.
+from algovoi_substrate import canonicalize_bytes as _substrate_canon
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 
-def ref(o): return "sha256:" + hashlib.sha256(rfc8785.dumps(o)).hexdigest()
+def _canon(o):
+    """Canonical bytes via the substrate, asserting the substrate stays
+    byte-consistent with the rfc8785 reference on every input we hash."""
+    b = _substrate_canon(o)
+    if b != rfc8785.dumps(o):
+        raise AssertionError("substrate/rfc8785 byte divergence on " + repr(o)[:80])
+    return b
+
+def ref(o): return "sha256:" + hashlib.sha256(_canon(o)).hexdigest()
 
 results = []
 def check(name, cond, detail=""):
@@ -44,12 +60,37 @@ recB = {"issuer_id": 'a', "b\",\"amount\":\"1": "x"}   # attempt to smuggle stru
 check("no collision across restructuring attempt", ref(recA) != ref(recB))
 
 # --- 4. Unicode discipline: NFC pre-normalization is load-bearing ---
-nfc = unicodedata.normalize("NFC", "é")   # normalized -> U+00E9
-nfd = "é"                                  # e + combining acute
+# Derive both forms at RUNTIME so the check is immune to however this source
+# file is Unicode-normalized on disk (a tool that NFC-normalizes the file must
+# not be able to collapse the NFD literal into NFC and silently void the test).
+_e_acute = unicodedata.normalize("NFC", "é")
+nfc = _e_acute                                   # precomposed U+00E9
+nfd = unicodedata.normalize("NFD", _e_acute)     # decomposed U+0065 U+0301
 check("NFC vs NFD are distinct without normalization (rule is load-bearing)",
       ref({"n": nfc}) != ref({"n": nfd}))
 check("NFC-normalizing NFD matches NFC (discipline restores determinism)",
       ref({"n": unicodedata.normalize('NFC', nfd)}) == ref({"n": nfc}))
+
+# --- 4b. Non-BMP (astral) code point: JCS UTF-16 escaping must round-trip ---
+astral = {"clef": "𝄞", "tag": "x"}   # U+1D11E MUSICAL SYMBOL G CLEF
+astral_bytes = _canon(astral)
+check("astral code point round-trips through canonical bytes",
+      json.loads(astral_bytes) == astral)
+
+# --- 4c. Duplicate object member: rejected at parse (RFC 8259 section 4) ---
+def _reject_dupes(pairs):
+    seen = set()
+    for k, _ in pairs:
+        if k in seen:
+            raise ValueError(f"duplicate member: {k}")
+        seen.add(k)
+    return dict(pairs)
+_dup_rejected = False
+try:
+    json.loads('{"a":1,"a":2}', object_pairs_hook=_reject_dupes)
+except ValueError:
+    _dup_rejected = True
+check("duplicate object member rejected at parse (RFC 8259 section 4)", _dup_rejected)
 
 # --- 5. Timestamp form binding: integer epoch-ms != string forms (execution_ref rule) ---
 check("epoch-ms integer != numeric string", ref({"t": 1716460800000}) != ref({"t": "1716460800000"}))
@@ -71,6 +112,10 @@ check("real vector digest invariant under key shuffle",
 
 ok = all(c for _, c, _ in results)
 print(f"\nADVERSARIAL JCS VALIDATION: {sum(c for _,c,_ in results)}/{len(results)} properties hold")
-print("  Substrate canonicalization is real (RFC 8785), malleability-resistant, and binding."
-      if ok else "  !!! CANONICALIZATION PROPERTY VIOLATED")
+if ok:
+    print("  Properties hold on the substrate API (RFC 8785 / RFC 8259).")
+    print("  Cross-implementation independence is proven by the 10-way")
+    print("  cross-language differential, not within Python.")
+else:
+    print("  !!! CANONICALIZATION PROPERTY VIOLATED")
 sys.exit(0 if ok else 1)

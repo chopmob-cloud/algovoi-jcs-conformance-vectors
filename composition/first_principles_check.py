@@ -8,6 +8,15 @@ integers, no whitespace) and hashes with the standard library only. If a bug
 existed in both the substrate and the runners, they would agree and hide it;
 this check cannot, because it shares no code with them.
 
+Scope of the independence claim: the hand serialiser covers exactly the
+preimage shapes these vectors use, ASCII string values and keys, and integers
+within +-2^53. It intentionally FAILS CLOSED (raises) on anything outside that
+subset (non-ASCII, string escaping, larger integers, nested containers), so it
+can never emit a wrong canonical form, but its independent recompute only
+covers that subset. Full JCS number-formatting, string-escaping, and
+UTF-16 key-ordering behaviour is proven elsewhere (adversarial_jcs_check and
+the 10-way cross-language differential), not here.
+
 It recomputes the entire chain from raw preimages:
     action_ref -> transition_hash (COMMITTED) -> settlement_ref
       -> retention_chain_ref -> binding_ref

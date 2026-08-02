@@ -20,6 +20,7 @@ Apache-2.0. (c) AlgoVoi. Redistribution requires NOTICE attribution.
 from __future__ import annotations
 
 import importlib.util
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -103,29 +104,75 @@ def _vector_jsons(set_dir: Path) -> list[str]:
     return ordered
 
 
+# Auxiliary JSONs that are not standalone fixtures a runner verifies on its own
+# (schemas, manifests, expected-output side files, npm/ts config, payload
+# fragments). Everything else in a set dir is treated as a REAL fixture that
+# must verify.
+_AUX_JSON = re.compile(r'schema|manifest|expected|package|tsconfig|payload', re.I)
+
+
+def _real_fixtures(set_dir: Path) -> list[str]:
+    return [c for c in _vector_jsons(set_dir) if not _AUX_JSON.search(Path(c).name)]
+
+
 def _run_set(set_dir: Path) -> tuple[str, str]:
-    """Return (status, detail). status in {PASS, FAIL, SCHEMA}."""
+    """Return (status, detail). status in {PASS, FAIL, SCHEMA}.
+
+    Every REAL fixture the set ships must verify. Running each real fixture
+    through the runner means a runner that consumes argv[1] is tested against
+    all of its fixtures (no passing sibling can mask a failing one), while a
+    runner that ignores argv simply reads its own file for each and returns the
+    same verdict. A no-arg invocation is the fallback only when the set ships no
+    resolvable fixture (runner defaults its own path)."""
     runner = _runner(set_dir)
     if runner is None:
         return "SCHEMA", "no runner (schema/doc-only set)"
-    # Try each candidate json as argv[1], then a no-arg invocation. The first
-    # exit-0 run is authoritative (runners validate expected hashes, so a
-    # wrong file cannot pass).
-    attempts = [[c] for c in _vector_jsons(set_dir)] + [[]]
-    last = None
-    for argv in attempts:
+
+    def _run(argv):
         try:
             r = subprocess.run(
                 [sys.executable, runner, *argv],
                 cwd=set_dir, capture_output=True, text=True, timeout=120,
             )
         except subprocess.TimeoutExpired:
-            return "FAIL", "timeout"
-        if r.returncode == 0:
-            tail = (r.stdout.strip().splitlines() or ["ok"])[-1].strip()
-            return "PASS", tail
-        last = r.returncode
-    return "FAIL", f"rc={last}"
+            return None, "timeout"
+        tail = (r.stdout.strip().splitlines() or ["ok"])[-1].strip()
+        return r.returncode, tail
+
+    fixtures = _real_fixtures(set_dir)
+    if fixtures:
+        results = [(Path(c).name, *_run([c])) for c in fixtures]
+        failed = [(n, rc, d) for (n, rc, d) in results if rc != 0]
+        passed = [(n, rc, d) for (n, rc, d) in results if rc == 0]
+        if failed and passed:
+            # Some real fixtures verified and some did not: a genuine
+            # divergence that a first-pass short-circuit used to hide.
+            return "FAIL", f"{failed[0][0]} rc={failed[0][1]} (sibling(s) passed)"
+        if failed and not passed:
+            # None passed with an explicit fixture: the runner may take no
+            # argv and default its own path -> try that before declaring FAIL.
+            rc, detail = _run([])
+            if rc == 0:
+                return "PASS", detail
+            return "FAIL", f"{failed[0][0]} rc={failed[0][1]}"
+        return "PASS", f"{len(passed)} fixture(s): {passed[-1][2]}"
+
+    rc, detail = _run([])
+    if rc == 0:
+        return "PASS", detail
+    return "FAIL", detail if rc is None else f"rc={rc}"
+
+
+# Pinned coverage floor: the corpus ships this many vector-set directories.
+# A smaller count means a partial checkout or a silently dropped set, which
+# must turn the run red rather than shrink the denominator behind a green
+# verdict. Raise this when sets are added.
+EXPECTED_MIN_SETS = 49
+
+# Sets legitimately shipping no runner (pure schema/doc). Currently none: every
+# set carries a runner, so ANY set resolving to SCHEMA is a renamed/deleted
+# runner and must fail the run, not vanish into a "schema-only" count.
+SCHEMA_ALLOW: set[str] = set()
 
 
 def main() -> int:
@@ -136,8 +183,15 @@ def main() -> int:
     print("offline; SHA-256 + JCS (RFC 8785) over published inputs only")
     print("=" * width)
 
+    if len(set_dirs) < EXPECTED_MIN_SETS:
+        print(f"FATAL: found {len(set_dirs)} vector sets, expected at least "
+              f"{EXPECTED_MIN_SETS}. Partial checkout or a dropped set; refusing "
+              f"to report a verdict over an incomplete corpus.")
+        return 2
+
     npass = nfail = nschema = nexternal = ndeps = 0
     failed = []
+    unexpected_schema = []
     deps_skipped = []
     for d in set_dirs:
         if d.name in EXTERNAL:
@@ -155,6 +209,10 @@ def main() -> int:
             npass += 1
         elif status == "SCHEMA":
             nschema += 1
+            if d.name not in SCHEMA_ALLOW:
+                # A set with no runner that is not on the allow-list is a
+                # renamed/deleted runner, not a doc-only set: fail it.
+                unexpected_schema.append(d.name)
         else:
             nfail += 1
             failed.append(d.name)
@@ -162,87 +220,35 @@ def main() -> int:
         print(f"{mark} {d.name:38s} {detail[:30]}")
 
     print("-" * width)
-    # Composition keystone
-    comp = subprocess.run(
-        [sys.executable, str(HERE / "regulated_lifecycle_v1" / "verify_lifecycle.py")],
-        capture_output=True, text=True,
-    )
-    comp_ok = comp.returncode == 0
-    print(f"{'PASS  ' if comp_ok else 'FAIL  '} regulated_lifecycle_v1 (composition keystone)"
-          f"   {'5/5 links byte-for-byte' if comp_ok else 'BROKEN'}")
-
-    audit = subprocess.run(
-        [sys.executable, str(HERE / "regulatory_audit_trail_v1" / "verify_audit_trail.py")],
-        capture_output=True, text=True,
-    )
-    audit_ok = audit.returncode == 0
-    print(f"{'PASS  ' if audit_ok else 'FAIL  '} regulatory_audit_trail_v1 (audit trail composition)"
-          f"   {'6/6 stages byte-for-byte' if audit_ok else 'BROKEN'}")
-
-    chain = subprocess.run(
-        [sys.executable, str(HERE / "spend_decision_chain_v1" / "verify_chain.py")],
-        capture_output=True, text=True,
-    )
-    chain_ok = chain.returncode == 0
-    print(f"{'PASS  ' if chain_ok else 'FAIL  '} spend_decision_chain_v1 (decision chain composition)"
-          f"   {'8/8 links byte-for-byte' if chain_ok else 'BROKEN'}")
-
-    keystone = subprocess.run(
-        [sys.executable, str(HERE / "keystone_v1" / "verify_keystone.py")],
-        capture_output=True, text=True,
-    )
-    keystone_ok = keystone.returncode == 0
-    print(f"{'PASS  ' if keystone_ok else 'FAIL  '} keystone_v1 (full keystone flow incl execution tier)"
-          f"   {'6/6 links byte-for-byte' if keystone_ok else 'BROKEN'}")
-
-    settlement = subprocess.run(
-        [sys.executable, str(HERE / "settlement_binding_v1" / "verify_settlement_binding.py")],
-        capture_output=True, text=True,
-    )
-    settlement_ok = settlement.returncode == 0
-    print(f"{'PASS  ' if settlement_ok else 'FAIL  '} settlement_binding_v1 (settlement tier binds to keystone execution)"
-          f"   {'6/6 links byte-for-byte' if settlement_ok else 'BROKEN'}")
-
-    pef = subprocess.run(
-        [sys.executable, str(HERE / "pef_keystone_v1" / "verify_pef_keystone.py")],
-        capture_output=True, text=True,
-    )
-    pef_ok = pef.returncode == 0
-    print(f"{'PASS  ' if pef_ok else 'FAIL  '} pef_keystone_v1 (PEF signed-transport wraps + pins a keystone fact)"
-          f"   {'6/6 links byte-for-byte' if pef_ok else 'BROKEN'}")
-
-    refund_x = subprocess.run(
-        [sys.executable, str(HERE / "refund_execution_v1" / "verify_refund_execution.py")],
-        capture_output=True, text=True,
-    )
-    refund_x_ok = refund_x.returncode == 0
-    print(f"{'PASS  ' if refund_x_ok else 'FAIL  '} refund_execution_v1 (refund binds to keystone execution)"
-          f"   {'5/5 links byte-for-byte' if refund_x_ok else 'BROKEN'}")
-
-    acf = subprocess.run(
-        [sys.executable, str(HERE / "audit_chain_of_frames_v1" / "verify_audit_chain_of_frames.py")],
-        capture_output=True, text=True,
-    )
-    acf_ok = acf.returncode == 0
-    print(f"{'PASS  ' if acf_ok else 'FAIL  '} audit_chain_of_frames_v1 (lifecycle as chained PEF frames, capped)"
-          f"   {'6/6 links byte-for-byte' if acf_ok else 'BROKEN'}")
-
-    cgk = subprocess.run([sys.executable, str(HERE / "compliance_gate_keystone_v1" / "verify_compliance_gate_keystone.py")], capture_output=True, text=True)
-    cgk_ok = cgk.returncode == 0
-    print(f"{'PASS  ' if cgk_ok else 'FAIL  '} compliance_gate_keystone_v1 (compliance verdict binds the decision)"
-          f"   {'5/5 links byte-for-byte' if cgk_ok else 'BROKEN'}")
-
-    cnk = subprocess.run([sys.executable, str(HERE / "cancellation_keystone_v1" / "verify_cancellation_keystone.py")], capture_output=True, text=True)
-    cnk_ok = cnk.returncode == 0
-    print(f"{'PASS  ' if cnk_ok else 'FAIL  '} cancellation_keystone_v1 (cancellation closes the keystone authority)"
-          f"   {'4/4 links byte-for-byte' if cnk_ok else 'BROKEN'}")
-
-    gk = subprocess.run([sys.executable, str(HERE / "guard_keystone_v1" / "verify_guard_keystone.py")], capture_output=True, text=True)
-    gk_ok = gk.returncode == 0
-    print(f"{'PASS  ' if gk_ok else 'FAIL  '} guard_keystone_v1 (keystone admitted under the input-bounds profile)"
-          f"   {'3/3 within bounds' if gk_ok else 'BROKEN'}")
-
-    comp_ok = comp_ok and audit_ok and chain_ok and keystone_ok and settlement_ok and pef_ok and refund_x_ok and acf_ok and cgk_ok and cnk_ok and gk_ok
+    # Composition proofs. Each runs its own recompute + chained-equality check
+    # and fails closed on any broken link. Run with a timeout so one hanging
+    # proof cannot stall the whole verifier, and count a timeout/crash as FAIL.
+    COMPOSITIONS = [
+        ("regulated_lifecycle_v1/verify_lifecycle.py", "regulated_lifecycle_v1 (composition keystone)", "5/5 links byte-for-byte"),
+        ("regulatory_audit_trail_v1/verify_audit_trail.py", "regulatory_audit_trail_v1 (audit trail composition)", "6/6 stages byte-for-byte"),
+        ("spend_decision_chain_v1/verify_chain.py", "spend_decision_chain_v1 (decision chain composition)", "8/8 links byte-for-byte"),
+        ("keystone_v1/verify_keystone.py", "keystone_v1 (full keystone flow incl execution tier)", "6/6 links byte-for-byte"),
+        ("settlement_binding_v1/verify_settlement_binding.py", "settlement_binding_v1 (settlement tier binds to keystone execution)", "6/6 links byte-for-byte"),
+        ("pef_keystone_v1/verify_pef_keystone.py", "pef_keystone_v1 (PEF signed-transport wraps + pins a keystone fact)", "6/6 links byte-for-byte"),
+        ("refund_execution_v1/verify_refund_execution.py", "refund_execution_v1 (refund binds to keystone execution)", "5/5 links byte-for-byte"),
+        ("audit_chain_of_frames_v1/verify_audit_chain_of_frames.py", "audit_chain_of_frames_v1 (lifecycle as chained PEF frames, capped)", "6/6 links byte-for-byte"),
+        ("compliance_gate_keystone_v1/verify_compliance_gate_keystone.py", "compliance_gate_keystone_v1 (compliance verdict binds the decision)", "5/5 links byte-for-byte"),
+        ("cancellation_keystone_v1/verify_cancellation_keystone.py", "cancellation_keystone_v1 (cancellation closes the keystone authority)", "4/4 links byte-for-byte"),
+        ("guard_keystone_v1/verify_guard_keystone.py", "guard_keystone_v1 (keystone admitted under the input-bounds profile)", "3/3 within bounds"),
+    ]
+    comp_ok = True
+    for rel, label, count_text in COMPOSITIONS:
+        try:
+            r = subprocess.run(
+                [sys.executable, str(HERE / rel)],
+                capture_output=True, text=True, timeout=120,
+            )
+            ok = r.returncode == 0
+        except subprocess.TimeoutExpired:
+            ok = False
+            count_text = "TIMEOUT"
+        comp_ok = comp_ok and ok
+        print(f"{'PASS  ' if ok else 'FAIL  '} {label}   {count_text if ok else 'BROKEN'}")
 
     print("=" * width)
     print(f"sets: PASS={npass}  FAIL={nfail}  schema-only={nschema}   "
@@ -250,15 +256,19 @@ def main() -> int:
           f"composition={'PASS' if comp_ok else 'FAIL'}")
     if failed:
         print("FAILED:", " ".join(failed))
-    if nfail == 0 and comp_ok:
+    if unexpected_schema:
+        print("UNEXPECTED SCHEMA-ONLY (runner missing/renamed, not doc-only):",
+              " ".join(unexpected_schema))
+    ok = (nfail == 0 and comp_ok and not unexpected_schema)
+    if ok:
         print(f"\nALL {npass} RUN SETS + COMPOSITION KEYSTONE REPRODUCE BYTE-FOR-BYTE.")
         print("Your implementation is conformant with the AlgoVoi L1 substrate.")
     if deps_skipped:
         print(f"\n{ndeps} set(s) skipped (need an extra library): "
               f"{' '.join(deps_skipped)}")
-        print("For full 24/24 coverage:  pip install -r requirements.txt")
+        print("For full coverage:  pip install -r requirements.txt")
     print("(external = verified against a third-party service, outside this corpus.)")
-    return 0 if (nfail == 0 and comp_ok) else 1
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
