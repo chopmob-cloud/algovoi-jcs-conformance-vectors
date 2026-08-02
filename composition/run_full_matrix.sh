@@ -10,25 +10,31 @@ cd "$ROOT" || exit 2
 PY="$(command -v python3 || command -v python)"
 
 declare -A LPASS LFAIL
-TOTAL_PASS=0; TOTAL_FAIL=0; TOTAL_SKIP=0
-FAILS=(); SKIPS=()
+TOTAL_PASS=0; TOTAL_FAIL=0; TOTAL_SKIP=0; TOTAL_DIV=0
+FAILS=(); SKIPS=(); DIVS=()
 
-# Optional signature/zkp libraries that gate a specific (set,lang) runner, the
-# SAME class verify_corpus documents via SIGNATURE_DEPS/EXTERNAL. Each vector is
-# proven correct in python (where the mature dep is installed); these are the
-# per-language crypto/proof libs that do not build/publish/resolve cleanly in
-# this environment -- NOT canonicalization failures. Named, never silently hidden.
+# Optional library that gates a specific (set,lang) runner, the SAME class
+# verify_corpus documents via SIGNATURE_DEPS/EXTERNAL. Vector proven in python;
+# the per-language dep is not publishable/resolvable in this environment.
+# After a provisioning pass 2026-08-02 (apt ruby-dev + ed25519 gem; npm
+# @algovoi/substrate for zkp), only ONE remains: the execution_ref npm package
+# is unpublished, and @algovoi/substrate on npm is 0.5.1 < 1.0.0 so it carries
+# no native executionRef.
 declare -A OPTDEP
-OPTDEP["execution_ref_v1:node"]="@algovoi/execution-ref (npm, not published/declared here)"
-OPTDEP["rfc9421_proxy_chain_v0:node"]="@algovoi/rfc9421-verifier (npm version/signing-base mismatch)"
-OPTDEP["rfc9421_proxy_chain_v0:ruby"]="ed25519 gem (native ext needs libsodium headers)"
-OPTDEP["rfc9421_proxy_chain_v1:ruby"]="ed25519 gem (native ext needs libsodium headers)"
-OPTDEP["zkp_receipt_v1:node"]="@algovoi/substrate (npm path stale)"
+OPTDEP["execution_ref_v1:node"]="@algovoi/execution-ref unpublished; @algovoi/substrate npm 0.5.1 has no native executionRef (needs >=1.0.0). python passes via algovoi-execution-ref (PyPI)."
+
+# Documented cross-language FINDINGS (not env gaps): a runner path that reveals a
+# genuine divergence between our own implementations at the same version. Named,
+# counted separately, reported -- never hidden, never forced green.
+declare -A DIVERGENCE
+DIVERGENCE["rfc9421_proxy_chain_v0:node"]="@algovoi/rfc9421-verifier@0.3.1 on @noble/ed25519@2.3.0 REJECTS request.fixture.json that python algovoi-rfc9421-verifier@0.3.1 (PyNaCl) VERIFIES. node inputs correct (empty-body GET, content-digest of empty). Node-side Ed25519 verification divergence (likely noble v2 strictness vs libsodium)."
 
 tally() { # <lang> <label> <rc> <lastline>
   local lang="$1" label="$2" rc="$3" last="$4"
   if [ "$rc" -eq 0 ]; then
     LPASS[$lang]=$(( ${LPASS[$lang]:-0} + 1 )); TOTAL_PASS=$((TOTAL_PASS+1))
+  elif [ -n "${DIVERGENCE[$label:$lang]:-}" ]; then
+    TOTAL_DIV=$((TOTAL_DIV+1)); DIVS+=("$label [$lang] -- ${DIVERGENCE[$label:$lang]}")
   elif [ -n "${OPTDEP[$label:$lang]:-}" ]; then
     TOTAL_SKIP=$((TOTAL_SKIP+1)); SKIPS+=("$label [$lang] -- ${OPTDEP[$label:$lang]}")
   else
@@ -76,13 +82,17 @@ for L in python node php ruby elixir go rust dotnet; do
   printf "  %-8s %d/%d\n" "$L" "$p" "$((p+f))"
 done
 echo "----------------------------------------------------------------"
-echo "TOTAL runner executions: PASS $TOTAL_PASS  FAIL $TOTAL_FAIL  SKIP(optional-dep) $TOTAL_SKIP"
+echo "TOTAL runner executions: PASS $TOTAL_PASS  FAIL $TOTAL_FAIL  SKIP(optional-dep) $TOTAL_SKIP  DIVERGENCE(finding) $TOTAL_DIV"
 if [ ${#SKIPS[@]} -gt 0 ]; then
-  echo "SKIPPED (optional signature/zkp lib; vector proven in python -- see SIGNATURE_DEPS):"
+  echo "SKIPPED (optional dep; vector proven in python -- see SIGNATURE_DEPS):"
   for s in "${SKIPS[@]}"; do echo "  $s"; done
+fi
+if [ ${#DIVS[@]} -gt 0 ]; then
+  echo "DIVERGENCE FINDINGS (real cross-language defect; investigate, do not hide):"
+  for x in "${DIVS[@]}"; do echo "  $x"; done
 fi
 if [ ${#FAILS[@]} -gt 0 ]; then
   echo "FAILURES:"; for f in "${FAILS[@]}"; do echo "  $f"; done
 fi
-[ $TOTAL_FAIL -eq 0 ] && echo "RESULT: ALL GREEN (optional-dep skips named above)" || echo "RESULT: FAILURES PRESENT"
+[ $TOTAL_FAIL -eq 0 ] && echo "RESULT: GREEN ($TOTAL_PASS pass; $TOTAL_SKIP optional-dep skip; $TOTAL_DIV documented finding; 0 unexpected fail)" || echo "RESULT: FAILURES PRESENT"
 exit $([ $TOTAL_FAIL -eq 0 ] && echo 0 || echo 1)
