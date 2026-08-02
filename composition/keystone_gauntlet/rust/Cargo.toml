@@ -23,3 +23,7 @@ path = "src/sr_main.rs"
 [[bin]]
 name = "tg"
 path = "src/tg_main.rs"
+
+[[bin]]
+name = "rev"
+path = "src/rev_main.rs"

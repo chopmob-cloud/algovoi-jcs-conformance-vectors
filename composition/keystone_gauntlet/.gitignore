@@ -11,3 +11,5 @@ dotnet_sr/bin/
 dotnet_sr/obj/
 dotnet_tg/bin/
 dotnet_tg/obj/
+dotnet_rev/bin/
+dotnet_rev/obj/

@@ -59,6 +59,22 @@ fail-closed: **120/120** combined.
 string) + the valid round-bearing vector. Every impl rejects all 4 bad kinds and
 accepts the valid round: **40/40** (8 impls x 5). Run: `bash run_settlement_round_gauntlet.sh`.
 
+## L2/L3 rule-family gauntlets (live-run 2026-08-02, all 8-impl)
+
+Beyond the two keystone sets, the same 8-impl fail-closed discipline now covers
+every existing + newly-authored L2/L3 rule:
+
+| Rule set | checks/impl | 8-impl total | run script |
+|---|---|---|---|
+| keystone_decision_audit | 8 | 64/64 | run_keystone_gauntlet.sh |
+| keystone_guard_context | 7 | 56/56 | run_guard_context_gauntlet.sh |
+| settlement_round (require_positive_int) | 5 | 40/40 | run_settlement_round_gauntlet.sh |
+| trust_gate (deny table) | 15 | 120/120 | run_trust_gate_gauntlet.sh |
+| revocation_ref (fail-closed + chain) | 16 | 128/128 | run_revocation_gauntlet.sh |
+
+All eight independent implementations (python, node, go, php, ruby, java, rust,
+dotnet) agree on every positive and fail-close on every negative + invariant.
+
 ## Extension path
 
 php, ruby, rust, java, dotnet each already have a proven JCS+SHA-256 runner in
