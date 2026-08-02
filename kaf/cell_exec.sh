@@ -19,8 +19,18 @@ VENVPY=/cellenv/venv/bin/python
 [ -x "$VENVPY" ] || VENVPY="$(command -v python3 || echo /usr/bin/python3)"
 export GEM_PATH=/cellenv/gems
 # Elixir Mix.install resolves against the cache warmed during provisioning.
-export MIX_HOME=/cellenv/mix HEX_HOME=/cellenv/hex
-[ "$CELL_LANG" = "elixir" ] && export HOME=/cellenv
+# /cellenv is mounted read-only at execution and Mix touches its cache on
+# reuse, so the warmed cache is copied to writable /tmp first. The network
+# stays =none: everything Mix needs is already in the copy.
+if [ "$CELL_LANG" = "elixir" ]; then
+  mkdir -p /tmp/kafmix
+  cp -r /cellenv/mix /tmp/kafmix/mix 2>/dev/null
+  cp -r /cellenv/hex /tmp/kafmix/hex 2>/dev/null
+  cp -r /cellenv/.mix /tmp/kafmix/.mix 2>/dev/null
+  cp -r /cellenv/.hex /tmp/kafmix/.hex 2>/dev/null
+  cp -r /cellenv/.cache /tmp/kafmix/.cache 2>/dev/null
+  export MIX_HOME=/tmp/kafmix/mix HEX_HOME=/tmp/kafmix/hex HOME=/tmp/kafmix
+fi
 
 # Environment fingerprint.
 {

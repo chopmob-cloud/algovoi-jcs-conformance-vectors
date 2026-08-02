@@ -17,10 +17,10 @@ note() { echo "[provision:$CELL_ID] $*"; }
 # Failure is tolerated and recorded; pure wheels do not need them.
 TOOLS_RC=0
 if command -v apk >/dev/null 2>&1; then
-  apk add --no-cache build-base libffi-dev python3-dev >/dev/null 2>&1 || TOOLS_RC=$?
+  apk add --no-cache build-base libffi-dev python3-dev ca-certificates >/dev/null 2>&1 || TOOLS_RC=$?
 elif command -v apt-get >/dev/null 2>&1; then
   ( apt-get update >/dev/null 2>&1 && \
-    apt-get install -y --no-install-recommends build-essential libffi-dev >/dev/null 2>&1 ) || TOOLS_RC=$?
+    apt-get install -y --no-install-recommends build-essential libffi-dev ca-certificates >/dev/null 2>&1 ) || TOOLS_RC=$?
 fi
 
 FAILED=""
