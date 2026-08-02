@@ -9,13 +9,15 @@
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 VEC="$(cd "$HERE/../../vectors/keystone_decision_audit_v1" && pwd)/keystone_decision_audit_v1.json"
-LANGS=(python node go)
+LANGS=(python node go php ruby)
 
 run_lang() {
   case "$1" in
     python) python "$HERE/gauntlet_python.py" "$VEC" ;;
     node)   node "$HERE/gauntlet_node.mjs" "$VEC" ;;
     go)     ( cd "$HERE" && GO111MODULE=on go run gauntlet_go.go "$VEC" ) ;;
+    php)    php "$HERE/gauntlet_php.php" "$VEC" ;;
+    ruby)   ruby "$HERE/gauntlet_ruby.rb" "$VEC" ;;
   esac
 }
 
