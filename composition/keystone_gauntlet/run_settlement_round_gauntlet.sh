@@ -6,7 +6,7 @@
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 VEC="$(cd "$HERE/../../vectors/settlement_attestation_v1" && pwd)/settlement_attestation_v1.json"
-LANGS=(python node go php ruby java rust dotnet)
+LANGS=(python node go php ruby java rust dotnet kotlin elixir)
 SEP=";"; case "$(uname -s 2>/dev/null)" in Linux|Darwin) SEP=":" ;; esac
 run_lang() {
   case "$1" in
@@ -22,6 +22,10 @@ run_lang() {
     rust)   ( cd "$HERE/rust" && cargo +stable-x86_64-pc-windows-gnu run --bin sr --release --quiet -- "$VEC" 2>/dev/null \
               || cargo run --bin sr --release --quiet -- "$VEC" ) ;;
     dotnet) ( cd "$HERE/dotnet_sr" && dotnet run -c Release --verbosity quiet -- "$VEC" ) ;;
+    kotlin) ( cd "$HERE"; KOTLINC="$(command -v kotlinc || echo /opt/kotlinc/bin/kotlinc)"; CP="$(echo java/libs/*.jar | tr ' ' "$SEP")"
+              [ -f kotlin/ktsr.jar ] && [ kotlin/ktsr.jar -nt kotlin/KtSr.kt ] || "$KOTLINC" kotlin/KtSr.kt -cp "$CP" -include-runtime -d kotlin/ktsr.jar >/dev/null 2>&1
+              java -cp "kotlin/ktsr.jar${SEP}java/libs/*" KtSr "$VEC" ) ;;
+    elixir) elixir "$HERE/el_sr.exs" "$VEC" ;;
   esac
 }
 echo "=== settlement_round validity gauntlet (require_positive_int, 8-impl) ==="

@@ -66,14 +66,17 @@ every existing + newly-authored L2/L3 rule:
 
 | Rule set | checks/impl | 8-impl total | run script |
 |---|---|---|---|
-| keystone_decision_audit | 8 | 64/64 | run_keystone_gauntlet.sh |
-| keystone_guard_context | 7 | 56/56 | run_guard_context_gauntlet.sh |
-| settlement_round (require_positive_int) | 5 | 40/40 | run_settlement_round_gauntlet.sh |
-| trust_gate (deny table) | 15 | 120/120 | run_trust_gate_gauntlet.sh |
-| revocation_ref (fail-closed + chain) | 16 | 128/128 | run_revocation_gauntlet.sh |
+| keystone_decision_audit | 8 | 80/80 | run_keystone_gauntlet.sh |
+| keystone_guard_context | 7 | 70/70 | run_guard_context_gauntlet.sh |
+| settlement_round (require_positive_int) | 5 | 50/50 | run_settlement_round_gauntlet.sh |
+| trust_gate (deny table) | 15 | 150/150 | run_trust_gate_gauntlet.sh |
+| revocation_ref (fail-closed + chain) | 16 | 160/160 | run_revocation_gauntlet.sh |
 
-All eight independent implementations (python, node, go, php, ruby, java, rust,
-dotnet) agree on every positive and fail-close on every negative + invariant.
+All **ten** independent implementations (python, node, go, php, ruby, java, rust,
+dotnet, kotlin, elixir) agree on every positive and fail-close on every negative
++ invariant. Full 10-impl live-run on VM2 (Linux) 2026-08-02: python/rfc8785,
+node/canonicalize, go/gowebpki-jcs, php inline, ruby/json-canonicalization,
+java + kotlin/erdtman-JCS, rust/serde_jcs, dotnet/Baqhub, elixir/jcs-hex.
 
 ## Extension path
 

@@ -7,7 +7,7 @@
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 VEC="$(cd "$HERE/../../vectors/revocation_ref_v1" && pwd)/revocation_ref_v1.json"
-LANGS=(python node go php ruby java rust dotnet)
+LANGS=(python node go php ruby java rust dotnet kotlin elixir)
 SEP=";"; case "$(uname -s 2>/dev/null)" in Linux|Darwin) SEP=":" ;; esac
 run_lang() {
   case "$1" in
@@ -23,6 +23,10 @@ run_lang() {
     rust)   ( cd "$HERE/rust" && cargo +stable-x86_64-pc-windows-gnu run --bin rev --release --quiet -- "$VEC" 2>/dev/null \
               || cargo run --bin rev --release --quiet -- "$VEC" ) ;;
     dotnet) ( cd "$HERE/dotnet_rev" && dotnet run -c Release --verbosity quiet -- "$VEC" ) ;;
+    kotlin) ( cd "$HERE"; KOTLINC="$(command -v kotlinc || echo /opt/kotlinc/bin/kotlinc)"; CP="$(echo java/libs/*.jar | tr ' ' "$SEP")"
+              [ -f kotlin/ktrev.jar ] && [ kotlin/ktrev.jar -nt kotlin/KtRev.kt ] || "$KOTLINC" kotlin/KtRev.kt -cp "$CP" -include-runtime -d kotlin/ktrev.jar >/dev/null 2>&1
+              java -cp "kotlin/ktrev.jar${SEP}java/libs/*" KtRev "$VEC" ) ;;
+    elixir) elixir "$HERE/el_rev.exs" "$VEC" ;;
   esac
 }
 echo "=== revocation_ref fail-closed gauntlet (8-impl) ==="

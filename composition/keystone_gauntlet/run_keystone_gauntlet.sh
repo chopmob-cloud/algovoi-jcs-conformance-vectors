@@ -10,7 +10,7 @@
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 VEC="$(cd "$HERE/../../vectors/keystone_decision_audit_v1" && pwd)/keystone_decision_audit_v1.json"
-LANGS=(python node go php ruby java rust dotnet)
+LANGS=(python node go php ruby java rust dotnet kotlin elixir)
 
 SEP=";"; case "$(uname -s 2>/dev/null)" in Linux|Darwin|*_NT*) : ;; esac
 case "$(uname -s 2>/dev/null)" in Linux|Darwin) SEP=":" ;; esac
@@ -29,6 +29,10 @@ run_lang() {
     rust)   ( cd "$HERE/rust" && cargo +stable-x86_64-pc-windows-gnu run --bin keystone_gauntlet_rust --release --quiet -- "$VEC" 2>/dev/null \
               || cargo run --bin keystone_gauntlet_rust --release --quiet -- "$VEC" ) ;;
     dotnet) ( cd "$HERE/dotnet" && dotnet run -c Release --verbosity quiet -- "$VEC" ) ;;
+    kotlin) ( cd "$HERE"; KOTLINC="$(command -v kotlinc || echo /opt/kotlinc/bin/kotlinc)"; CP="$(echo java/libs/*.jar | tr ' ' "$SEP")"
+              [ -f kotlin/ktda.jar ] && [ kotlin/ktda.jar -nt kotlin/KtDa.kt ] || "$KOTLINC" kotlin/KtDa.kt -cp "$CP" -include-runtime -d kotlin/ktda.jar >/dev/null 2>&1
+              java -cp "kotlin/ktda.jar${SEP}java/libs/*" KtDa "$VEC" ) ;;
+    elixir) elixir "$HERE/el_da.exs" "$VEC" ;;
   esac
 }
 
