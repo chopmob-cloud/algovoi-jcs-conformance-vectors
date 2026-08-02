@@ -94,16 +94,26 @@ def main() -> int:
     cells = []
     for cid, c in sorted(summary["cells"].items()):
         locked = next((l for l in lock["locked"] if l["cell"] == cid), None)
+        # Defence in depth: the orchestrator already sets all_green=False on any
+        # degraded cell, but the sealer independently refuses to seal a cell
+        # image whose digest was not pinned, or one flagged degraded.
+        if locked is None or not locked.get("digest"):
+            print(f"REFUSING to seal: cell {cid} has no pinned image digest",
+                  file=sys.stderr)
+            return 2
+        if c.get("degraded"):
+            print(f"REFUSING to seal: cell {cid} degraded {c['degraded']}",
+                  file=sys.stderr)
+            return 2
         cells.append({
             "id": cid,
-            "image": locked["image"] if locked else "unknown",
-            "image_digest": locked["digest"] if locked else "unknown",
+            "image": locked["image"],
+            "image_digest": locked["digest"],
             "network": "none",
             "canary": c.get("canary"),
             "suites": {k: v for k, v in sorted(c["suites"].items())},
             "overall": c["overall"],
-            "provision_failed_specs":
-                (c.get("provision") or {}).get("failed_specs", []),
+            "provision_failed_specs": c.get("provision_failed_specs", []),
         })
 
     receipt = {

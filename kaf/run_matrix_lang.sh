@@ -9,14 +9,21 @@
 #        provisioned virtualenv propagates to runners exactly like
 #        verify_corpus.py propagates sys.executable.
 # Output: TSV lines "SET<tab>LANG<tab>rc" on stdout (machine parse), human
-#        summary on stderr. Exit 0 iff no unexpected failure.
+#        summary on stderr. Exit 0 iff no unexpected failure AND the number of
+#        runners actually executed equals the number present on disk and is
+#        non-zero (a cell that executes nothing is a hard failure, never green).
 set -u
 LANG_REQ="${1:?usage: run_matrix_lang.sh <lang> [root]}"
 ROOT="${2:-$(pwd)}"
 cd "$ROOT" || exit 2
 PY="${KAF_PY:-$(command -v python3 || command -v python)}"
 
-PASS=0; FAIL=0; SKIP=0
+if [ ! -d vectors ]; then
+  echo "MATRIX[$LANG_REQ]: FATAL no vectors/ directory under $ROOT" >&2
+  exit 4
+fi
+
+PASS=0; FAIL=0; SKIP=0; EXPECTED=0
 FAILLIST=""
 
 # The one documented optional-dep gate, same as run_full_matrix.sh:
@@ -39,25 +46,56 @@ tally() { # set rc
   fi
 }
 
+# How many runners for the requested language does set dir $1 ship? Drives
+# EXPECTED, and must match how many the execution loop actually runs (node can
+# ship both .js and .mjs, so it counts two).
+runner_count() { # dir -> prints an integer
+  n=0
+  case "$LANG_REQ" in
+    python) [ -f "$1/runner_python.py" ] && n=1 ;;
+    node)   [ -f "$1/runner_node.js" ] && n=$((n+1)); [ -f "$1/runner_node.mjs" ] && n=$((n+1)) ;;
+    php)    [ -f "$1/runner_php.php" ] && n=1 ;;
+    ruby)   [ -f "$1/runner_ruby.rb" ] && n=1 ;;
+    elixir) [ -f "$1/runner_elixir.exs" ] && n=1 ;;
+    go)     { [ -f "$1/runner_go.go" ] && [ -f "$1/go.mod" ]; } && n=1 ;;
+  esac
+  echo "$n"
+}
+has_runner() { [ "$(runner_count "$1")" -gt 0 ]; }
+
 for d in vectors/*/; do
   s=$(basename "$d")
   j="$s.json"
   if [ ! -f "$d/$j" ]; then
-    j=$(ls "$d"*.json 2>/dev/null | grep -viE 'schema|manifest|expected|package|tsconfig' | head -1)
-    [ -n "$j" ] && j=$(basename "$j")
+    # Resolve the vector json by BASENAME (grepping the full path would let a
+    # filter word appearing in the directory name drop every candidate).
+    j=$(ls "$d" 2>/dev/null | grep -iE '\.json$' | grep -viE 'schema|manifest|expected|package|tsconfig' | head -1)
   fi
-  [ -z "$j" ] && continue
+
+  EXPECTED=$((EXPECTED + $(runner_count "$d")))
+
+  # A set that ships a runner but has no resolvable vector json is a hard
+  # failure for that language, not a silent skip: count it as attempted so the
+  # EXPECTED==executed invariant below trips.
+  if [ -z "$j" ]; then
+    if has_runner "$d"; then tally "$s" 90; fi
+    continue
+  fi
 
   case "$LANG_REQ" in
     python)
       [ -f "$d/runner_python.py" ] || continue
       ( cd "$d" && timeout 150 "$PY" runner_python.py "$j" >/dev/null 2>&1 ); tally "$s" $? ;;
     node)
-      rn=""
-      [ -f "$d/runner_node.js" ] && rn="runner_node.js"
-      [ -z "$rn" ] && [ -f "$d/runner_node.mjs" ] && rn="runner_node.mjs"
-      [ -z "$rn" ] && continue
-      ( cd "$d" && timeout 150 node "$rn" "$j" >/dev/null 2>&1 ); tally "$s" $? ;;
+      # Run EVERY node runner the set ships (a set carrying both .js and .mjs
+      # is executed twice, matching the reference run_full_matrix.sh).
+      ran_node=0
+      for nf in runner_node.js runner_node.mjs; do
+        [ -f "$d/$nf" ] || continue
+        ran_node=1
+        ( cd "$d" && timeout 150 node "$nf" "$j" >/dev/null 2>&1 ); tally "$s" $?
+      done
+      [ "$ran_node" -eq 1 ] || continue ;;
     php)
       [ -f "$d/runner_php.php" ] || continue
       ( cd "$d" && timeout 150 php runner_php.php "$j" >/dev/null 2>&1 ); tally "$s" $? ;;
@@ -75,5 +113,19 @@ for d in vectors/*/; do
   esac
 done
 
-echo "MATRIX[$LANG_REQ]: pass=$PASS fail=$FAIL skip=$SKIP${FAILLIST:+ failed:$FAILLIST}" >&2
+EXECUTED=$((PASS+FAIL+SKIP))
+echo "MATRIX[$LANG_REQ]: pass=$PASS fail=$FAIL skip=$SKIP expected=$EXPECTED executed=$EXECUTED${FAILLIST:+ failed:$FAILLIST}" >&2
+
+# A cell that executed nothing, or fewer runners than are present on disk, is
+# a hard failure. This is the anti-false-green invariant: green must mean
+# "every runner that exists for this language ran and passed", not "nothing
+# ran so nothing failed".
+if [ "$EXPECTED" -eq 0 ]; then
+  echo "MATRIX[$LANG_REQ]: FATAL no $LANG_REQ runner present in any set" >&2
+  exit 4
+fi
+if [ "$EXECUTED" -ne "$EXPECTED" ]; then
+  echo "MATRIX[$LANG_REQ]: FATAL executed=$EXECUTED != expected=$EXPECTED (silent under-execution)" >&2
+  exit 4
+fi
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

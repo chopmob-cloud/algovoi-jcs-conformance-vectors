@@ -52,11 +52,16 @@ fi
 } > "$OUT/env.txt" 2>&1
 
 # Network canary: a real program file that PASSES iff the network is
-# unreachable. A reachable network is a hard cell failure.
+# unreachable. A reachable network is a hard cell failure. Canaries exist for
+# every scripting language a cell runs directly (python, node, php, ruby); go
+# and elixir cells are covered by their offline-cache failure mode plus the
+# host-side --network=none argv recorded in docker_argv_exec.txt.
 CANARY_RC=-1
 case "$CELL_LANG" in
   python) "$VENVPY" /corpus/kaf/net_canary.py  > "$OUT/canary.log" 2>&1; CANARY_RC=$? ;;
   node)   node      /corpus/kaf/net_canary.mjs > "$OUT/canary.log" 2>&1; CANARY_RC=$? ;;
+  php)    php       /corpus/kaf/net_canary.php > "$OUT/canary.log" 2>&1; CANARY_RC=$? ;;
+  ruby)   ruby      /corpus/kaf/net_canary.rb  > "$OUT/canary.log" 2>&1; CANARY_RC=$? ;;
   *)      echo "canary not defined for $CELL_LANG (docker --network=none argv recorded host-side)" > "$OUT/canary.log" ;;
 esac
 if [ "$CANARY_RC" -gt 0 ]; then

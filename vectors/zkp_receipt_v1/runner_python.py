@@ -1,12 +1,14 @@
 """ZKP receipt v1 conformance vector runner (Python / rfc8785)."""
 import json, hashlib, base64, sys
-sys.path.insert(0, "../../../../../algovoi-platform/algovoi-substrate/src")
 try:
     import rfc8785
 except ImportError:
-    import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "rfc8785", "-q"])
-    import rfc8785
+    sys.stderr.write(
+        "missing dependency 'rfc8785': install it before running "
+        "(pip install rfc8785). This runner does not self-install, so a "
+        "verifier is never allowed to mutate its environment or reach the "
+        "network mid-run.\n")
+    sys.exit(2)
 
 data = json.load(open("zkp_receipt_v1.json"))
 pass_, fail = 0, 0
