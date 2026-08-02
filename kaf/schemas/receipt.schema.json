@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kaf.algovoi.co.uk/schemas/receipt.schema.json",
+  "title": "KAF sealed run receipt envelope (kaf-receipt-v1)",
+  "type": "object",
+  "required": ["receipt", "seal"],
+  "additionalProperties": false,
+  "properties": {
+    "receipt": {
+      "type": "object",
+      "required": ["schema", "framework", "run", "corpus", "cells", "totals", "artifacts", "prev"],
+      "additionalProperties": false,
+      "properties": {
+        "schema": { "const": "kaf-receipt-v1" },
+        "framework": {
+          "type": "object",
+          "required": ["name", "version", "design"],
+          "properties": {
+            "name": { "const": "KAF" },
+            "version": { "type": "string" },
+            "design": { "type": "string" }
+          }
+        },
+        "run": {
+          "type": "object",
+          "required": ["id", "purpose", "host", "started", "finished"],
+          "properties": {
+            "id": { "type": "string" },
+            "purpose": { "type": "string" },
+            "host": { "type": "string" },
+            "started": { "type": "string" },
+            "finished": { "type": "string" }
+          }
+        },
+        "corpus": {
+          "type": "object",
+          "required": ["repo", "commit", "branch"],
+          "properties": {
+            "repo": { "type": "string" },
+            "commit": { "type": "string" },
+            "branch": { "type": "string" }
+          }
+        },
+        "cells": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "image", "image_digest", "network", "suites", "overall"],
+            "properties": {
+              "id": { "type": "string" },
+              "image": { "type": "string" },
+              "image_digest": { "type": "string" },
+              "network": { "const": "none" },
+              "canary": { "type": ["string", "null"] },
+              "suites": { "type": "object", "additionalProperties": { "type": "integer" } },
+              "overall": { "type": "integer" },
+              "provision_failed_specs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "totals": {
+          "type": "object",
+          "required": ["cells", "suite_executions", "all_green"],
+          "properties": {
+            "cells": { "type": "integer" },
+            "suite_executions": { "type": "integer" },
+            "all_green": { "const": true }
+          }
+        },
+        "artifacts": {
+          "type": "object",
+          "required": ["results_tree_sha256"],
+          "properties": { "results_tree_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+        },
+        "prev": {
+          "type": "object",
+          "required": ["kind", "sha256"],
+          "properties": {
+            "kind": { "enum": ["receipt", "p0-manifest"] },
+            "name": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        }
+      }
+    },
+    "seal": {
+      "type": "object",
+      "required": ["alg", "keyid", "public_key_hex", "created", "method", "authority", "path", "content_digest", "signature_input", "signature", "canon", "signer_pkg", "verifier_target"],
+      "additionalProperties": false,
+      "properties": {
+        "alg": { "const": "ed25519" },
+        "keyid": { "type": "string" },
+        "public_key_hex": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "created": { "type": "integer" },
+        "method": { "const": "POST" },
+        "authority": { "type": "string" },
+        "path": { "type": "string" },
+        "content_digest": { "type": "string" },
+        "signature_input": { "type": "string" },
+        "signature": { "type": "string" },
+        "canon": {
+          "type": "object",
+          "required": ["engine", "cross_check", "match"],
+          "properties": {
+            "engine": { "const": "algovoi-substrate" },
+            "engine_version": { "type": "string" },
+            "cross_check": { "const": "rfc8785" },
+            "cross_check_version": { "type": "string" },
+            "match": { "const": true }
+          }
+        },
+        "signer_pkg": { "type": "string" },
+        "verifier_target": { "type": "string" }
+      }
+    }
+  }
+}

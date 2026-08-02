@@ -1,0 +1,7 @@
+{
+  "keyid": "did:web:kaf.algovoi.co.uk#kaf-seal-2026",
+  "alg": "ed25519",
+  "public_key_hex": "5a4ac55a1dbb1cd6b86c131a37fcfec0adee8123a269eee305a73385ef8165cb",
+  "created": "2026-08-02",
+  "notes": "Keystone Seal signing key. The private seed lives outside every repository (workstation keystore) and is never printed, logged, or transmitted. Receipts sealed with this key verify offline via the published algovoi-rfc9421-verifier."
+}
