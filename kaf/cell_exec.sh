@@ -18,6 +18,11 @@ mkdir -p "$OUT"
 VENVPY=/cellenv/venv/bin/python
 [ -x "$VENVPY" ] || VENVPY="$(command -v python3 || echo /usr/bin/python3)"
 export GEM_PATH=/cellenv/gems
+# Go: modules resolve only from the cache warmed during provisioning; the
+# build cache is cold and writable in /tmp. Any un-warmed dependency is a
+# hard failure, not a fetch.
+export GOMODCACHE=/cellenv/gomod GOPATH=/cellenv/go GOCACHE=/tmp/gocache
+export GOPROXY=off
 # Elixir Mix.install resolves against the cache warmed during provisioning.
 # /cellenv is mounted read-only at execution and Mix touches its cache on
 # reuse, so the warmed cache is copied to writable /tmp first. The network

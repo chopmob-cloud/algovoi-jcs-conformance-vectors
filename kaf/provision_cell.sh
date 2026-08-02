@@ -73,6 +73,18 @@ case "$CELL_LANG" in
         note "elixir warm failed (recorded): $s"; FAILED="$FAILED $s(elixir-warm)"; }
     done
     ;;
+  go)
+    # Warm the module cache for every go runner set so execution can build
+    # with GOPROXY=off. The build cache stays cold at exec (writable /tmp).
+    export GOMODCACHE=/cellenv/gomod GOPATH=/cellenv/go GOCACHE=/tmp/gocache
+    mkdir -p "$GOMODCACHE" "$GOPATH"
+    for m in /corpus/vectors/*/go.mod; do
+      [ -f "$m" ] || continue
+      d=$(dirname "$m"); s=$(basename "$d")
+      ( cd "$d" && timeout 300 go mod download all >/dev/null 2>&1 ) || {
+        note "go mod download failed (recorded): $s"; FAILED="$FAILED $s(gomod)"; }
+    done
+    ;;
   node|php)
     # Nothing to provision: node sets vendor node_modules in-tree; php
     # runners are stdlib-only.

@@ -69,7 +69,7 @@ for d in vectors/*/; do
       ( cd "$d" && timeout 200 elixir runner_elixir.exs "$j" >/dev/null 2>&1 ); tally "$s" $? ;;
     go)
       { [ -f "$d/runner_go.go" ] && [ -f "$d/go.mod" ]; } || continue
-      ( cd "$d" && timeout 200 go run runner_go.go "$j" >/dev/null 2>&1 ); tally "$s" $? ;;
+      ( cd "$d" && timeout 300 go run runner_go.go "$j" >/dev/null 2>&1 ); tally "$s" $? ;;
     *)
       echo "unknown lang: $LANG_REQ" >&2; exit 2 ;;
   esac
