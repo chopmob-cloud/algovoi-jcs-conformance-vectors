@@ -15,3 +15,7 @@ sha2 = "0.10"
 [[bin]]
 name = "gc"
 path = "src/gc_main.rs"
+
+[[bin]]
+name = "sr"
+path = "src/sr_main.rs"

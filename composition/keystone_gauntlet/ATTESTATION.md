@@ -52,6 +52,13 @@ two invariants (moment-distinctness; non-integer guard_timestamp_ms rejected):
 The keystone L3 tier (both decision_audit and guard_context) is now fully 8-impl
 fail-closed: **120/120** combined.
 
+## settlement_round validity (live-run 2026-08-02)
+
+`require_positive_int` (Substrate Rule 2) reimplemented in all 8 languages against
+`settlement_attestation_v1`'s 4 reject vectors (zero, negative, boolean, numeric
+string) + the valid round-bearing vector. Every impl rejects all 4 bad kinds and
+accepts the valid round: **40/40** (8 impls x 5). Run: `bash run_settlement_round_gauntlet.sh`.
+
 ## Extension path
 
 php, ruby, rust, java, dotnet each already have a proven JCS+SHA-256 runner in
