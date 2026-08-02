@@ -14,6 +14,13 @@
     {"id": "haz-duplicate-keys",   "expect": "document", "raw": "{\"a\":1,\"a\":2}",             "note": "duplicate keys: last-wins vs error varies by parser. Substrate rule: reject duplicate keys before hashing."},
     {"id": "haz-unicode-decomp",   "expect": "document", "raw": "{\"k\":\"cafe\u0301\"}",        "note": "decomposed e+combining-acute vs precomposed é: JCS does NOT normalize, so visually equal strings hash differently. Substrate rule: NFC-normalize identifiers before binding."},
     {"id": "haz-lone-surrogate",   "expect": "document", "raw": "{\"k\":\"\\ud800\"}",           "note": "lone high surrogate: some encoders emit replacement char, some error."},
-    {"id": "haz-leading-zero",     "expect": "document", "raw": "{\"n\":01}",                     "note": "leading zero is invalid JSON per RFC 8259, but Go/Java/.NET canonicalizers ACCEPT and normalize it while Python/Node/Ruby/Rust/PHP reject -> real accept/reject split. Substrate rule: reject leading-zero numbers before hashing."}
+    {"id": "haz-leading-zero",     "expect": "document", "raw": "{\"n\":01}",                     "note": "leading zero is invalid JSON per RFC 8259, but Go/Java/.NET canonicalizers ACCEPT and normalize it while Python/Node/Ruby/Rust/PHP reject -> real accept/reject split. Substrate rule: reject leading-zero numbers before hashing."},
+    {"id": "haz-plus-number",      "expect": "document", "raw": "{\"n\":+1}",                      "note": "leading plus is invalid JSON; lenient number parsers may accept -> split."},
+    {"id": "haz-hex-number",       "expect": "document", "raw": "{\"n\":0x10}",                    "note": "hex literal is invalid JSON; some parsers accept -> split."},
+    {"id": "haz-leading-dot",      "expect": "document", "raw": "{\"n\":.5}",                      "note": "leading decimal point invalid; lenient parsers accept -> split."},
+    {"id": "haz-trailing-dot",     "expect": "document", "raw": "{\"n\":1.}",                      "note": "trailing decimal point invalid; lenient parsers accept -> split."},
+    {"id": "haz-float-trailing-zero","expect": "document","raw": "{\"n\":1.0}",                    "note": "1.0 vs integer 1: number normalization differs (ECMAScript prints 1). Substrate rule: no floats in preimages."},
+    {"id": "haz-uppercase-exp",    "expect": "document", "raw": "{\"n\":1E2}",                     "note": "uppercase exponent: normalization to 100 vs 1E2 vs 1e2 varies."},
+    {"id": "haz-plus-exp",         "expect": "document", "raw": "{\"n\":1e+3}",                    "note": "explicit + in exponent: normalization varies."}
   ]
 }

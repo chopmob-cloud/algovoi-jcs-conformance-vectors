@@ -62,4 +62,4 @@ for lang in "${LANGS[@]}"; do
   fi
 done
 echo
-"$PY" "$HERE/differential_driver.py" --out "$HERE/out" "${ABS[@]}"
+"$PY" "$HERE/differential_driver.py" --out "$HERE/out" --require "${REQUIRE:-10}" "${ABS[@]}"

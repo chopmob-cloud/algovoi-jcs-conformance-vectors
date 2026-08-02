@@ -43,14 +43,17 @@ def load_verdicts(out_dir: str) -> dict[str, dict[str, str]]:
 def main(argv: list[str]) -> int:
     out_dir = "out"
     corpora = []
+    require = 0   # minimum number of implementations that MUST be present (0 = no gate)
     i = 0
     while i < len(argv):
         if argv[i] == "--out":
             out_dir = argv[i + 1]; i += 2
+        elif argv[i] == "--require":
+            require = int(argv[i + 1]); i += 2
         else:
             corpora.append(argv[i]); i += 1
     if not corpora:
-        print("usage: differential_driver.py --out DIR corpus1.json [corpus2.json ...]")
+        print("usage: differential_driver.py --out DIR [--require N] corpus1.json [...]")
         return 2
 
     verdicts = load_verdicts(out_dir)
@@ -86,8 +89,16 @@ def main(argv: list[str]) -> int:
 
         if expect == "agree":
             if len(hashes) == 1 and not rejects:
-                n_pass += 1
-                agreed_hash[cid] = next(iter(hashes))
+                h = next(iter(hashes))
+                exp = c.get("expected_hash")
+                if exp is not None and h != exp:
+                    # all impls agreed, but on the WRONG value vs an independent
+                    # hand-computed anchor -> a systematic shared error. Fatal.
+                    n_fail += 1
+                    fails.append((cid, "KAT-mismatch", {**vs, "_independent_anchor": exp}))
+                else:
+                    n_pass += 1
+                    agreed_hash[cid] = h
             else:
                 n_fail += 1
                 fails.append((cid, expect, vs))
@@ -156,14 +167,38 @@ def main(argv: list[str]) -> int:
         for f in rel_fails:
             print(f"  {f}")
 
+    # ---- integrity gates (guard against false-green) ----
+    integrity_fatal = []
+    # (a) every present impl must emit a verdict for every case
+    all_ids = [c["id"] for c in cases]
+    for L in langs:
+        missing = [cid for cid in all_ids if cid not in verdicts[L]]
+        if missing:
+            integrity_fatal.append(f"impl '{L}' missing {len(missing)} case verdict(s): {missing[:5]}{'...' if len(missing) > 5 else ''}")
+    # (b) minimum implementation count (degraded coverage must not pass silently)
+    if require and len(langs) < require:
+        integrity_fatal.append(f"only {len(langs)} implementations present, require {require}: {', '.join(langs)}")
+    # (c) empty/degenerate corpus must not pass
+    n_kat = sum(1 for c in cases if c.get("expect") == "agree" and "expected_hash" in c)
+    if (n_pass + n_fail) == 0:
+        integrity_fatal.append("no agree/reject cases evaluated (empty corpus?)")
+    if n_kat == 0:
+        integrity_fatal.append("no independent KAT anchors present (cannot rule out shared systematic error)")
+
+    if integrity_fatal:
+        print("\nINTEGRITY GATE FAILURES (must be zero):")
+        for f in integrity_fatal:
+            print(f"  {f}")
+
     print("\n" + "-" * 68)
     print(f"agree/reject consensus:  PASS {n_pass}  FAIL {n_fail}")
     print(f"relational invariants:   PASS {rel_pass}  FAIL {rel_fail}")
+    print(f"independent KAT anchors: {n_kat}")
     print(f"hazard cases mapped:     {n_hazard}")
-    if n_fail == 0 and rel_fail == 0:
-        print(f"RESULT: FULL {len(langs)}-WAY CONSENSUS on every agree/reject case + all relational invariants.")
+    if n_fail == 0 and rel_fail == 0 and not integrity_fatal:
+        print(f"RESULT: FULL {len(langs)}-WAY CONSENSUS on every agree/reject case + all relational invariants + all integrity gates.")
         return 0
-    print("RESULT: CONSENSUS BROKEN -- see failures above.")
+    print("RESULT: NOT GREEN -- see failures above.")
     return 1
 
 

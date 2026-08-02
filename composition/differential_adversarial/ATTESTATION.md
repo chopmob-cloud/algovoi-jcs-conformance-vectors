@@ -45,15 +45,35 @@ question a 2-impl design (reference + one recompute) literally cannot ask:
    - one-field-tampered form → `differs_from` canonical (tamper must change the hash).
    No single canonicalizer can be tricked into a key-order or tamper collision.
 
-## Result (live-run 2026-08-02)
+## Result (hardened, live-run 2026-08-02)
 
-| Environment | Impls | agree/reject | relational | hazards mapped | Result |
-|---|---|---|---|---|---|
-| VM2 (Linux) pass 1 | **10/10** | 29/29 | 7/7 | 13 | FULL 10-WAY CONSENSUS |
-| VM2 (Linux) pass 2 | **10/10** | 29/29 | 7/7 | 13 | FULL 10-WAY CONSENSUS |
-| Local (Windows)    | 9/10 (no elixir toolchain) | 29/29 | 7/7 | 13 | FULL 9-WAY CONSENSUS |
+| Environment | Impls | agree/reject | relational | KAT anchors | hazards | Result |
+|---|---|---|---|---|---|---|
+| VM2 (Linux) pass 1 | **10/10** | 38/38 | 7/7 | 17 | 20 | FULL 10-WAY CONSENSUS |
+| VM2 (Linux) pass 2 | **10/10** | 38/38 | 7/7 | 17 | 20 | FULL 10-WAY CONSENSUS |
+| Local (Windows)    | 9/10 (no elixir toolchain) | 38/38 | 7/7 | 17 | 20 | FULL 9-WAY CONSENSUS |
 
 Ten languages: python, node, go, php, ruby, java, rust, dotnet, kotlin, elixir.
+
+## Integrity gates (guard against false-green)
+
+Consensus alone is not enough — a tool can show green while proving nothing. The
+driver fails closed on every degradation path, each proven to fire by a negative
+test on VM2 (see `SECURITY_SWEEP.md`):
+
+- **`--require N`**: fewer implementations present than required → NOT GREEN.
+  Prevents a missing toolchain from silently shrinking N while still "passing".
+- **Coverage integrity**: any present impl missing any case verdict → NOT GREEN.
+  Prevents a crashed/partial probe from masking cases (absent ≠ pass).
+- **Independent KAT anchors (17)**: 17 agree cases carry an `expected_hash`
+  computed from hand-canonicalized bytes with **no JCS library** (`printf |
+  sha256sum`). Full consensus on the *wrong* value still fails. This is the only
+  check that catches an error shared by all ten implementations. Includes the
+  three hardest Unicode cases, each verified RFC-8785-correct (not a shared bug):
+  supplementary-plane value = raw UTF-8; `é` decodes to raw é; and
+  supplementary-plane keys sort by **UTF-16 code unit** (§3.2.3), proven equal to
+  the hand-computed UTF-16 order and unequal to naive codepoint order.
+- **Empty/degenerate corpus** and **zero-KAT** → NOT GREEN.
 
 ## Hazard map → substrate rules (10-impl, VM2)
 
