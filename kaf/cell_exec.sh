@@ -18,6 +18,9 @@ mkdir -p "$OUT"
 VENVPY=/cellenv/venv/bin/python
 [ -x "$VENVPY" ] || VENVPY="$(command -v python3 || echo /usr/bin/python3)"
 export GEM_PATH=/cellenv/gems
+# Elixir Mix.install resolves against the cache warmed during provisioning.
+export MIX_HOME=/cellenv/mix HEX_HOME=/cellenv/hex
+[ "$CELL_LANG" = "elixir" ] && export HOME=/cellenv
 
 # Environment fingerprint.
 {

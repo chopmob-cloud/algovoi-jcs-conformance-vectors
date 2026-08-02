@@ -38,6 +38,7 @@ case "$CELL_LANG" in
       "algovoi-rfc9421-verifier" \
       "algovoi-rfc9421-signer" \
       "rfc8785" \
+      "cryptography" \
       "algovoi-execution-ref"; do
       if ! "$PIP" install --no-cache-dir -q "$spec" >/dev/null 2>&1; then
         note "install failed (recorded, tolerated): $spec"
@@ -47,12 +48,34 @@ case "$CELL_LANG" in
     "$PIP" freeze > /cellenv/freeze.txt 2>/dev/null
     ;;
   ruby)
-    gem install ed25519 --no-document --install-dir /cellenv/gems >/dev/null 2>&1 || {
-      note "gem install ed25519 failed (recorded)"; FAILED="$FAILED ed25519(gem)"; }
+    for g in ed25519 json-canonicalization; do
+      gem install "$g" --no-document --install-dir /cellenv/gems >/dev/null 2>&1 || {
+        note "gem install $g failed (recorded)"; FAILED="$FAILED $g(gem)"; }
+    done
     ;;
-  node|php|elixir)
-    # Nothing to provision: node sets vendor node_modules in-tree; php and
-    # elixir runners are stdlib-only.
+  elixir)
+    # Runners that use Mix.install fetch hex packages at first run. Warm every
+    # elixir runner's install cache now (network phase) into /cellenv so the
+    # offline execution phase hits only the cache.
+    export MIX_HOME=/cellenv/mix HEX_HOME=/cellenv/hex HOME=/cellenv
+    mkdir -p "$MIX_HOME" "$HEX_HOME"
+    mix local.hex --force >/dev/null 2>&1
+    mix local.rebar --force >/dev/null 2>&1
+    for r in /corpus/vectors/*/runner_elixir.exs; do
+      [ -f "$r" ] || continue
+      d=$(dirname "$r"); s=$(basename "$d")
+      j="$s.json"
+      if [ ! -f "$d/$j" ]; then
+        j=$(ls "$d"/*.json 2>/dev/null | grep -viE 'schema|manifest|expected|package|tsconfig' | head -1)
+        [ -n "$j" ] && j=$(basename "$j")
+      fi
+      ( cd "$d" && timeout 300 elixir "$(basename "$r")" "$j" >/dev/null 2>&1 ) || {
+        note "elixir warm failed (recorded): $s"; FAILED="$FAILED $s(elixir-warm)"; }
+    done
+    ;;
+  node|php)
+    # Nothing to provision: node sets vendor node_modules in-tree; php
+    # runners are stdlib-only.
     ;;
   *)
     note "no provisioning defined for lang $CELL_LANG"
