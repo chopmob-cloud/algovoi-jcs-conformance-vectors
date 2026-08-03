@@ -72,6 +72,19 @@ def tree_sha256(run_dir: Path) -> str:
     return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
 
 
+def _artifacts(run_dir: Path, run_meta: dict) -> dict:
+    """Signed artifacts block. Records the results tree hash always, and — for a
+    report-attestation wrap — the bound report + the verdict it was gated on, so
+    a verifier holding the evidence can re-derive correctness (F1)."""
+    art = {"results_tree_sha256": tree_sha256(run_dir),
+           "evidence_kind": run_meta.get("evidence_kind", "cell-execution")}
+    if run_meta.get("attested_report"):
+        art["attested_report"] = run_meta["attested_report"]
+    if "attested_verdict" in run_meta:
+        art["attested_verdict"] = run_meta["attested_verdict"]
+    return art
+
+
 def existing_receipts(receipts_dir: Path) -> list[Path]:
     return sorted(receipts_dir.glob("rcpt-*.json"))
 
@@ -103,6 +116,7 @@ def main() -> int:
     args = ap.parse_args()
 
     run_meta = json.loads((args.run_dir / "run_meta.json").read_text(encoding="utf-8"))
+    is_attestation = run_meta.get("evidence_kind") == "report-attestation"
     lock = json.loads((args.run_dir / "cells.lock.json").read_text(encoding="utf-8"))
     summary = json.loads((args.run_dir / "run_summary.json").read_text(encoding="utf-8"))
     pub = json.loads(args.pub_file.read_text(encoding="utf-8"))
@@ -121,6 +135,49 @@ def main() -> int:
         suites = {k: int(v) for k, v in sorted(c.get("suites", {}).items())}
         prov_failed = [s for s in c.get("provision_failed_specs", []) if s]
         degraded = c.get("degraded", [])
+
+        # F2: do NOT trust the aggregated run_summary.json. Re-parse the raw
+        # per-cell suites.tsv and require the summary to match it exactly, so a
+        # tampered or buggy aggregation that claims green over red raw evidence
+        # is refused. (The raw file was already tree-bound; now it is also the
+        # source of truth for the sealed greenness.)
+        raw_tsv = args.run_dir / "results" / cid / "suites.tsv"
+        if not raw_tsv.exists():
+            print(f"REFUSING to seal: cell {cid} has no raw suites.tsv to cross-check",
+                  file=sys.stderr)
+            return 2
+        raw_overall, raw_suites = None, {}
+        for line in raw_tsv.read_text(encoding="utf-8").splitlines():
+            if not line or "\t" not in line:
+                continue
+            name, _, rc = line.partition("\t")
+            try:
+                rc = int(rc)
+            except ValueError:
+                print(f"REFUSING to seal: cell {cid} suites.tsv has a non-integer rc "
+                      f"({name!r})", file=sys.stderr)
+                return 2
+            if name == "overall":
+                raw_overall = rc
+            else:
+                raw_suites[name] = rc
+        if raw_overall != overall or raw_suites != suites:
+            print(f"REFUSING to seal: cell {cid} run_summary disagrees with raw suites.tsv "
+                  f"(summary overall={overall} suites={suites}; "
+                  f"raw overall={raw_overall} suites={raw_suites})", file=sys.stderr)
+            return 2
+
+        # F5: for a real cell execution the exec docker argv MUST record
+        # --network=none, so isolation is proven-recorded rather than assumed.
+        # (Skipped for report-attestation wraps, whose isolation lived in the
+        # underlying run they attest.)
+        if not is_attestation:
+            argv_f = args.run_dir / "results" / cid / "docker_argv_exec.txt"
+            if not argv_f.exists() or "--network=none" not in argv_f.read_text(encoding="utf-8"):
+                print(f"REFUSING to seal: cell {cid} exec argv does not record "
+                      f"--network=none (isolation unproven)", file=sys.stderr)
+                return 2
+
         cell_green = (overall == 0 and all(v == 0 for v in suites.values())
                       and not prov_failed and not degraded)
         if not cell_green:
@@ -176,7 +233,12 @@ def main() -> int:
                    "suite_executions": sum(len(c["suites"]) for c in cells),
                    "all_green": True},
         "sealer": sealer,
-        "artifacts": {"results_tree_sha256": tree_sha256(args.run_dir)},
+        # F1: distinguish a real hermetic cell execution from a report-attestation
+        # (wrap_report_run.py). A report-attestation's suite=0 is a wrapper-asserted
+        # value, not a re-derivable cell result, so it is labelled here (signed) and
+        # its bound report + verdict are recorded, so a verifier with the evidence
+        # can re-derive correctness rather than trust the wrapper's greenness.
+        "artifacts": _artifacts(args.run_dir, run_meta),
         "prev": prev,
     }
 
@@ -212,7 +274,13 @@ def main() -> int:
     args.receipts_dir.mkdir(parents=True, exist_ok=True)
     env_bytes = _canon(envelope)
     out.write_bytes(env_bytes)
-    print(f"sealed {out.name} seq={seq} sha256={hashlib.sha256(env_bytes).hexdigest()}")
+    head_sha = hashlib.sha256(env_bytes).hexdigest()
+    # F4: record the chain head (count + head sha) so an operator can pin it out
+    # of band for kaf_verify --expect-count/--expect-head.
+    n_total = len(existing_receipts(args.receipts_dir))
+    (args.receipts_dir / "CHAIN_HEAD.txt").write_text(
+        f"count={n_total}\nhead={out.name}\nhead_sha256={head_sha}\n", encoding="utf-8")
+    print(f"sealed {out.name} seq={seq} sha256={head_sha}")
     return 0
 
 

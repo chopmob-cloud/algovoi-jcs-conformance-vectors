@@ -43,13 +43,18 @@ def load_verdicts(out_dir: str) -> dict[str, dict[str, str]]:
 def main(argv: list[str]) -> int:
     out_dir = "out"
     corpora = []
-    require = 0   # minimum number of implementations that MUST be present (0 = no gate)
+    # F3: N-way consensus is meaningless below 2 implementations. Floor the
+    # minimum at 2 so a single impl "agreeing with itself" can never print full
+    # consensus, even if the caller forgets --require (the old default 0 = no gate
+    # let one verdict file pass every gate).
+    MIN_REQUIRE = 2
+    require = MIN_REQUIRE
     i = 0
     while i < len(argv):
         if argv[i] == "--out":
             out_dir = argv[i + 1]; i += 2
         elif argv[i] == "--require":
-            require = int(argv[i + 1]); i += 2
+            require = max(MIN_REQUIRE, int(argv[i + 1])); i += 2
         else:
             corpora.append(argv[i]); i += 1
     if not corpora:

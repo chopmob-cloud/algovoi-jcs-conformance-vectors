@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -49,6 +50,55 @@ def _canon(obj) -> bytes:
     if b != rfc8785.dumps(obj) or b != _jcs_min.dumps(obj):
         raise ValueError("canonicalizers disagree on the bytes")
     return b
+
+
+def _tree_sha256(run_dir: Path) -> str:
+    """Recompute a run dir's results-tree hash exactly as seal.py does (cellenv/
+    excluded), so an evidence-bearing verify can confirm the SIGNED
+    results_tree_sha256 against the actual harvested evidence (F1)."""
+    lines = []
+    for p in sorted(run_dir.rglob("*")):
+        if p.is_dir():
+            continue
+        rel = p.relative_to(run_dir).as_posix()
+        if rel.startswith("cellenv/"):
+            continue
+        lines.append(f"{rel}\n{hashlib.sha256(p.read_bytes()).hexdigest()}\n")
+    return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
+
+
+def recheck_evidence(receipt: dict, evidence_dir: Path) -> list[str]:
+    """F1: with the evidence present, re-derive CORRECTNESS (not just
+    authenticity). Find the run dir whose results-tree hash matches the signed
+    artifacts.results_tree_sha256; for a report-attestation, re-read the bound
+    report and confirm its verdict matches what was sealed."""
+    errs = []
+    art = receipt.get("artifacts", {})
+    want = art.get("results_tree_sha256")
+    if not want:
+        return ["receipt has no results_tree_sha256 to re-check"]
+    match_dir = None
+    for d in sorted(p for p in evidence_dir.iterdir() if p.is_dir()):
+        try:
+            if _tree_sha256(d) == want:
+                match_dir = d
+                break
+        except OSError:
+            continue
+    if match_dir is None:
+        return [f"no run dir under {evidence_dir} reproduces the sealed tree hash {want[:16]}.."]
+    if art.get("evidence_kind") == "report-attestation":
+        rep_name = art.get("attested_report")
+        verdict = art.get("attested_verdict", {})
+        rep_path = next(match_dir.rglob(rep_name), None) if rep_name else None
+        if rep_path is None:
+            errs.append(f"attested report {rep_name} not found in the matched evidence")
+        else:
+            rep = json.loads(rep_path.read_text(encoding="utf-8"))
+            for k, v in verdict.items():
+                if rep.get(k) != v:
+                    errs.append(f"attested_verdict mismatch: report[{k}]={rep.get(k)} != sealed {v}")
+    return errs
 
 
 def verify_one(path: Path, pub: dict, prev_file: Path | None,
@@ -153,6 +203,13 @@ def main() -> int:
                     help="assert exactly this many receipts (pins the chain head)")
     ap.add_argument("--expect-head", default=None,
                     help="assert the newest receipt file has this sha256")
+    ap.add_argument("--evidence-dir", type=Path, default=None,
+                    help="re-derive CORRECTNESS: confirm each receipt's signed tree "
+                         "hash against the harvested run dirs, and re-check "
+                         "report-attestation verdicts against the bound report")
+    ap.add_argument("--allow-unpinned", action="store_true",
+                    help="permit verification with NO head pin (tail truncation "
+                         "becomes undetectable; off by default, F4)")
     args = ap.parse_args()
 
     pub = json.loads(args.pub_file.read_text(encoding="utf-8"))
@@ -165,14 +222,30 @@ def main() -> int:
     prev: Path | None = None
     for i, r in enumerate(rcpts, start=1):
         ok, errs = verify_one(r, pub, prev, args.genesis_anchor, i)
+        try:
+            receipt = json.loads(r.read_bytes()).get("receipt", {})
+        except Exception:
+            receipt = {}
+        kind = receipt.get("artifacts", {}).get("evidence_kind", "cell-execution")
+        if args.evidence_dir is not None and ok:
+            ev_errs = recheck_evidence(receipt, args.evidence_dir)
+            errs += ev_errs
+            if ev_errs:
+                ok = False
+        tag = "  [attestation-only]" if kind == "report-attestation" else ""
+        if args.evidence_dir is not None and not errs:
+            tag += "  [evidence re-derived]"
         state = "OK " if ok else "BAD"
-        print(f"[{state}] {r.name} sha256={hashlib.sha256(r.read_bytes()).hexdigest()[:16]}..")
+        print(f"[{state}] {r.name} sha256={hashlib.sha256(r.read_bytes()).hexdigest()[:16]}..{tag}")
         for e in errs:
             print(f"    - {e}")
         all_ok &= ok
         prev = r
 
-    # Out-of-band head pins (defend against tail truncation).
+    # F4: a trust decision REQUIRES a head pin. Without --expect-count/--expect-head
+    # the newest receipt(s) could be silently truncated and the chain still reads
+    # 1..N contiguous. Fail closed unless the operator explicitly waives it.
+    pinned = args.expect_count is not None or args.expect_head is not None
     if args.expect_count is not None and len(rcpts) != args.expect_count:
         print(f"HEAD PIN FAIL: found {len(rcpts)} receipts, expected {args.expect_count}")
         all_ok = False
@@ -181,6 +254,11 @@ def main() -> int:
         if head != args.expect_head:
             print(f"HEAD PIN FAIL: head sha256 {head} != expected {args.expect_head}")
             all_ok = False
+    if not pinned and not args.allow_unpinned:
+        print("HEAD UNPINNED (F4): no --expect-count/--expect-head supplied; tail "
+              "truncation is undetectable. Re-run with a head pin, or pass "
+              "--allow-unpinned to waive explicitly.")
+        all_ok = False
 
     print(f"CHAIN: {len(rcpts)} receipt(s) "
           + ("VERIFIED (offline, published verifier)" if all_ok else "FAILED"))
