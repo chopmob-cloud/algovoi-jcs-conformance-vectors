@@ -35,6 +35,10 @@ def main() -> int:
             continue
         if hashlib.sha256(b).hexdigest() != v["expected_sha256"]:
             failures.append(f"{vid}: SHA-256 mismatch")
+        # Validate EVERY declared hash, incl. the expected_content_hash alias, so a
+        # forgery of any load-bearing field is caught (not just expected_sha256).
+        if "expected_content_hash" in v and hashlib.sha256(b).hexdigest() != v["expected_content_hash"]:
+            failures.append(f"{vid}: content-hash mismatch")
 
     # pair invariants
     for pi in data["pair_invariants"]:
