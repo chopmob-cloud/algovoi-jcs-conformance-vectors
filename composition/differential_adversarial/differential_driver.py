@@ -93,7 +93,14 @@ def main(argv: list[str]) -> int:
         rejects = {L for L, v in vs.items() if v.startswith("R:")}
 
         if expect == "agree":
-            if len(hashes) == 1 and not rejects:
+            # F6: agreement requires EVERY present impl to emit the SAME h:<hash>.
+            # A verdict that is neither h: nor R: (crash output on stdout, a
+            # wrong-case "H:" prefix, an empty/garbage line) must never be
+            # silently counted as agreement -- that would defeat the whole point
+            # of N-way divergence detection. The old test (len(hashes)==1 and not
+            # rejects) passed when one impl emitted a lone hash and the rest
+            # emitted garbage, because garbage is neither a hash nor an R:.
+            if len(hashes) == 1 and all(v.startswith("h:") for v in vs.values()):
                 h = next(iter(hashes))
                 exp = c.get("expected_hash")
                 if exp is not None and h != exp:
@@ -108,7 +115,11 @@ def main(argv: list[str]) -> int:
                 n_fail += 1
                 fails.append((cid, expect, vs))
         elif expect == "reject":
-            if not hashes:
+            # F6: rejection requires EVERY present impl to actually reject (R:*).
+            # The old test (not hashes) passed a case where an impl emitted
+            # garbage (neither h: nor R:) instead of a real rejection, so a
+            # broken impl that failed to reject was scored as if it rejected.
+            if vs and all(v.startswith("R:") for v in vs.values()):
                 n_pass += 1
             else:
                 n_fail += 1

@@ -28,6 +28,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -135,7 +136,11 @@ def verify_one(path: Path, pub: dict, prev_file: Path | None,
             errs.append("signed sealer.keyid does not match the pinned registry")
         if f'keyid="{pub["keyid"]}"' not in si:
             errs.append("pinned keyid absent from signature_input")
-        if f'created={seal["created"]}' not in si:
+        # Match the created PARAMETER exactly (delimiter-bounded), not as a loose
+        # substring: 'created=178' must NOT satisfy 'created=1785779139'. The
+        # signature is authoritative over created; this is a strict sanity
+        # cross-check on the envelope's echoed value (F7).
+        if not re.search(rf'(?:^|;)created={seal["created"]}(?=;|$)', si):
             errs.append("seal.created does not match the signed signature_input")
         if seal["method"] != "POST" or seal["authority"] != "kaf.algovoi.co.uk" \
                 or seal["path"] != "/kaf/receipt":
