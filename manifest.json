@@ -214,18 +214,18 @@
     {
       "name": "settlement_action_binding_v1",
       "primary_file": "settlement_action_binding_v1.json",
-      "vector_count": 6,
+      "vector_count": 7,
       "anchors_to": "draft-hopley-x402-retention-chain",
       "cross_validated": "10-impl (8-impl direct 2026-06-18; Elixir + Kotlin added 2026-07-19, see _attestations/2026-07-19-elixir-kotlin-remaining-3-sets.md)",
-      "sha256": "sha256:9b3499dcd3ed4a64fb5d82e7a04b79aa827f7ac57eab3004fcd1e3044f12c4da"
+      "sha256": "sha256:33dae7fd0b0590548f8755bc451bbe6db2f9cf99e263a01260ce3255970a05f1"
     },
     {
       "name": "settlement_attestation_v1",
       "primary_file": "settlement_attestation_v1.json",
-      "vector_count": 8,
+      "vector_count": 9,
       "anchors_to": "draft-hopley-x402-settlement-attestation",
       "cross_validated": "10-impl direct (2026-05-25 for 8; Elixir + Kotlin added 2026-07-09, see _attestations/2026-07-09-elixir-kotlin-corpus-extension.md)",
-      "sha256": "sha256:bfd2838c9cdd5fd83cf1bd27e73e32a9bca2ac3de7464ccb89451bfd78bfdd08"
+      "sha256": "sha256:26630183f50316df5ea5265cbabff2200e2f2884f0e80fdff39dff86f41969b2"
     },
     {
       "name": "zkp_receipt_v1",
@@ -395,7 +395,7 @@
     }
   ],
   "total_anchor_sets": 43,
-  "total_vectors": 350,
+  "total_vectors": 352,
   "total_vectors_note": "42 sets / 344 entries (incl. task_ref_v1 + artifact_ref_v1 + composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, A2A ref chain (card_ref -> task_ref -> artifact_ref), .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 10-impl (8-impl 48/48 2026-06-18; Elixir + Kotlin 2026-07-19); epi sets Python+Rust direct; see _attestations for the per-set runner matrix. jws_anchor_v1 is the anchoring sibling to jcs_edge_v1: it pins WHICH BYTES are hashed for a signed receipt rather than the canonicalisation of an object, so 5 of its 6 vectors carry anchor_rule signed_bytes (sha256 over the raw signed JWS/SD-JWT bytes) and only 1 is an RFC 8785 JCS anchor. Its cross-validation is therefore recorded as two separate populations, ten implementations for the JCS-dependent points and eight crypto-capable implementations for Ed25519 verification, never flattened into a single grid.",
   "cross_validation": {
     "implementations": 10,

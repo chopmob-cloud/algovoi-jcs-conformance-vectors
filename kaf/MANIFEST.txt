@@ -1,0 +1,75 @@
+AlgoVoi corpus snapshot, 2026-08-02 (KAF P0 freeze)
+====================================================
+
+Purpose: complete pre-change preservation of the conformance corpus and every
+associated repository, taken immediately after the full docker clean on VM2
+and before any framework changes. This is the P0 freeze of the Keystone
+Assurance Framework (KAF v1) roadmap.
+
+Location: vm2:/opt/algovoi/corpus-snapshot-20260802/
+Transferred from the Windows workstation, sha256-verified on arrival
+(sha256sum -c SHA256SUMS.txt: all three OK), extracted in place, ownership
+normalized to root:root.
+
+Contents
+--------
+corpus-full-20260802.tgz (389,220,875 bytes)
+  algovoi-jcs-conformance-vectors, complete working tree including .git
+  head 8481570 "chore(corpus): track everything the validated battery covers"
+  branch hardening/conformance-vectors-20260802
+  (8481570 is local-only by owner decision; origin head is 63c4e4e)
+
+associated-repos-20260802.tgz (35,697,083 bytes)
+  algovoi-rfc9421-verifier, complete incl .git, head 007c25b
+    "fix: Node 18 Ed25519 verify failure, v0.3.3" (= origin/main)
+  avm-proofpack, complete incl .git, head 5120f92
+    "docs: link hosted documentation from pyproject and README"
+    EXCLUSION: avm-proofpack/dist/ omitted. The single file in it
+    (avm_proofpack-0.2.0-py3-none-any.whl, 58,470 bytes) is read-locked at
+    the ACL level on the workstation (both shells denied). It is a locally
+    built artifact, reproducible from the included source with
+    `python -m build`.
+  jcs-fuzz, fuzz harness working directory (not a git repo): fuzz.py,
+    adapters/, baseline.json, report.json, validate_lite*.py
+
+platform-subtrees-20260802.tgz (43,815,398 bytes)
+  From the platform monorepo at head 2721a902, branch claude/busy-bhabha-90c810:
+  algovoi-rfc9421-signer/
+  algovoi-key-credential-binding/
+  algovoi-keystone-avm-proofpack/
+  algovoi-settlement-verify/
+  static-well-known/pip-index/ (published wheel/sdist artifacts incl
+    algovoi-rfc9421-verifier 0.3.1/0.3.2/0.3.3)
+
+Checksums (SHA256SUMS.txt, verified on VM2)
+-------------------------------------------
+f860d998f50ad40aadaa2ce479b3e14304899a0bca090e7b5cf51716aadfe930  corpus-full-20260802.tgz
+09409d56648a451f0e4bd7a8d30e0bd4df3d45c50aa80bcbf6b527a3de103b01  associated-repos-20260802.tgz
+6eb969646e5cc855a30eb2a3ca78e7710bc24f7f638208c5a2ebd1b102341e0f  platform-subtrees-20260802.tgz
+
+Validation state captured by this snapshot
+------------------------------------------
+Full battery green on VM2 from registry state, 2026-08-02: runner matrix
+114/0 (node 35/35, one declared optional-dep skip), verify_corpus 47/0,
+first_principles 11/11, mutation_fuzz 40 classes 0 escapes, adversarial
+gauntlet green, all 5 keystone gauntlets green, 10-way differential substrate
+full consensus at REQUIRE=10 (38/38 cases, 7/7 KAT anchors, 20 hazard cases),
+kcb 10/10 from fresh registry installs. Memory-graph claims 9799, 9800, 9801.
+
+Docker clean record (same day, before this snapshot)
+----------------------------------------------------
+Removed: containers vcs-cleaninstall-20260802 and vcs-cleaninstall2-20260802,
+image python:3.11-slim, build cache, five stale networks (232.2MB reclaimed).
+Volume data archived first to /opt/algovoi/docker-volumes-backup-20260802.tgz
+(kyb_data sanctions.db, bot_state last_seen_id.json, sandbox_work empty).
+The three named volumes themselves remain (removal pending owner action).
+Note: new docker activity (container vcs-build, dotnet/sdk:10.0 pull) began
+on VM2 from another session immediately after the clean; it is unrelated to
+and untouched by this snapshot.
+
+Design of record
+----------------
+Keystone Assurance Framework v1, authored 2026-08-02:
+workstation path C:\algo\platform\drafts\keystone-assurance-framework-v1.md
+
+Stamp: AlgoVoi.

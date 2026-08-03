@@ -47,7 +47,8 @@ Run on the host (VM2):
    `algovoi-rfc9421-signer`.
 3. The envelope file IS its canonical bytes; its sha256 is the chain link.
    Each receipt names its predecessor's digest; the first is anchored to
-   the P0 snapshot MANIFEST. History cannot be reordered or backdated.
+   the P0 snapshot MANIFEST, committed here as `kaf/MANIFEST.txt` (sha256
+   `e5282959...`). History cannot be reordered or backdated.
 
 `kaf_verify.py` re-proves all of it **offline** with the **published**
 `algovoi-rfc9421-verifier` against the pinned key in
@@ -55,7 +56,7 @@ Run on the host (VM2):
 
     python kaf/kaf_verify.py --receipts-dir kaf/receipts \
         --pub-file kaf/keys/kaf-seal.pub.json \
-        --genesis-anchor <P0 MANIFEST.txt>
+        --genesis-anchor kaf/MANIFEST.txt --expect-count 3
 
 The framework certifies itself with the primitives it certifies. That is
 the stamp.
