@@ -42,6 +42,12 @@ PATH = "/kaf/receipt"
 SCHEMA = "kaf-receipt-v2"
 
 
+def _is_zero(x) -> bool:
+    """A genuine zero return code. Rejects JSON booleans: `False == 0` is True in
+    Python, so a boolean masquerading as a zero rc must NOT count as green (F-E)."""
+    return isinstance(x, int) and not isinstance(x, bool) and x == 0
+
+
 def _pkg_version(name: str) -> str:
     try:
         return metadata.version(name)
@@ -111,12 +117,26 @@ def main() -> int:
     ap.add_argument("--pub-file", required=True, type=Path,
                     help="pinned public key registry (kaf/keys/kaf-seal.pub.json)")
     ap.add_argument("--purpose", required=True)
+    ap.add_argument("--evidence-kind", choices=["cell-execution", "report-attestation"],
+                    default="cell-execution",
+                    help="operator-asserted run kind (F-B). report-attestation skips the "
+                         "F5 --network=none argv check; intent comes from THIS flag, never "
+                         "from the untrusted run-dir.")
     ap.add_argument("--genesis-anchor", type=Path, default=None,
                     help="P0 MANIFEST file anchoring the first receipt")
     args = ap.parse_args()
 
     run_meta = json.loads((args.run_dir / "run_meta.json").read_text(encoding="utf-8"))
-    is_attestation = run_meta.get("evidence_kind") == "report-attestation"
+    # F-B: the flag that disables the isolation gate is operator intent from the
+    # CLI, not a value read from the untrusted run-dir. Cross-check: if the
+    # evidence claims a different kind than the operator asserted, refuse rather
+    # than silently trusting evidence to turn a security gate off.
+    is_attestation = args.evidence_kind == "report-attestation"
+    meta_kind = run_meta.get("evidence_kind", "cell-execution")
+    if meta_kind != args.evidence_kind:
+        print(f"REFUSING to seal: --evidence-kind {args.evidence_kind} disagrees with "
+              f"run_meta evidence_kind {meta_kind!r}", file=sys.stderr)
+        return 2
     lock = json.loads((args.run_dir / "cells.lock.json").read_text(encoding="utf-8"))
     summary = json.loads((args.run_dir / "run_summary.json").read_text(encoding="utf-8"))
     pub = json.loads(args.pub_file.read_text(encoding="utf-8"))
@@ -178,7 +198,7 @@ def main() -> int:
                       f"--network=none (isolation unproven)", file=sys.stderr)
                 return 2
 
-        cell_green = (overall == 0 and all(v == 0 for v in suites.values())
+        cell_green = (_is_zero(overall) and all(_is_zero(v) for v in suites.values())
                       and not prov_failed and not degraded)
         if not cell_green:
             derived_green = False
@@ -186,7 +206,7 @@ def main() -> int:
             "id": cid,
             "image": locked["image"],
             "image_digest": locked["digest"],
-            "network": "none",
+            "network": ("none" if not is_attestation else "upstream-attested"),
             "canary": c.get("canary"),
             "suites": suites,
             "overall": overall,
@@ -201,6 +221,23 @@ def main() -> int:
     if not cells:
         print("REFUSING to seal: no cells in the run", file=sys.stderr)
         return 2
+
+    # F-A: a run that declares a differential N-way consensus (P3) must carry it
+    # GREEN and BOUND into the per-cell evidence. run_meta.consensus_rc is only
+    # advisory (untrusted); the authoritative form is a per-cell 'consensus' suite
+    # (already folded into cell greenness above by orchestrate_p3). Refuse a
+    # consensus-declaring run that is not bound, so a hash-split run whose cells
+    # each individually "ran fine" can never seal as a green consensus.
+    if "consensus_rc" in run_meta:
+        if run_meta.get("consensus_rc") != 0:
+            print("REFUSING to seal: run declares consensus_rc != 0 (N-way consensus failed)",
+                  file=sys.stderr)
+            return 2
+        missing_bind = [c["id"] for c in cells if "consensus" not in c["suites"]]
+        if missing_bind:
+            print(f"REFUSING to seal: consensus-declaring run has cells without a bound "
+                  f"'consensus' suite (unbound consensus): {missing_bind}", file=sys.stderr)
+            return 2
 
     rcpts = existing_receipts(args.receipts_dir)
     prev, prev_seq = previous_link(rcpts, args.genesis_anchor)

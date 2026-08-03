@@ -39,6 +39,12 @@ import rfc8785
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _jcs_min
 
+def _is_zero(x) -> bool:
+    """Genuine zero rc; rejects JSON booleans (`False == 0` is True in Python), so
+    a boolean masquerading as a zero cannot re-derive as green (F-E)."""
+    return isinstance(x, int) and not isinstance(x, bool) and x == 0
+
+
 _TOP_KEYS = {"receipt", "seal"}
 _SEAL_KEYS = {"keyid", "public_key_hex", "created", "method", "authority",
               "path", "content_digest", "signature_input", "signature"}
@@ -158,8 +164,8 @@ def verify_one(path: Path, pub: dict, prev_file: Path | None,
         # (5) re-derive greenness + totals from cells; never trust the stored flag
         cells = receipt["cells"]
         derived_green = all(
-            c.get("overall") == 0
-            and all(v == 0 for v in c.get("suites", {}).values())
+            _is_zero(c.get("overall"))
+            and all(_is_zero(v) for v in c.get("suites", {}).values())
             and not c.get("provision_failed_specs")
             and not c.get("degraded")
             for c in cells
