@@ -37,6 +37,13 @@ if [ "$CELL_LANG" = "elixir" ]; then
   export MIX_HOME=/tmp/kafmix/mix HEX_HOME=/tmp/kafmix/hex HOME=/tmp/kafmix
 fi
 
+# Node runners import @algovoi packages as bare ESM specifiers. Deps were
+# vendored to /cellenv/node_modules during provisioning; ESM ignores NODE_PATH,
+# so link them onto the node_modules resolution chain at the container root.
+if [ "$CELL_LANG" = "node" ] && [ -d /cellenv/node_modules ]; then
+  ln -sfn /cellenv/node_modules /node_modules 2>/dev/null || true
+fi
+
 # Environment fingerprint.
 {
   echo "cell: $CELL_ID"

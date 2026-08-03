@@ -1,7 +1,7 @@
 // ZKP receipt v1 conformance vector runner (Node.js / @algovoi/substrate).
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { canonicalize } from "../../_attestations/2026-05-25-8-impl-5-format-cross-validation/node_modules/@algovoi/substrate/dist/index.js";
+import { canonicalize } from "@algovoi/substrate";
 
 const data = JSON.parse(readFileSync("zkp_receipt_v1.json", "utf-8"));
 let pass = 0, fail = 0;

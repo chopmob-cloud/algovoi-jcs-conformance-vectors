@@ -89,9 +89,21 @@ case "$CELL_LANG" in
         note "go mod download failed (recorded): $s"; FAILED="$FAILED $s(gomod)"; }
     done
     ;;
-  node|php)
-    # Nothing to provision: node sets vendor node_modules in-tree; php
-    # runners are stdlib-only.
+  node)
+    # node runners import @algovoi packages as bare ESM specifiers. node_modules
+    # is gitignored, so a clean clone has nothing to resolve; vendor the PUBLISHED
+    # packages into /cellenv here (network-on phase). cell_exec.sh links them onto
+    # the ESM resolution chain at execution (NODE_PATH does not apply to ESM).
+    cd /cellenv || { note "cellenv cd failed"; exit 3; }
+    npm init -y >/dev/null 2>&1
+    for pkg in @algovoi/substrate @algovoi/rfc9421-verifier; do
+      if ! npm install "$pkg" --no-audit --no-fund --loglevel=error >/dev/null 2>&1; then
+        note "npm install failed (recorded, tolerated): $pkg"; FAILED="$FAILED $pkg(npm)"
+      fi
+    done
+    ;;
+  php)
+    # stdlib-only; nothing to provision.
     ;;
   *)
     note "no provisioning defined for lang $CELL_LANG"

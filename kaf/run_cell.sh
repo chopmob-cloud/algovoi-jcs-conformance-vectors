@@ -16,7 +16,7 @@ log() { echo "[$CELL_ID] $*"; }
 
 PROV_RC=0
 case "$LANG_" in
-  python|ruby|elixir|go)
+  python|ruby|elixir|go|node)
     PARGS=(docker run --rm --name "kaf-prov-$CELL_ID"
       -e "CELL_ID=$CELL_ID" -e "CELL_LANG=$LANG_"
       -v "$CORPUS:/corpus:ro" -v "$CELLENV:/cellenv"
