@@ -12,8 +12,11 @@ reachable = []
   begin
     Timeout.timeout(2) { TCPSocket.new(host, port).close }
     reachable << "tcp #{host}:#{port}"
+  rescue Timeout::Error
+    # A timeout is INCONCLUSIVE (e.g. firewall drop), not proof of isolation: fail closed.
+    reachable << "tcp #{host}:#{port} (timeout: inconclusive, fail-closed)"
   rescue StandardError
-    # unreachable is the desired state
+    # genuine no route (ECONNREFUSED/ENETUNREACH) is the desired isolated state
   end
 end
 

@@ -10,7 +10,10 @@ function probe(host, port) {
   return new Promise((resolve) => {
     const sock = net.connect({ host, port, timeout: 2000 });
     sock.on("connect", () => { sock.destroy(); resolve(`tcp ${host}:${port}`); });
-    sock.on("timeout", () => { sock.destroy(); resolve(null); });
+    // A timeout is INCONCLUSIVE (e.g. a firewall drop on an otherwise-open
+    // network), not proof of isolation: fail closed by counting it as reachable.
+    sock.on("timeout", () => { sock.destroy(); resolve(`tcp ${host}:${port} (timeout: inconclusive, fail-closed)`); });
+    // A genuine error (ECONNREFUSED/ENETUNREACH) IS isolation.
     sock.on("error", () => resolve(null));
   });
 }
