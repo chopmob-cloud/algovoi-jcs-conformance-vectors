@@ -24,14 +24,21 @@ def main(vector_file: str) -> int:
         ref   = "sha256:" + hashlib.sha256(canon).hexdigest()
         b64_ok = b64 == v["expected_jcs_bytes_b64"]
         ref_ok = ref == v["expected_chain_ref"]
-        if b64_ok and ref_ok:
+        # Verify the receipt binding, not just the chain ref (see retention_chain_v1).
+        rcpt_ok = True
+        if "receipt_preimage" in v and "receipt_hash" in v:
+            rh = "sha256:" + hashlib.sha256(v["receipt_preimage"].encode("utf-8")).hexdigest()
+            rcpt_ok = (rh == v["receipt_hash"]
+                       and v.get("preimage", {}).get("receipt_hash") == v["receipt_hash"])
+        if b64_ok and ref_ok and rcpt_ok:
             pass_n += 1
         else:
             fail_n += 1
             if not b64_ok: print(f"  FAIL {vid} jcs_bytes_b64 mismatch")
             if not ref_ok: print(f"  FAIL {vid} chain_ref (got {ref})")
+            if not rcpt_ok: print(f"  FAIL {vid} receipt binding (receipt_hash != sha256(receipt_preimage))")
     print(f"{pass_n}/{pass_n + fail_n} PASS")
-    return 1 if fail_n else 0
+    return 1 if fail_n or (pass_n + fail_n) == 0 else 0  # positive-work floor: empty must not pass
 
 
 if __name__ == "__main__":

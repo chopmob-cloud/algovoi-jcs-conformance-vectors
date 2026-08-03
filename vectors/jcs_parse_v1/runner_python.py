@@ -54,6 +54,11 @@ def main(path: str = "jcs_parse_v1.json") -> int:
 
     for v in data["reject"]:
         raw = base64.b64decode(v["input_b64"])
+        # Same integrity pin as the accept branch: a tampered input_b64 with the
+        # declared input_sha256 left intact must not pass here either.
+        if "input_sha256" in v and hashlib.sha256(raw).hexdigest() != v["input_sha256"]:
+            failures.append(f"{v['id']}: input_sha256 mismatch (declared integrity pin unverified)")
+            continue
         try:
             parse_strict(raw)
         except DuplicateMember:

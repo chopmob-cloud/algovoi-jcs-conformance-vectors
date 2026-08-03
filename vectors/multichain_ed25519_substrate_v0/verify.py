@@ -19,6 +19,7 @@ The seeds are public RFC 8032 test keys (see fixture.json key_material_note);
 they are published precisely so this verification needs nothing external.
 """
 
+import hashlib
 import json
 import sys
 import base64
@@ -87,6 +88,16 @@ if __name__ == "__main__":
     print(f"A2A Payload: {len(payload_json)} bytes")
     print(f"Payload SHA-256: {payload_sha256}")
     print()
+
+    # Verify the declared payload_sha256 pin (was printed but never checked).
+    _actual = hashlib.sha256(payload_json.encode("utf-8")).hexdigest()
+    if payload_sha256 not in (_actual, "sha256:" + _actual):
+        print(f"[FAIL] payload_sha256 mismatch: declared {payload_sha256} != sha256(payload) {_actual}")
+        sys.exit(1)
+    # Positive-work floor: an empty signatures map must not vacuously pass.
+    if not fixture.get("signatures"):
+        print("[FAIL] no signatures to verify (empty signatures map)")
+        sys.exit(1)
 
     all_valid = True
     for chain_name, sig_info in fixture["signatures"].items():
