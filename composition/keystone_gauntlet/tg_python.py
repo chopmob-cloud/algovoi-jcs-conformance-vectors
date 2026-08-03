@@ -11,4 +11,4 @@ for v in d["vectors"]:
     else: fails.append(f"{v['id']}: mismatch")
 for f in fails: print("  FAIL", f)
 print(f"TRUST-GATE-GAUNTLET python {ok}/{len(d['vectors'])}")
-sys.exit(0 if ok == len(d["vectors"]) and not fails else 1)
+sys.exit(0 if len(d["vectors"]) > 0 and ok == len(d["vectors"]) and not fails else 1)  # positive-work floor: never green on zero vectors

@@ -11,6 +11,7 @@ Exit 0 when every vector reaches its stated verdict.
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -41,6 +42,11 @@ def main(path: str = "jcs_parse_v1.json") -> int:
 
     for v in data["accept"]:
         raw = base64.b64decode(v["input_b64"])
+        # Validate the declared integrity pin: the decoded input bytes must hash to
+        # input_sha256, else a tampered input_b64 (with the pin left intact) escapes.
+        if "input_sha256" in v and hashlib.sha256(raw).hexdigest() != v["input_sha256"]:
+            failures.append(f"{v['id']}: input_sha256 mismatch (declared integrity pin unverified)")
+            continue
         try:
             parse_strict(raw)
         except DuplicateMember as exc:
@@ -51,6 +57,8 @@ def main(path: str = "jcs_parse_v1.json") -> int:
         try:
             parse_strict(raw)
         except DuplicateMember:
+            if v.get("expected_code") not in (None, "REJECT_DUPLICATE_MEMBER"):
+                failures.append(f"{v['id']}: raised DuplicateMember but expected_code is {v['expected_code']}")
             continue
         failures.append(f"{v['id']}: expected {v['expected_code']}, but parsed cleanly")
 

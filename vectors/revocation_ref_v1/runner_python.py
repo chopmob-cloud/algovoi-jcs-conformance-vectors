@@ -94,6 +94,9 @@ def main() -> int:
     if fails:
         print(f"FAIL ({len(fails)}/{total})")
         return 1
+    if total == 0:
+        print("FAIL: zero items (positive-work floor -- an empty file must not pass)")
+        return 1
     print(f"PASS {ok}/{total} -- revocation links reproduce; malformed rejected fail-closed; tamper detected; chain integrity holds.")
     return 0
 

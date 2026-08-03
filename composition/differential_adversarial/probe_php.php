@@ -7,7 +7,7 @@ function jcs_canonicalize($value): string {
     if (is_bool($value)) return $value ? "true" : "false";
     if (is_int($value)) return (string)$value;
     if (is_float($value)) throw new Exception("floats not supported");
-    if (is_string($value)) return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    if (is_string($value)) return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS | JSON_THROW_ON_ERROR);
     if (is_array($value)) return "[" . implode(",", array_map('jcs_canonicalize', $value)) . "]";
     if (is_object($value)) {
         $arr = get_object_vars($value);
@@ -15,7 +15,7 @@ function jcs_canonicalize($value): string {
         usort($keys, fn($a, $b) => strcmp(iconv('UTF-8', 'UTF-16BE', (string)$a), iconv('UTF-8', 'UTF-16BE', (string)$b)));
         $parts = [];
         foreach ($keys as $k) {
-            $k_c = json_encode((string)$k, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            $k_c = json_encode((string)$k, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS | JSON_THROW_ON_ERROR);
             $parts[] = "$k_c:" . jcs_canonicalize($arr[$k]);
         }
         return "{" . implode(",", $parts) . "}";

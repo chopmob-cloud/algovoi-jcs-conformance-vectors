@@ -44,4 +44,4 @@ for c in d["chain_invalid"]: ok+=1 if not vchain(c["links"]) else fails.append(c
 total=len(d["vectors"])+len(d["negatives"])+len(d["tamper"])+len(d["chain_valid"])+len(d["chain_invalid"])
 for f in fails: print("  FAIL",f)
 print(f"REVOCATION-GAUNTLET python {ok}/{total}")
-sys.exit(0 if ok==total and not fails else 1)
+sys.exit(0 if total>0 and ok==total and not fails else 1)  # positive-work floor: never green on zero items

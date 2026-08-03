@@ -56,10 +56,17 @@ def _pkg_version(name: str) -> str:
 
 
 def _canon(obj: dict) -> bytes:
-    """Canonical bytes, with a real independent differential cross-check."""
+    """Canonical bytes with a genuinely independent differential cross-check.
+
+    Independence note: algovoi-substrate delegates to rfc8785 (it IS rfc8785 plus
+    type validation), so the substrate-vs-rfc8785 comparison below is a
+    version-consistency self-check, NOT a second independent implementation. The
+    one genuinely independent in-process check is _jcs_min (no shared code with
+    rfc8785/substrate). Cross-implementation independence at scale is the P3
+    10-language differential consensus, not this in-process pair."""
     body = canonicalize_bytes(obj)
     if body != rfc8785.dumps(obj):
-        raise SystemExit("FATAL: substrate and rfc8785 disagree on the bytes")
+        raise SystemExit("FATAL: substrate and its rfc8785 backend disagree (version skew)")
     if body != _jcs_min.dumps(obj):
         raise SystemExit("FATAL: independent JCS (_jcs_min) disagrees on the bytes")
     return body
@@ -248,7 +255,8 @@ def main() -> int:
         "keyid": pub["keyid"],
         "canon_engine": "algovoi-substrate",
         "canon_engine_version": _pkg_version("algovoi-substrate"),
-        "canon_cross_checks": ["rfc8785", "kaf/_jcs_min (independent)"],
+        "canon_cross_checks": ["rfc8785 (substrate's own backend; version-consistency check)",
+                               "kaf/_jcs_min (independent, no shared code)"],
         "canon_cross_check_match": True,
         "signer_pkg": f"algovoi-rfc9421-signer=={_pkg_version('algovoi-rfc9421-signer')}",
         "verifier_target": "algovoi-rfc9421-verifier>=0.3.3",

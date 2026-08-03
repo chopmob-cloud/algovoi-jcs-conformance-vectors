@@ -14,7 +14,13 @@ for host, port in (("1.1.1.1", 443), ("8.8.8.8", 53)):
         s = socket.create_connection((host, port), timeout=2)
         s.close()
         reachable.append(f"tcp {host}:{port}")
+    except socket.timeout:
+        # A timeout is INCONCLUSIVE (e.g. a firewall drop on an otherwise-open
+        # network), not proof of isolation. Fail closed: count as reachable so a
+        # drop-based environment cannot false-pass the hermeticity proof.
+        reachable.append(f"tcp {host}:{port} (timeout: inconclusive, fail-closed)")
     except OSError:
+        # Genuine no route (ECONNREFUSED / ENETUNREACH / EHOSTUNREACH): isolated.
         pass
 
 try:

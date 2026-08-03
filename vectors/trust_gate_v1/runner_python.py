@@ -40,6 +40,9 @@ def main() -> int:
     if fails:
         print(f"FAIL ({len(fails)}/{total})")
         return 1
+    if total == 0:
+        print("FAIL: zero vectors (positive-work floor -- an empty file must not pass)")
+        return 1
     print(f"PASS {ok}/{total} -- trust-gate deny table matches for every verdict x mode + fail-open edges.")
     return 0
 
