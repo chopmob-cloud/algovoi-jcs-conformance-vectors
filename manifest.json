@@ -392,11 +392,29 @@
       "anchors_to": "Signed-token anchoring rule: raw signed bytes for a JWS/SD-JWT, RFC 8785 JCS for an unsigned object. Ed25519 per RFC 8032 section 7.1.",
       "cross_validated": "Two populations, stated separately. JCS side: 3 JCS-dependent points x 10 implementations = 30/30 (2026-07-21, VM2 clean-box; derived via derive_jcs_side.py which fails closed if it cannot reproduce the set's own values). Signature + anchoring side: 8 crypto-capable implementations pass (Python, Node, Go, Rust, Java, PHP/libsodium, .NET, Ruby), same population as rfc9421_proxy_chain_v1; Elixir and Kotlin are JCS-side only and are NOT claimed for signature verification. See _attestations/2026-07-21-jws-anchor-v1-ten-impl.md",
       "sha256": "sha256:79d4756af4ad61461822bd21f2c10447fec054220827f241ea170093dc07bd38"
+    },
+    {
+      "name": "atb_trust_v1",
+      "primary_file": "atb_trust_v1.json",
+      "vector_count": 6,
+      "negative_count": 2,
+      "anchors_to": "AlgoVoi keystone trust query: atb_trust_ref == trust_query_ref = sha256(JCS({subject_refs, trust_outcome})). 4 positive recompute byte-for-byte + 2 negative diverge. Byte-identical to the trust_query_ref that composite_trust_query_v1 caps.",
+      "cross_validated": "Python reference implementation (runner_python.py), recompute byte-for-byte; ref is byte-identical to composite_trust_query_v1's trust_query_ref. Not yet multi-implementation cross-validated.",
+      "sha256": "sha256:1208f0935e86a168d55d2400ed1acc1704f42fb59c6946ac62cf6469ad6f0b47"
+    },
+    {
+      "name": "revocation_ref_v1",
+      "primary_file": "revocation_ref_v1.json",
+      "vector_count": 16,
+      "negative_count": 9,
+      "anchors_to": "substrate2/keystone revocation_ref + verify_revocation_chain: revocation link reproduces (2 positive), malformed rejected fail-closed (9 negative), tamper detected (1), chain integrity (1 valid + 3 invalid chains).",
+      "cross_validated": "Python reference implementation (runner_python.py), recompute byte-for-byte + fail-closed rejection. Not yet multi-implementation cross-validated.",
+      "sha256": "sha256:04811c81878b665368d08345e4eb3030f02d2a098c9b5ee01670e50b02b1643d"
     }
   ],
-  "total_anchor_sets": 43,
-  "total_vectors": 352,
-  "total_vectors_note": "43 sets / 352 entries (independently recomputed 2026-08-03) (incl. task_ref_v1 + artifact_ref_v1 + composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, A2A ref chain (card_ref -> task_ref -> artifact_ref), .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 10-impl (8-impl 48/48 2026-06-18; Elixir + Kotlin 2026-07-19); epi sets Python+Rust direct; see _attestations for the per-set runner matrix. jws_anchor_v1 is the anchoring sibling to jcs_edge_v1: it pins WHICH BYTES are hashed for a signed receipt rather than the canonicalisation of an object, so 5 of its 6 vectors carry anchor_rule signed_bytes (sha256 over the raw signed JWS/SD-JWT bytes) and only 1 is an RFC 8785 JCS anchor. Its cross-validation is therefore recorded as two separate populations, ten implementations for the JCS-dependent points and eight crypto-capable implementations for Ed25519 verification, never flattened into a single grid.",
+  "total_anchor_sets": 45,
+  "total_vectors": 374,
+  "total_vectors_note": "45 sets / 374 entries (independently recomputed 2026-08-04; reconciled to register two previously-unlisted JCS sets atb_trust_v1 (6) + revocation_ref_v1 (16); the non-JCS verdict set trust_gate_v1 is in gate_sets and is NOT folded into these totals) (incl. task_ref_v1 + artifact_ref_v1 + composite_trust_query_lite_v1 + refund_receipt_lite_v1 + cancellation_receipt_lite_v1 + payment_mandate_lite_v1 + agent_passport_lite_v1) (incl. policy_binding_v1 + compliance_gate_lite_v1 + spend_guardrail_lite_v1 + spend_decision_v1 + substrate_guard_v1, Python+TS byte-for-byte) = JCS canonicalisation vectors across the receipt lifecycle, lifecycle/binding, A2A ref chain (card_ref -> task_ref -> artifact_ref), .epi interop+PQC, RFC 9421 receipt evidence, and adversarial fixtures. spend_decision_v1 anchors the decision_ref construction (ALLOW/DENY/REFER) and the spend_decision chain prev_entry_hash linkage; its ALLOW/DENY refs are byte-identical to spend_guardrail_lite_v1. substrate_guard_v1 is the resource-bounds edition of input validation: profile_ref content-addresses the limits in force, and guard(value, profile) rejects a well-formed but resource-hostile payload (size/depth/keys/array/string/nodes/unsafe-number) with a named code BEFORE canonicalization; every bound is a pure structural property so it is identical across implementations. settlement_action_binding_v1 cross-validated 10-impl (8-impl 48/48 2026-06-18; Elixir + Kotlin 2026-07-19); epi sets Python+Rust direct; see _attestations for the per-set runner matrix. jws_anchor_v1 is the anchoring sibling to jcs_edge_v1: it pins WHICH BYTES are hashed for a signed receipt rather than the canonicalisation of an object, so 5 of its 6 vectors carry anchor_rule signed_bytes (sha256 over the raw signed JWS/SD-JWT bytes) and only 1 is an RFC 8785 JCS anchor. Its cross-validation is therefore recorded as two separate populations, ten implementations for the JCS-dependent points and eight crypto-capable implementations for Ed25519 verification, never flattened into a single grid.",
   "cross_validation": {
     "implementations": 10,
     "languages": [
@@ -648,6 +666,20 @@
   "total_parse_sets": 1,
   "total_parse_vectors": 8,
   "parse_note": "Parse sets pin accept/reject verdicts over RAW INPUT BYTES for defects that do not survive parsing, so they carry no per-vector canonical-bytes recompute and are NOT folded into total_anchor_sets / total_vectors. Same claim separation as grammar_sets. RFC 8785 canonicalises an already-parsed value, so a duplicate object member is gone before the canonicaliser runs: json.loads('{\"a\":1,\"a\":2}') yields {'a': 2}, and the canonical bytes of that parsed value verify for a document the raw input never unambiguously stated. RFC 8259 section 4 records three real divergent behaviours (last-only, parse error, report-all), which is why the check belongs at parse and why the verdict, not a canonical byte string, is the conformance signal. Reference-impl proof-of-record (Python object_pairs_hook); not cross-validated.",
+  "gate_sets": [
+    {
+      "name": "trust_gate_v1",
+      "primary_file": "trust_gate_v1.json",
+      "vector_count": 15,
+      "category": "verdict",
+      "anchors_to": "gateway/app/routers/verify.py _TRUST_GATE_DENY / _trust_gate_blocks: 4x3 verdict x mode decision matrix + 3 fail-open edges. A decision table, NOT a JCS-hash set (no per-vector canonical bytes).",
+      "cross_validated": "8-impl fail-open parity 120/120 (composition/keystone_gauntlet/run_trust_gate_gauntlet.sh); Python reference runner_python.py 15/15.",
+      "sha256": "sha256:590f888883b9a745f18c260b9034dd41d5bb8643a00f6476a431a33eb62cc584"
+    }
+  ],
+  "total_gate_sets": 1,
+  "total_gate_vectors": 15,
+  "gate_note": "Gate sets pin a decision table's accept/deny verdicts (verdict x mode) over pinned inputs. They carry no per-vector canonical bytes, so like grammar_sets and parse_sets they are NOT folded into total_anchor_sets / total_vectors. The conformance signal is verdict agreement (fail-open/fail-closed) across implementations, not a canonical-byte claim.",
   "companion_sets": {
     "settlement_evidence_binding_v1": {
       "repo": "avm-proofpack",
