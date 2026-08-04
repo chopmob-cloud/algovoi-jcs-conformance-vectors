@@ -213,7 +213,7 @@ The P3 full 10-way differential rejection consensus was re-run hermetically on t
 clean-docker dev server under the hardened code: 10/10 languages, consensus_rc=0,
 all six new compiled-lang canaries validated in real cells. It was harvested and
 sealed locally with the real kaf-seal-2026 identity as the chain's first v3
-receipt (seq14, catalog-anchored). The full chain now verifies 14/14 offline
-(v2 seq1-13 + v3 seq14), and seq4-14 re-derive under --evidence-dir including the
+receipt (seq14 P3 + seq15 P2, catalog-anchored). The full chain now verifies 15/15 offline
+(v2 seq1-13 + v3 seq14-15), and seq4-15 re-derive under --evidence-dir including the
 seq14 consensus re-derivation. All local batteries stay green (tamper 17/17,
 fa_matrix, degen 5/5, bff_all, manifest_bff 45/374 + gate_sets, 49-runner sweep).
