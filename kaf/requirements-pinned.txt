@@ -1,0 +1,18 @@
+# KAF host-side pinned dependencies (F-6).
+#
+# Exact versions used to run the host-side conformance/fuzz harnesses (P4 strata
+# blast, P5 chains) and the seal/verify tooling reproducibly. Captured 2026-08-04
+# on the clean-docker dev server; P3/P2 in-cell provisioning pins rfc8785==0.1.4
+# in p3_provision.sh, and published-package cells are versioned by the registry.
+#
+#   python3 -m venv venv && venv/bin/pip install -r kaf/requirements-pinned.txt
+#
+# Verified: P4 strata 634/634 forgeries rejected 0 escapes; P5 10/10 chains +
+# 5/5 gauntlets; both embed corpus_commit for the F-N2 wrap binding.
+
+algovoi-substrate==0.5.1
+rfc8785==0.1.4
+PyNaCl==1.6.2
+cryptography==50.0.0
+pqcrypto==0.4.0
+algovoi-execution-ref==0.1.0

@@ -203,9 +203,21 @@ a batch, tested locally, and validated on the clean-docker dev server.
 - **F-C1, already covered.** jcs_edge_v1 already carries U+2028/U+2029 (edge-001/002)
   and the & < > HTML literals (edge-009); no new vectors were needed.
 
-Not changed autonomously: F-6 dependency pinning (done during a dev-server
-re-provision where exact installed versions are observable) and the pre-existing
-substrate_guard_v1 count convention (declares 15, arrays sum to 14).
+F-6 dependency pinning: done. rfc8785 is pinned to ==0.1.4 in p3_provision.sh, and
+the exact host-side dependency set (validated on the dev server) is recorded in
+kaf/requirements-pinned.txt (algovoi-substrate 0.5.1, rfc8785 0.1.4, PyNaCl 1.6.2,
+cryptography 50.0.0, pqcrypto 0.4.0, algovoi-execution-ref 0.1.0).
+
+substrate_guard_v1 count: not an error. Its top-level arrays sum to 14 but the
+runner tests 15/15 and the manifest's vector_count=15 matches the runner (the
+authoritative operational count), so 374 stands.
+
+P4 and P5 were also re-run fresh on the dev server under the hardened code: P4
+strata 634/634 forgeries rejected (0 escapes, 0 baseline failures), P5 10/10
+chains + 5/5 gauntlets, and both reports embed corpus_commit=ccf8b78, confirming
+the F-N2 wrap binding end to end. They run host-side (in-process fuzzers), so they
+are not sealed with a docker image label; the two v3 chain receipts (seq14 P3,
+seq15 P2) come from genuine hermetic docker cells with accurate image digests.
 
 ### Dev-server validation (fresh, hardened code)
 
