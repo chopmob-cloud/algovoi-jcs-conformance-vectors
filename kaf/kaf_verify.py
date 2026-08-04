@@ -50,6 +50,9 @@ _SEAL_KEYS = {"keyid", "public_key_hex", "created", "method", "authority",
               "path", "content_digest", "signature_input", "signature"}
 _RECEIPT_KEYS = {"schema", "seq", "framework", "run", "corpus", "cells",
                  "totals", "sealer", "artifacts", "prev"}
+# v3 adds a hash-bound coverage catalog and an in-cell-canary attestation.
+_RECEIPT_KEYS_V3 = _RECEIPT_KEYS | {"catalog", "attestations"}
+_SCHEMAS = {"kaf-receipt-v2", "kaf-receipt-v3"}
 
 
 def _canon(obj) -> bytes:
@@ -124,8 +127,12 @@ def verify_one(path: Path, pub: dict, prev_file: Path | None,
         receipt, seal = env.get("receipt", {}), env.get("seal", {})
         if set(seal) != _SEAL_KEYS:
             errs.append(f"unexpected seal keys: {sorted(set(seal) ^ _SEAL_KEYS)}")
-        if set(receipt) != _RECEIPT_KEYS:
-            errs.append(f"unexpected receipt keys: {sorted(set(receipt) ^ _RECEIPT_KEYS)}")
+        schema = receipt.get("schema")
+        if schema not in _SCHEMAS:
+            errs.append(f"unknown receipt schema {schema!r}")
+        expected_rkeys = _RECEIPT_KEYS_V3 if schema == "kaf-receipt-v3" else _RECEIPT_KEYS
+        if set(receipt) != expected_rkeys:
+            errs.append(f"unexpected receipt keys: {sorted(set(receipt) ^ expected_rkeys)}")
         if errs:
             return False, errs
 
@@ -180,6 +187,26 @@ def verify_one(path: Path, pub: dict, prev_file: Path | None,
             errs.append("totals.suite_executions disagrees with cells")
         if sealer.get("canon_cross_check_match") is not True:
             errs.append("sealer.canon_cross_check_match is not true")
+
+        # (5b) v3: the coverage catalog must be a SUBSET of the tested cells
+        # (coverage cannot be trimmed below what the catalog declares), and if the
+        # receipt attests in-cell canaries, every cell must carry a passing one.
+        # The catalog + attestation are inside the signed body, so they are already
+        # tamper-evident; here we re-derive the PROPERTIES they assert.
+        if schema == "kaf-receipt-v3":
+            cat_cells = set(receipt.get("catalog", {}).get("cells", []))
+            if not cat_cells:
+                errs.append("v3 receipt has an empty catalog.cells")
+            have = {c.get("id") for c in cells}
+            missing = sorted(cat_cells - have)
+            if missing:
+                errs.append(f"v3 catalog not covered by cells[] (coverage trimmed): {missing}")
+            if receipt.get("attestations", {}).get("in_cell_canary") is True:
+                no_canary = sorted(str(c.get("id")) for c in cells
+                                   if not _is_zero(c.get("suites", {}).get("canary")))
+                if no_canary:
+                    errs.append(f"v3 attests in_cell_canary but these cells lack a passing "
+                                f"canary suite: {no_canary}")
 
         # (6) seq contiguity + chain link + genesis anchor
         if receipt.get("seq") != expected_seq:

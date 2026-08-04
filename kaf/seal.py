@@ -39,7 +39,8 @@ import _jcs_min  # independent JCS, no shared code with rfc8785/substrate
 
 AUTHORITY = "kaf.algovoi.co.uk"
 PATH = "/kaf/receipt"
-SCHEMA = "kaf-receipt-v2"
+SCHEMA = "kaf-receipt-v2"       # default (no catalog): unchanged v2 receipts
+SCHEMA_V3 = "kaf-receipt-v3"    # carries catalog anchor + in-cell-canary attestation
 
 
 def _is_zero(x) -> bool:
@@ -131,6 +132,12 @@ def main() -> int:
                          "from the untrusted run-dir.")
     ap.add_argument("--genesis-anchor", type=Path, default=None,
                     help="P0 MANIFEST file anchoring the first receipt")
+    ap.add_argument("--catalog", type=Path, default=None,
+                    help="catalog JSON listing the cells that MUST be present (the "
+                         "pkgcell/p3cell coverage set). When given, the receipt is "
+                         "schema v3: the catalog is hash-bound, cells[] must be a "
+                         "SUPERSET of it (coverage cannot be trimmed), and every "
+                         "cell-execution cell must carry a passing canary suite.")
     args = ap.parse_args()
 
     run_meta = json.loads((args.run_dir / "run_meta.json").read_text(encoding="utf-8"))
@@ -246,6 +253,36 @@ def main() -> int:
                   f"'consensus' suite (unbound consensus): {missing_bind}", file=sys.stderr)
             return 2
 
+    # v3 (catalog given): bind the coverage catalog and require positive hermeticity
+    # attestation. This closes the trimming hole (F-N1 root): a run cannot seal
+    # green having tested FEWER cells than the catalog declares, and every real
+    # cell execution must carry a passing in-cell canary (F-N4).
+    schema = SCHEMA
+    catalog_block = None
+    attestations = None
+    if args.catalog is not None:
+        schema = SCHEMA_V3
+        cat = json.loads(args.catalog.read_text(encoding="utf-8"))
+        cat_cells = sorted({c for c in cat.get("cells", []) if c})
+        if not cat_cells:
+            print("REFUSING to seal: --catalog lists no cells", file=sys.stderr)
+            return 2
+        have = {c["id"] for c in cells}
+        missing = [cid for cid in cat_cells if cid not in have]
+        if missing:
+            print(f"REFUSING to seal: cells[] is not a superset of the catalog "
+                  f"(coverage trimmed): missing {missing}", file=sys.stderr)
+            return 2
+        if not is_attestation:
+            no_canary = [c["id"] for c in cells if not _is_zero(c["suites"].get("canary"))]
+            if no_canary:
+                print(f"REFUSING to seal (v3): cell-execution cells without a passing "
+                      f"canary suite (hermeticity not attested): {no_canary}", file=sys.stderr)
+                return 2
+        catalog_block = {"sha256": "sha256:" + hashlib.sha256(_canon(cat)).hexdigest(),
+                         "cells": cat_cells, "source": args.catalog.name}
+        attestations = {"in_cell_canary": (not is_attestation)}
+
     rcpts = existing_receipts(args.receipts_dir)
     prev, prev_seq = previous_link(rcpts, args.genesis_anchor)
     seq = prev_seq + 1
@@ -263,7 +300,7 @@ def main() -> int:
     }
 
     receipt = {
-        "schema": SCHEMA,
+        "schema": schema,
         "seq": seq,
         "framework": {"name": "KAF", "version": "0.2.0",
                       "design": "keystone-assurance-framework-v1"},
@@ -286,6 +323,11 @@ def main() -> int:
         "artifacts": _artifacts(args.run_dir, run_meta),
         "prev": prev,
     }
+    # v3 additions (hash-bound inside the signed body).
+    if catalog_block is not None:
+        receipt["catalog"] = catalog_block
+    if attestations is not None:
+        receipt["attestations"] = attestations
 
     body = _canon(receipt)
     created = int(time.time())
