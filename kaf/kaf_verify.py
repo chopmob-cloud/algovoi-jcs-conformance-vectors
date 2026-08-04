@@ -29,6 +29,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -108,6 +109,34 @@ def recheck_evidence(receipt: dict, evidence_dir: Path) -> list[str]:
             for k, v in verdict.items():
                 if rep.get(k) != v:
                     errs.append(f"attested_verdict mismatch: report[{k}]={rep.get(k)} != sealed {v}")
+
+    # Verify-time N-way consensus RE-DERIVATION. For a P3 consensus run (cells
+    # carry a 'consensus' suite), do not merely trust the sealed verdict: re-run
+    # the differential driver over the harvested per-language verdict files and
+    # require full consensus. This closes the "consensus host-computed + trusted
+    # at seal" gap (tamper was already caught via tree-binding; this re-derives).
+    cells = receipt.get("cells", [])
+    if any("consensus" in c.get("suites", {}) for c in cells):
+        cout = match_dir / "consensus_out"
+        vfiles = sorted(cout.glob("*.txt")) if cout.is_dir() else []
+        if not vfiles:
+            errs.append("consensus receipt but no consensus_out/*.txt in evidence to re-derive")
+        else:
+            root = Path(__file__).resolve().parent.parent
+            dad = root / "composition" / "differential_adversarial"
+            corpora = [str(dad / f) for f in ("cases_consensus_v1.json",
+                       "cases_hazard_v1.json", "cases_tier_v1.json")]
+            driver = dad / "differential_driver.py"
+            p = subprocess.run([sys.executable, str(driver), "--out", str(cout)] + corpora,
+                               capture_output=True, text=True)
+            if p.returncode != 0:
+                last = (p.stdout.strip().splitlines() or [p.stderr.strip()[:200]])[-1]
+                errs.append(f"verify-time consensus re-derivation FAILED (driver rc={p.returncode}): {last}")
+            # tie the re-derivation to the sealed cell count: one verdict file per
+            # consensus cell, so a dropped language cannot pass unnoticed.
+            ncons = sum(1 for c in cells if "consensus" in c.get("suites", {}))
+            if len(vfiles) != ncons:
+                errs.append(f"consensus verdict files ({len(vfiles)}) != sealed consensus cells ({ncons})")
     return errs
 
 
