@@ -166,3 +166,54 @@ overstate what was proven), or coverage (a check that was declared but not
 enforced, or a zero-work run that could seal green). None was a forge or an
 authenticity break: the crypto core rejected all 17 tamper attacks and every
 receipt verifies. No fix changed a canonical byte.
+
+## 6. Addendum, 2026-08-04: full flagged trust-model batch
+
+The items flagged for review at the end of the overnight sweep were implemented as
+a batch, tested locally, and validated on the clean-docker dev server.
+
+- **F-N2, corpus-commit binding through the report-attestation wrap.**
+  strata_blast.py and p5_chains.py embed corpus_commit; wrap_report_run.py refuses
+  a report whose commit is absent or != the asserted --corpus-commit. Tested both
+  ways.
+- **F-N4, 10-language in-cell hermeticity attestation.** Added in-cell network
+  canaries for the six compiled/other N-way languages (go, rust, java, kotlin,
+  dotnet, elixir) mirroring net_canary.py, plus positive attestation: a passing
+  canary now writes canary\t0, so its presence can be required. Wired into
+  p3_provision.sh (build) and p3_exec.sh (run). Validated in real cells on the dev
+  server: all 10 languages report NETWORK=NONE and emit canary\t0.
+- **kaf receipt schema v3 (catalog anchor + canary requirement).** seal.py
+  --catalog binds the coverage catalog into the signed body; cells[] must be a
+  superset of it (coverage cannot be trimmed), and every cell-execution cell must
+  carry a passing canary suite. kaf_verify.py is schema-aware: v2 unchanged, v3
+  re-derives the catalog-superset and canary properties. The orchestrators emit
+  catalog.json (the full mandated cell set). Tested both ways with a throwaway
+  keypair; a validly-signed receipt with trimmed coverage is still rejected.
+- **Verify-time N-way consensus re-derivation.** Under --evidence-dir, kaf_verify
+  re-runs the differential driver over the harvested per-language verdict files
+  and requires full consensus (defense-in-depth atop the existing tree-binding).
+- **KAF_RESUME staleness.** Result dirs are stamped with the run_id; aggregation
+  degrades a dir left over from a different run, so a stale artifact cannot satisfy
+  the seal.
+- **G-1 manifest reconcile.** Registered two previously-unlisted on-disk JCS sets
+  (atb_trust_v1 6, revocation_ref_v1 16): total_anchor_sets 43 -> 45, total_vectors
+  352 -> 374. trust_gate_v1 (15) is a non-JCS verdict table, registered in a new
+  gate_sets category and NOT folded into the anchor totals. manifest_bff verifies
+  gate_sets too. External citations of 352 should be synced to 374.
+- **F-C1, already covered.** jcs_edge_v1 already carries U+2028/U+2029 (edge-001/002)
+  and the & < > HTML literals (edge-009); no new vectors were needed.
+
+Not changed autonomously: F-6 dependency pinning (done during a dev-server
+re-provision where exact installed versions are observable) and the pre-existing
+substrate_guard_v1 count convention (declares 15, arrays sum to 14).
+
+### Dev-server validation (fresh, hardened code)
+
+The P3 full 10-way differential rejection consensus was re-run hermetically on the
+clean-docker dev server under the hardened code: 10/10 languages, consensus_rc=0,
+all six new compiled-lang canaries validated in real cells. It was harvested and
+sealed locally with the real kaf-seal-2026 identity as the chain's first v3
+receipt (seq14, catalog-anchored). The full chain now verifies 14/14 offline
+(v2 seq1-13 + v3 seq14), and seq4-14 re-derive under --evidence-dir including the
+seq14 consensus re-derivation. All local batteries stay green (tamper 17/17,
+fa_matrix, degen 5/5, bff_all, manifest_bff 45/374 + gate_sets, 49-runner sweep).
