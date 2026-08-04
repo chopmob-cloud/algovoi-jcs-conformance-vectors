@@ -1,7 +1,9 @@
 # KAF: Keystone Assurance Framework (in-repo harness)
 
-An AlgoVoi original. This directory implements phases P1 (hermetic runtime
-cells) and P2 (the Keystone Seal) of `kaf/DESIGN.md`, the design of record.
+An AlgoVoi original. This directory implements the six executed assurance phases
+P1-P6 of `kaf/DESIGN.md`, the design of record. The phase numbering here is the
+source of truth: it matches the sealed receipts in `receipts/` (`v3p1a` .. `v3p5a`,
+sealed under P6).
 
 ## What this is
 
@@ -35,7 +37,22 @@ Run on the host (VM2):
 
     bash kaf/orchestrate_p1.sh <run_id> [cell_id ...]
 
-## P2: the Keystone Seal
+## P2-P5: the assurance runs
+
+The remaining runtime phases execute under the same cell contract, and each seals
+its own receipt:
+
+- **P2, published-package cells.** The conformance run executed against the
+  *published* PyPI/npm packages rather than local source, catalog-anchored with an
+  in-cell canary.
+- **P3, differential rejection consensus.** Ten independent JCS implementations
+  must agree on every adversarial rejection (full 10-way consensus) before any
+  input shape reaches a signing preimage.
+- **P4, strata blast.** Seeded mutation-forgery generators fire across the corpus;
+  zero escapes, plan reproducible from the seed.
+- **P5, L1-L4 composition chains** plus the junction / splice attack gauntlets.
+
+## P6: the Keystone Seal
 
 `seal.py` turns a green run into a sealed receipt:
 
@@ -56,7 +73,7 @@ Run on the host (VM2):
 
     python kaf/kaf_verify.py --receipts-dir kaf/receipts \
         --pub-file kaf/keys/kaf-seal.pub.json \
-        --genesis-anchor kaf/MANIFEST.txt --expect-count 3
+        --genesis-anchor kaf/MANIFEST.txt --expect-count 18
 
 The framework certifies itself with the primitives it certifies. That is
 the stamp.

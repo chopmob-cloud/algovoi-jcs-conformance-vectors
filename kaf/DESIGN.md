@@ -234,7 +234,7 @@ this shape does not exist elsewhere because nobody else ships all four layers.
   clean, full snapshot to VM2 with checksums and manifest (performed today,
   this is P0 and it is now the standing rule).
 - **Evidence discipline.** Every green is a memory-graph claim with an
-  evidence command, and from P2 onward a sealed receipt.
+  evidence command, and every executed phase is sealed into a receipt (P6).
 - **Publication gate.** Unchanged and non-overridable. Nothing is pushed,
   published, or anchored without explicit per-action approval.
 
@@ -249,40 +249,56 @@ this shape does not exist elsewhere because nobody else ships all four layers.
 | Self-hosting Seal | Sealing your results requires a signing stack you trust; for everyone else, that stack is the thing under test |
 | Chain depth | Receipts compound with time and cannot be backdated. Every week they wait, the moat deepens |
 
-## 12. Roadmap
+## 12. Phases: executed vs intended
 
-Each phase ends with the full battery green locally (harness, not
-inspection), a snapshot, and a claim. No publication without explicit
-approval, per phase, per action.
+**Source-of-truth rule.** The sealed receipts in `kaf/receipts/` define the
+canonical phase numbering. Their `run.purpose` fields are inside the signed bytes
+and cannot be re-labelled. Every document (this file, `README.md`,
+`kaf/README.md`) MUST match them. The original 2026-08-02 draft numbering
+(P2=seal, P5=IAQ-12, P6=chains, P7=ledger) was superseded during execution and is
+retained only in git history; do not cite it.
 
-- **P0, done 2026-08-02:** baseline 100%, VM2 docker cleaned, full snapshot
-  with checksums and manifest.
-- **P1, cells:** digest-pinned container catalog, offline runner contract,
-  battery green inside cells. Gate: 20+ cells, zero network, verdicts
-  attributable to digests.
-- **P2, seal:** receipt schema, signer integration, hash chain, `kaf-verify`.
-  Gate: a receipt verifies offline against registry packages; chain of 3+
-  runs.
-- **P3, hardened profile:** degenerate-input classes, small-order rejection
-  in both packages (lock-step release), profile vectors. Gate: 10-way
-  consensus on every rejection.
-- **P4, strata v2:** formal stratum catalog, seeded generators, minimizer.
-  Gate: zero escapes at 10x current volume, corpus digest reproducible from
-  seed.
-- **P5, IAQ 12:** two new clean-room implementations. Gate: full agreement
-  maintained across the grown corpus and all cells.
-- **P6, chains:** L1-L4 composition chains plus junction attack taxonomy.
-  Gate: all chains green across the matrix.
-- **P7, ledger:** receipt chain surfaced as a proof ledger, optional AVM
+**Executed and sealed (live — the canonical P1-P6).** Each phase ends with the
+full battery green locally (harness, not inspection), a snapshot, and a sealed
+receipt. Chain head at time of writing: count 18, `4921dfe0...`.
+
+- **P0, done 2026-08-02:** baseline 100%, VM2 docker cleaned, full snapshot with
+  checksums and manifest (the genesis anchor, `kaf/MANIFEST.txt`).
+- **P1, hermetic cell matrix** (`v3p1a`): 20-cell digest-pinned catalog, offline
+  runner contract, network canary, real-module rule. Verdicts attributable to
+  image digests.
+- **P2, published-package cells** (`v3p2a`): the conformance run against the
+  *published* PyPI/npm packages, catalog-anchored with an in-cell canary,
+  byte-for-byte.
+- **P3, differential rejection consensus** (`v3p3a`): degenerate-input classes and
+  small-order rejection, with **10-way consensus on every rejection** across ten
+  independent implementations.
+- **P4, strata blast** (`v3p4a`): formal stratum catalog, seeded generators,
+  minimizer. Zero escapes; plan digest reproducible from the seed.
+- **P5, L1-L4 composition chains** (`v3p5a`): the full vertical
+  identity -> authority -> policy -> decision -> execution chains plus the junction
+  / splice attack taxonomy, green across the matrix.
+- **P6, the Keystone Seal + offline verification:** receipt schema, signer
+  integration, hash chain, and `kaf_verify`. Sealing is the act that produces every
+  P1-P5 receipt; `kaf_verify` re-proves the whole chain offline against the
+  registry packages. This is why there is no separate "P6 receipt".
+
+**Intended, not yet executed (future — do NOT number as P1-P6 until sealed).**
+
+- **Clean-room implementation expansion (IAQ 10 -> 12):** two additional
+  independent implementations. Gate: full agreement maintained across the grown
+  corpus and all cells.
+- **Proof ledger:** the receipt chain surfaced as a proof ledger, optional AVM
   anchoring via proofpack. Gate: anchored receipt round-trips offline
   verification. Publication of any of it stays gated.
 
-## 13. Immediate next actions
+## 13. Keeping this from drifting again
 
-1. P1 cell catalog and runner contract (local work, no approvals needed).
-2. Receipt schema draft for P2 (local work).
-3. Small-order hardening design for P3 (the open chip; release itself is
-   gated).
+1. A phase number is claimed only once its run is **sealed into a receipt**; until
+   then it stays in the "intended" list above.
+2. When a receipt is sealed, its `run.purpose` is the authoritative phase label;
+   sync this file and both READMEs to it in the same change.
+3. No publication without explicit per-action approval; that gate is unchanged.
 
 *Stamp: AlgoVoi. Design authored 2026-08-02. This document is the design of
 record for the corpus and vector estate going forward.*

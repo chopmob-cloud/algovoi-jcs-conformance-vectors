@@ -246,22 +246,34 @@ step.
 
 The vectors and compositions above are the ground truth. The [`kaf/`](./kaf/)
 directory (Keystone Assurance Framework, an AlgoVoi original) is the layer that
-makes a *run* of them reproducible and tamper-evident by anyone. It has two
-parts; full detail is in [`kaf/README.md`](./kaf/README.md).
+makes a *run* of them reproducible and tamper-evident by anyone. It runs six
+assurance phases (P1-P6); full detail is in [`kaf/README.md`](./kaf/README.md).
 
-- **Cells (P1), the hermetic runtime.** A cell is a pinned (language, runtime
-  version, libc variant) resolved to an exact image digest per run. Provisioning
-  is a recorded, network-on exception; execution runs `--network=none` against a
+- **P1, hermetic cell matrix.** A cell is a pinned (language, runtime version,
+  libc variant) resolved to an exact image digest per run. Provisioning is a
+  recorded, network-on exception; execution runs `--network=none` against a
   read-only corpus, with a network canary proving isolation and a real-module
   rule so nothing runs via `-c` or REPL contexts that could mask an environment
-  defect. The same corpus produces the same bytes in every cell.
-- **The Keystone Seal (P2).** Each fully green run is sealed into a receipt: the
-  body is JCS-canonicalised with `algovoi-substrate`, differential-checked
-  against the independent `rfc8785`, then signed (RFC 9421 + RFC 9530) by the
-  published `algovoi-rfc9421-signer`. The receipt file *is* its canonical bytes,
-  its sha256 is the chain link, each receipt names its predecessor, and the first
-  is anchored to the P0 snapshot (`kaf/MANIFEST.txt`). History cannot be reordered
-  or backdated.
+  defect. The same corpus produces the same bytes in every cell across the matrix.
+- **P2, published-package cells.** The same conformance run executed against the
+  *published* PyPI/npm packages rather than local source, catalog-anchored with an
+  in-cell canary, byte-for-byte.
+- **P3, differential rejection consensus.** Every adversarial rejection is agreed
+  by ten independent JCS implementations in ten languages; no input shape reaches
+  a signing preimage without full consensus.
+- **P4, strata blast.** Seeded mutation-forgery generators fire across the corpus;
+  every forgery is rejected, zero escapes, and the plan is reproducible from the
+  seed.
+- **P5, L1-L4 composition chains.** The vertical identity -> authority -> policy
+  -> decision -> execution chains plus the junction / splice attack gauntlets, all
+  green across the matrix.
+- **P6, the Keystone Seal + offline verification.** Each green phase is sealed into
+  a receipt: the body is JCS-canonicalised with `algovoi-substrate`,
+  differential-checked against the independent `rfc8785`, then signed (RFC 9421 +
+  RFC 9530) by the published `algovoi-rfc9421-signer`. The receipt file *is* its
+  canonical bytes, its sha256 is the chain link, each receipt names its
+  predecessor, and the first is anchored to the P0 snapshot (`kaf/MANIFEST.txt`).
+  History cannot be reordered or backdated.
 
 Re-prove the whole chain offline, with the published verifier and nothing to
 trust but the math:
@@ -269,7 +281,7 @@ trust but the math:
 ```
 python kaf/kaf_verify.py --receipts-dir kaf/receipts \
     --pub-file kaf/keys/kaf-seal.pub.json \
-    --genesis-anchor kaf/MANIFEST.txt --expect-count 3
+    --genesis-anchor kaf/MANIFEST.txt --expect-count 18
 ```
 
 The framework certifies itself with the primitives it certifies.
@@ -462,7 +474,7 @@ These roles describe validation, mirror, and discussion work relative to the Alg
 
 When citing in a spec PR, paper, or implementation README, please use:
 
-> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-07-21. 352 vectors across 43 anchor sets, 1226/1226 byte-for-byte agreements directly executed across ten independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`, Elixir `jcs`, Kotlin/JVM `java-json-canonicalization`), cumulative through 2026-07-21.
+> AlgoVoi JCS Conformance Vectors, <https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors>, 2026-08-04. 374 vectors across 45 anchor sets, 1226/1226 byte-for-byte agreements directly executed across ten independent JCS implementations (Python `rfc8785`, JavaScript `canonicalize`, Ruby `json-canonicalization`, PHP inline, Go `gowebpki/jcs`, Rust `serde_jcs`, Java `erdtman/java-json-canonicalization`, .NET `Baqhub.Packages.JsonCanonicalization`, Elixir `jcs`, Kotlin/JVM `java-json-canonicalization`), cumulative through 2026-07-21.
 
 ## Licence
 
