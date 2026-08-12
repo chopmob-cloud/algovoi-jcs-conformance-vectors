@@ -532,5 +532,7 @@ how to get your layer recorded in the change log).
 ## Related
 
 - [AlgoVoi substrate hub](https://chopmob-cloud.github.io/): the open JCS (RFC 8785) canonicalisation substrate for agentic payments
+- [algovoi-keyhygiene-conformance](https://github.com/chopmob-cloud/algovoi-keyhygiene-conformance): the L0 RSA/EC key-hygiene and primality soundness conformance corpus (is the key sound before it is canonicalised here)
+- [algovoi-rfc9421-conformance](https://github.com/chopmob-cloud/algovoi-rfc9421-conformance): the L2 RFC 9421 HTTP-signature verdict conformance corpus over the canonical bytes
 - [Canonicalisation substrate docs](https://docs.algovoi.co.uk/canonicalisation-substrate)
 - [Agentic payment receipts](https://docs.algovoi.co.uk/agentic-payment-receipts): verifiable receipts across x402, AP2, A2A and MPP
