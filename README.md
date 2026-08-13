@@ -4,6 +4,8 @@
 
 # algovoi-jcs-conformance-vectors
 
+[![10-way JCS consensus](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/consensus.yml/badge.svg)](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/consensus.yml)
+[![manifest integrity](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/integrity.yml/badge.svg)](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/integrity.yml)
 [![IETF I-D](./assets/badges/ietf-id.svg)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
 [![Vectors](./assets/badges/vectors.svg)](#anchor-sets)
 [![Cross-validated](./assets/badges/cross-validated.svg)](#cross-implementation-validation-matrix)
@@ -12,7 +14,7 @@
 Conformance vector sets for JCS RFC 8785 canonicalisation across the
 substrate anchor sets used by agentic-payment receipts, settlement attestations, and offline-verifiable x402 compliance receipts, covering the full **agentic lifecycle** from identity to settlement: `passport_ref -> mandate_ref -> policy_bound_ref -> decision_ref -> execution_ref -> trust_query_ref`. **1226/1226 byte-for-byte agreements directly executed**
 across ten independent JCS implementations in ten programming languages
-(the eight-language base cumulative as of 2026-06-18; Elixir and Kotlin extended to all sets by 2026-07-19; see the cross-implementation validation matrix). Authoritative anchor-set and vector counts live in `manifest.json`.
+(the eight-language base cumulative as of 2026-06-18; Elixir and Kotlin extended to all sets by 2026-07-19; see the cross-implementation validation matrix). Authoritative anchor-set and vector counts live in `manifest.json`. A fail-closed CI gate (`tools/check_manifest_integrity.py`, run by `integrity.yml`) proves the manifest still describes the bytes on disk: every anchor set's recorded sha256 matches its vector file byte-for-byte, the anchor-set and vector counts reconcile, and the `manifest.json` and `package.json` versions agree, so a stale count or an unrecorded edit can never pass silently.
 
 **Ten-language cross-validation (complete 2026-07-19).** Elixir (`jcs`, pzingg/jcs
 on hex.pm) and Kotlin/JVM (`java-json-canonicalization`) were added as the 9th and

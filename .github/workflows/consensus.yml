@@ -1,0 +1,127 @@
+# 10-way JCS consensus: continuously enforce the differential adversarial substrate.
+#
+# Rebuilds all ten independent canon probes from source on a clean checkout and
+# runs the N-way consensus driver with REQUIRE=10. The job fails unless every
+# agree/reject case reaches full ten-implementation consensus, every relational
+# invariant holds, and every fail-closed integrity gate passes. This turns the
+# point-in-time VM2 attestation (_attestations/…) into an invariant proven on
+# every push.
+#
+# Ten languages / ten distinct JCS libraries:
+#   python/rfc8785 · node/canonicalize · go/gowebpki-jcs · php inline ·
+#   ruby/json-canonicalization · java+kotlin/erdtman · rust/serde_jcs ·
+#   dotnet/Baqhub · elixir/jcs
+#
+# Note: the java/kotlin jars (erdtman + jackson) are intentionally gitignored, so
+# a clean checkout has none, so the "Fetch Java/Kotlin jars" step pulls them from
+# Maven Central at pinned versions before the run.
+
+name: 10-way JCS consensus
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: consensus-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  consensus:
+    name: differential adversarial substrate (REQUIRE=10)
+    runs-on: ubuntu-latest
+    env:
+      SUBSTRATE_DIR: composition/differential_adversarial
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DOTNET_NOLOGO: "1"
+      # gowebpki/jcs and serde_jcs/Baqhub/jcs (hex) are fetched by the toolchains
+      # at build time; consensus is computed over the rebuilt-from-source probes.
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- ten toolchains ---
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet rfc8785
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-audit --no-fund --loglevel=error
+
+      - name: Go
+        uses: actions/setup-go@v5
+        with:
+          # honours the `go 1.26.1` directive in the probe module; setup-go
+          # installs the latest matching release.
+          go-version-file: composition/differential_adversarial/go/go.mod
+
+      - name: Java (Temurin 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+
+      - name: Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+      - run: gem install --no-document json-canonicalization
+
+      - name: Rust
+        run: rustup toolchain install stable --profile minimal --no-self-update && rustup default stable
+
+      - name: .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Elixir / OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "26"
+          elixir-version: "1.16"
+
+      - name: Kotlin compiler
+        run: |
+          set -euo pipefail
+          KV=2.0.20
+          curl -fsSL -o /tmp/kotlin.zip \
+            "https://github.com/JetBrains/kotlin/releases/download/v${KV}/kotlin-compiler-${KV}.zip"
+          sudo unzip -q /tmp/kotlin.zip -d /opt
+          echo "/opt/kotlinc/bin" >> "$GITHUB_PATH"
+
+      # --- fetch the gitignored java/kotlin jars from Maven Central (pinned) ---
+      - name: Fetch Java/Kotlin jars
+        run: |
+          set -euo pipefail
+          LIB="$SUBSTRATE_DIR/java/libs"
+          mkdir -p "$LIB"
+          B=https://repo1.maven.org/maven2
+          fetch() { curl -fsSL "$B/$1" -o "$LIB/$(basename "$1")"; }
+          fetch io/github/erdtman/java-json-canonicalization/1.1/java-json-canonicalization-1.1.jar
+          fetch com/fasterxml/jackson/core/jackson-core/2.17.0/jackson-core-2.17.0.jar
+          fetch com/fasterxml/jackson/core/jackson-databind/2.17.0/jackson-databind-2.17.0.jar
+          fetch com/fasterxml/jackson/core/jackson-annotations/2.17.0/jackson-annotations-2.17.0.jar
+          ls -l "$LIB"
+
+      # --- the invariant: full ten-way consensus or the job fails ---
+      - name: Run differential adversarial substrate
+        working-directory: composition/differential_adversarial
+        env:
+          REQUIRE: "10"
+          GOTOOLCHAIN: local
+        run: bash run_differential.sh

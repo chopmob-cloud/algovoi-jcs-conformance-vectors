@@ -1,0 +1,31 @@
+# Manifest integrity: the manifest must keep describing the bytes on disk.
+#
+# Fast, dependency-free gate (Python stdlib only). Fails the build if:
+#   - package.json and manifest.json versions disagree,
+#   - any anchor-set sha256 no longer matches its primary_file,
+#   - the recorded anchor-set / vector totals drift from what is on disk.
+#
+# See tools/check_manifest_integrity.py for the exact checks.
+
+name: manifest integrity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    name: manifest describes the bytes on disk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check manifest integrity
+        run: python tools/check_manifest_integrity.py
