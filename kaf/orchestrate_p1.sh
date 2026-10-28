@@ -10,6 +10,7 @@
 #      never merges stale cell results with fresh ones).
 set -u
 RUN_ID="${1:?usage: orchestrate_p1.sh <run_id> [cell ...]}"; shift || true
+[[ "$RUN_ID" =~ ^[a-zA-Z0-9_.-]+$ ]] || { echo "run_id must match ^[a-zA-Z0-9_.-]+\$" >&2; exit 2; }
 FILTER=("$@")
 
 KAF_WORK="${KAF_WORK:-/opt/algovoi/kaf}"
@@ -36,7 +37,7 @@ BRANCH="$(git -C "$CORPUS" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unkno
 # Select cells (id|image|lang|suites_csv), active only, optional id filter.
 SELECT="$(FILTER="${FILTER[*]:-}" python3 - "$CORPUS/kaf/cells.json" <<'EOF'
 import json, os, sys
-cat = json.load(open(sys.argv[1], encoding="utf-8"))
+with open(sys.argv[1], encoding="utf-8") as _f: cat = json.load(_f)
 flt = set(os.environ.get("FILTER", "").split())
 for c in cat["cells"]:
     if c["status"] != "active":
@@ -75,7 +76,7 @@ done <<< "$SELECT"
 
 python3 - "$RUNDIR/pull_digests.tsv" > "$RUNDIR/cells.lock.json" <<'EOF'
 import json, sys
-rows = [l.rstrip("\n").split("\t") for l in open(sys.argv[1], encoding="utf-8") if l.strip()]
+with open(sys.argv[1], encoding="utf-8") as _f: rows = [l.rstrip("\n").split("\t") for l in _f if l.strip()]
 print(json.dumps({"locked": [{"cell": r[0], "image": r[1], "digest": r[2]} for r in rows]},
                  indent=1, sort_keys=True))
 EOF
@@ -123,27 +124,28 @@ for cid in sorted(os.listdir(resroot)):
     overall = None
     tsv = os.path.join(d, "suites.tsv")
     if os.path.exists(tsv):
-        for line in open(tsv, encoding="utf-8"):
-            line = line.rstrip("\n")
-            if not line:
-                continue
-            name, _, rc = line.partition("\t")
-            rc = int(rc)  # torn/non-integer rc raises -> aggregator fails loud
-            if name == "overall":
-                overall = rc
-            else:
-                if name in suites:
-                    dup = True
-                suites[name] = rc
+        with open(tsv, encoding="utf-8") as _tf:
+            for line in _tf:
+                line = line.rstrip("\n")
+                if not line:
+                    continue
+                name, _, rc = line.partition("\t")
+                rc = int(rc)  # torn/non-integer rc raises -> aggregator fails loud
+                if name == "overall":
+                    overall = rc
+                else:
+                    if name in suites:
+                        dup = True
+                    suites[name] = rc
     prov_failed = []
     pj = os.path.join(d, "provision.json")
     if os.path.exists(pj):
-        rec = json.load(open(pj, encoding="utf-8"))
+        with open(pj, encoding="utf-8") as _f: rec = json.load(_f)
         prov_failed = [s for s in rec.get("failed_specs", []) if s]
     canary = None
     cl = os.path.join(d, "canary.log")
     if os.path.exists(cl):
-        lines = open(cl, encoding="utf-8").read().strip().splitlines()
+        with open(cl, encoding="utf-8") as _f: lines = _f.read().strip().splitlines()
         canary = lines[0] if lines else None
     degraded = []
     if overall is None:
@@ -170,7 +172,7 @@ mv "$RUNDIR/run_summary.json.tmp" "$RUNDIR/run_summary.json"
 echo "== KAF run $RUN_ID summary =="
 python3 - "$RUNDIR/run_summary.json" <<'EOF'
 import json, sys
-s = json.load(open(sys.argv[1], encoding="utf-8"))
+with open(sys.argv[1], encoding="utf-8") as _f: s = json.load(_f)
 for cid, c in sorted(s["cells"].items()):
     suites = " ".join(f"{k}={v}" for k, v in sorted(c["suites"].items()))
     deg = (" DEGRADED:" + ",".join(c["degraded"])) if c.get("degraded") else ""
@@ -180,7 +182,7 @@ EOF
 
 # Final verdict requires BOTH: no cell process failed, and the aggregated
 # all_green is true (so a provisioning hole or duplicate-suite mask cannot pass).
-ALLGREEN="$(python3 -c 'import json,sys; print("1" if json.load(open(sys.argv[1]))["all_green"] else "0")' "$RUNDIR/run_summary.json")"
+ALLGREEN="$(python3 -c 'import json,sys; fh=open(sys.argv[1]); d=json.load(fh); fh.close(); print("1" if d["all_green"] else "0")' "$RUNDIR/run_summary.json")"
 if [ -z "$FAILED" ] && [ "$ALLGREEN" = "1" ]; then
   exit 0
 fi

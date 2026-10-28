@@ -32,6 +32,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 from algovoi_substrate import canonicalize_bytes
@@ -64,11 +65,15 @@ def check(name: str, rejected: bool) -> None:
         print(f"  [!!! ACCEPTED !!!]     {name}")
 
 
-def fresh_copy(src: Path) -> Path:
+@contextmanager
+def fresh_copy(src: Path):
     d = Path(tempfile.mkdtemp(prefix="kafsec-"))
-    dst = d / "receipts"
-    shutil.copytree(src, dst)
-    return dst
+    try:
+        dst = d / "receipts"
+        shutil.copytree(src, dst)
+        yield dst
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
 
 
 def rewrite_canonical(path: Path, mutate) -> None:
@@ -101,10 +106,10 @@ def main() -> int:
     for r in rcpts:
         raw = bytearray(r.read_bytes())
         for off in (1, len(raw) // 3, len(raw) // 2, len(raw) - 2):
-            c = fresh_copy(src)
-            t = bytearray(raw); t[off] ^= 0x01
-            (c / r.name).write_bytes(bytes(t))
-            check(f"{r.name} flip@{off}", run_verify(c, pub, gen, n) != 0)
+            with fresh_copy(src) as c:
+                t = bytearray(raw); t[off] ^= 0x01
+                (c / r.name).write_bytes(bytes(t))
+                check(f"{r.name} flip@{off}", run_verify(c, pub, gen, n) != 0)
 
     print("== A2: canonical field tampering ==")
     for field, mut in [
@@ -115,108 +120,110 @@ def main() -> int:
         ("corpus commit swapped", lambda e: e["receipt"]["corpus"].__setitem__("commit", "f" * 40)),
         ("purpose reworded", lambda e: e["receipt"]["run"].__setitem__("purpose", "forged claim")),
     ]:
-        c = fresh_copy(src)
-        rewrite_canonical(c / rcpts[1].name, mut)
-        check(f"A2 {field}", run_verify(c, pub, gen, n) != 0)
+        with fresh_copy(src) as c:
+            rewrite_canonical(c / rcpts[1].name, mut)
+            check(f"A2 {field}", run_verify(c, pub, gen, n) != 0)
 
     print("== A3: signature transplant ==")
-    c = fresh_copy(src)
-    a = json.loads((c / rcpts[0].name).read_bytes())
-    b = json.loads((c / rcpts[1].name).read_bytes())
-    for k in ("signature", "signature_input", "content_digest", "created"):
-        b["seal"][k] = a["seal"][k]
-    (c / rcpts[1].name).write_bytes(canonicalize_bytes(b))
-    check("A3 seal of receipt 1 transplanted onto receipt 2", run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        a = json.loads((c / rcpts[0].name).read_bytes())
+        b = json.loads((c / rcpts[1].name).read_bytes())
+        for k in ("signature", "signature_input", "content_digest", "created"):
+            b["seal"][k] = a["seal"][k]
+        (c / rcpts[1].name).write_bytes(canonicalize_bytes(b))
+        check("A3 seal of receipt 1 transplanted onto receipt 2", run_verify(c, pub, gen, n) != 0)
 
     print("== A4: key substitution (attacker signs) ==")
     try:
         from nacl.signing import SigningKey
         from algovoi_rfc9421_signer import sign_request
-        c = fresh_copy(src)
-        target = c / rcpts[1].name
-        env = json.loads(target.read_bytes())
-        env["receipt"]["run"]["purpose"] = "forged by attacker key"
-        body = canonicalize_bytes(env["receipt"])
-        sig = sign_request(method=env["seal"]["method"], authority=env["seal"]["authority"],
-                           path=env["seal"]["path"], body=body,
-                           private_key=(b"\x42" * 32).hex(), keyid=env["seal"]["keyid"],
-                           created=env["seal"]["created"])
-        env["seal"]["signature"] = sig.signature
-        env["seal"]["signature_input"] = sig.signature_input
-        env["seal"]["content_digest"] = sig.content_digest
-        env["seal"]["public_key_hex"] = SigningKey(b"\x42" * 32).verify_key.encode().hex()
-        target.write_bytes(canonicalize_bytes(env))
-        check("A4 attacker key + attacker pubkey in seal", run_verify(c, pub, gen, n) != 0)
+        with fresh_copy(src) as c:
+            target = c / rcpts[1].name
+            env = json.loads(target.read_bytes())
+            env["receipt"]["run"]["purpose"] = "forged by attacker key"
+            body = canonicalize_bytes(env["receipt"])
+            sig = sign_request(method=env["seal"]["method"], authority=env["seal"]["authority"],
+                               path=env["seal"]["path"], body=body,
+                               private_key=(b"\x42" * 32).hex(), keyid=env["seal"]["keyid"],
+                               created=env["seal"]["created"])
+            env["seal"]["signature"] = sig.signature
+            env["seal"]["signature_input"] = sig.signature_input
+            env["seal"]["content_digest"] = sig.content_digest
+            env["seal"]["public_key_hex"] = SigningKey(b"\x42" * 32).verify_key.encode().hex()
+            target.write_bytes(canonicalize_bytes(env))
+            check("A4 attacker key + attacker pubkey in seal", run_verify(c, pub, gen, n) != 0)
     except ImportError:
         print("  (signer not installed here; A4 skipped)")
 
     print("== A5: chain manipulation ==")
-    c = fresh_copy(src); (c / rcpts[1].name).unlink()
-    check("A5 middle receipt dropped", run_verify(c, pub, gen) != 0)
-    c = fresh_copy(src)
-    b0, b1 = (c / rcpts[0].name).read_bytes(), (c / rcpts[1].name).read_bytes()
-    (c / rcpts[0].name).write_bytes(b1); (c / rcpts[1].name).write_bytes(b0)
-    check("A5 receipt order swapped", run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        (c / rcpts[1].name).unlink()
+        check("A5 middle receipt dropped", run_verify(c, pub, gen) != 0)
+    with fresh_copy(src) as c:
+        b0, b1 = (c / rcpts[0].name).read_bytes(), (c / rcpts[1].name).read_bytes()
+        (c / rcpts[0].name).write_bytes(b1); (c / rcpts[1].name).write_bytes(b0)
+        check("A5 receipt order swapped", run_verify(c, pub, gen, n) != 0)
 
     print("== A6: canonicalization confusion ==")
-    c = fresh_copy(src)
-    env = json.loads((c / rcpts[1].name).read_bytes())
-    (c / rcpts[1].name).write_text(json.dumps(env, indent=2), encoding="utf-8")
-    check("A6 semantically identical, non-canonical bytes", run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        env = json.loads((c / rcpts[1].name).read_bytes())
+        (c / rcpts[1].name).write_text(json.dumps(env, indent=2), encoding="utf-8")
+        check("A6 semantically identical, non-canonical bytes", run_verify(c, pub, gen, n) != 0)
 
     print("== A7: content-digest fixup ==")
-    c = fresh_copy(src)
-    env = json.loads((c / rcpts[1].name).read_bytes())
-    env["receipt"]["run"]["purpose"] = "tampered with digest fixup"
-    body = canonicalize_bytes(env["receipt"])
-    d = base64.b64encode(hashlib.sha256(body).digest()).decode("ascii")
-    env["seal"]["content_digest"] = f"sha-256=:{d}:"
-    (c / rcpts[1].name).write_bytes(canonicalize_bytes(env))
-    check("A7 recomputed Content-Digest, original signature", run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        env = json.loads((c / rcpts[1].name).read_bytes())
+        env["receipt"]["run"]["purpose"] = "tampered with digest fixup"
+        body = canonicalize_bytes(env["receipt"])
+        d = base64.b64encode(hashlib.sha256(body).digest()).decode("ascii")
+        env["seal"]["content_digest"] = f"sha-256=:{d}:"
+        (c / rcpts[1].name).write_bytes(canonicalize_bytes(env))
+        check("A7 recomputed Content-Digest, original signature", run_verify(c, pub, gen, n) != 0)
 
     print("== A8: anchor attacks ==")
-    wrong = Path(tempfile.mkdtemp(prefix="kafsec-")) / "wrong.txt"
-    wrong.write_text("not the P0 manifest", encoding="utf-8")
-    check("A8 wrong genesis anchor", run_verify(src, pub, wrong, n) != 0)
+    with tempfile.TemporaryDirectory(prefix="kafsec-") as _td:
+        wrong = Path(_td) / "wrong.txt"
+        wrong.write_text("not the P0 manifest", encoding="utf-8")
+        check("A8 wrong genesis anchor", run_verify(src, pub, wrong, n) != 0)
     check("A8 missing genesis anchor (mandatory)", run_verify(src, pub, None, n) != 0)
 
     print("== A9: seal shape attacks ==")
-    c = fresh_copy(src)
-    env = json.loads((c / rcpts[1].name).read_bytes())
-    del env["seal"]["signature"]
-    (c / rcpts[1].name).write_bytes(canonicalize_bytes(env))
-    check("A9 signature field removed", run_verify(c, pub, gen, n) != 0)
-    c = fresh_copy(src)
-    env = json.loads((c / rcpts[1].name).read_bytes())
-    env["seal"]["attacker_note"] = "extra"
-    (c / rcpts[1].name).write_bytes(canonicalize_bytes(env))
-    check("A9 unknown seal field added", run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        env = json.loads((c / rcpts[1].name).read_bytes())
+        del env["seal"]["signature"]
+        (c / rcpts[1].name).write_bytes(canonicalize_bytes(env))
+        check("A9 signature field removed", run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        env = json.loads((c / rcpts[1].name).read_bytes())
+        env["seal"]["attacker_note"] = "extra"
+        (c / rcpts[1].name).write_bytes(canonicalize_bytes(env))
+        check("A9 unknown seal field added", run_verify(c, pub, gen, n) != 0)
 
     print("== A10: tail truncation ==")
-    c = fresh_copy(src)
-    (c / rcpts[-1].name).unlink()
-    check("A10 newest receipt dropped (expect-count pins head)",
-          run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        (c / rcpts[-1].name).unlink()
+        check("A10 newest receipt dropped (expect-count pins head)",
+              run_verify(c, pub, gen, n) != 0)
 
     print("== A11: totals forgery ==")
-    c = fresh_copy(src)
-    rewrite_canonical(c / rcpts[1].name,
-                      lambda e: e["receipt"]["cells"][0].__setitem__("overall", 5))
-    check("A11 cell overall=5 while totals.all_green stays true",
-          run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        rewrite_canonical(c / rcpts[1].name,
+                          lambda e: e["receipt"]["cells"][0].__setitem__("overall", 5))
+        check("A11 cell overall=5 while totals.all_green stays true",
+              run_verify(c, pub, gen, n) != 0)
 
     print("== A12: seq gap ==")
-    c = fresh_copy(src)
-    rewrite_canonical(c / rcpts[1].name,
-                      lambda e: e["receipt"].__setitem__("seq", 99))
-    check("A12 receipt seq renumbered", run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        rewrite_canonical(c / rcpts[1].name,
+                          lambda e: e["receipt"].__setitem__("seq", 99))
+        check("A12 receipt seq renumbered", run_verify(c, pub, gen, n) != 0)
 
     print("== A13: provenance forgery ==")
-    c = fresh_copy(src)
-    rewrite_canonical(c / rcpts[1].name,
-                      lambda e: e["receipt"]["sealer"].__setitem__("canon_cross_check_match", False))
-    check("A13 sealer.canon_cross_check_match flipped to false",
-          run_verify(c, pub, gen, n) != 0)
+    with fresh_copy(src) as c:
+        rewrite_canonical(c / rcpts[1].name,
+                          lambda e: e["receipt"]["sealer"].__setitem__("canon_cross_check_match", False))
+        check("A13 sealer.canon_cross_check_match flipped to false",
+              run_verify(c, pub, gen, n) != 0)
 
     print("=" * 60)
     total = PASS + FAIL
