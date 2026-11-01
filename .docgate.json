@@ -1,0 +1,12 @@
+{
+  "allow": [
+    "vectors/**",
+    "composition/**",
+    "_attestations/**",
+    "kaf/**",
+    "docs/**",
+    "schemas/**",
+    "fixtures/**"
+  ],
+  "note": "Every one of these trees is published documentation: a README per vector set, the composition attestations, and the docs page."
+}
