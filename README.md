@@ -1,7 +1,3 @@
-> **AlgoVoi is available for acquisition** - [docs.algovoi.co.uk/acquisition](https://docs.algovoi.co.uk/acquisition)
-
----
-
 # algovoi-jcs-conformance-vectors
 
 [![10-way JCS consensus](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/consensus.yml/badge.svg)](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/consensus.yml)
