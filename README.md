@@ -1,6 +1,6 @@
 # algovoi-jcs-conformance-vectors
 
-[![10-way JCS consensus](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/consensus.yml/badge.svg)](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/consensus.yml) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![10-way JCS consensus](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/consensus.yml/badge.svg)](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/consensus.yml) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE) [![algovoi-keyhygiene-conformance](https://img.shields.io/badge/algovoi--keyhygiene--conformance-8A2BE2)](https://github.com/chopmob-cloud/algovoi-keyhygiene-conformance) [![algovoi-rfc9421-conformance](https://img.shields.io/badge/algovoi--rfc9421--conformance-8A2BE2)](https://github.com/chopmob-cloud/algovoi-rfc9421-conformance)
 [![manifest integrity](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/integrity.yml/badge.svg)](https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/actions/workflows/integrity.yml)
 [![IETF I-D](./assets/badges/ietf-id.svg)](https://datatracker.ietf.org/doc/draft-hopley-x402-compliance-receipt/)
 [![Vectors](./assets/badges/vectors.svg)](#anchor-sets)
